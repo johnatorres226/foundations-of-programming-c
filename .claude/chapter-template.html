@@ -1,0 +1,168 @@
+<!--
+  CHAPTER TEMPLATE — copy this to src/modules/<M>-module-<slug>/<C>-chapter-<slug>/CONTENT.html
+
+  Six sections, fixed order. Do not reorder, do not omit. See .claude/PRD.md §3.
+  Asset paths below assume a real chapter four levels deep. This template sits in
+  .claude/ so its own paths are ../assets/ — FIX THEM when you copy it.
+-->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M0.0 — Chapter Template · Foundations of Programming: C</title>
+<link rel="stylesheet" href="../assets/style.css"><!-- chapters: ../../../../assets/style.css -->
+</head>
+<body>
+<article class="chapter">
+
+  <header class="chapter-head">
+    <p class="crumb">Module 0 · Chapter 0</p>
+    <h1>Chapter Template</h1>
+  </header>
+
+  <!-- ===== 1. RECAP — 2-3 sentences. Written against SYLLABUS.md outcomes,
+           never against the previous chapter's actual prose. (PRD §3) ===== -->
+  <section class="recap">
+    <p>Last chapter you learned how to compile and run a C program. Now you will find out
+    what the compiler is actually doing to your code along the way.</p>
+  </section>
+
+  <!-- ===== 2. BIG PICTURE — the advance organizer. Why does this exist at all? ===== -->
+  <section class="big-picture">
+    <h2>The big picture</h2>
+    <p>C gives you direct access to memory. That is the whole bargain: you get speed and
+    control, and in exchange you are responsible for things other languages handle for
+    you. Everything in this module is one half of that bargain or the other.</p>
+  </section>
+
+  <!-- ===== 3. CORE IDEA — exactly ONE sentence. Two means the chapter is too big. ===== -->
+  <section class="core-idea">
+    A pointer is a variable that holds the address of another variable.
+  </section>
+
+  <!-- ===== 4. HOW IT WORKS — the detail. Code, diagrams, traps. ===== -->
+  <section class="how">
+    <h2>How it works</h2>
+
+    <p>A <span class="vocab">pointer</span> does not hold a value. It holds the
+    <span class="vocab">address</span> where a value lives — like a house number rather
+    than the house.</p>
+
+    <div class="code" data-file="pointer_basics.c">
+<pre><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int age = 30;
+    int *p = &amp;age;   /* p holds the ADDRESS of age */
+
+    printf("value: %d\n", age);
+    printf("value through p: %d\n", *p);
+    return 0;
+}</code></pre>
+    </div>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror pointer_basics.c -o pointer_basics
+<span class="prompt">$</span> ./pointer_basics
+value: 30
+value through p: 30</pre>
+    </div>
+
+    <div class="gotcha">
+      <p>A pointer that was never given an address does not point at "nothing" — it points
+      somewhere random. Reading it is undefined behavior, which means the program may
+      crash, may print garbage, or may appear to work. Always set a pointer before you
+      use it.</p>
+    </div>
+
+    <!-- Inline SVG is the DEFAULT for diagrams. currentColor keeps it dark-mode safe. -->
+    <figure>
+      <svg viewBox="0 0 420 110" role="img" aria-label="A pointer variable p holding the
+           address of a variable age, drawn as an arrow from p to age."
+           xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor">
+        <rect x="10" y="30" width="120" height="48" rx="6" stroke-width="1.5"/>
+        <text x="70" y="52" text-anchor="middle" fill="currentColor" stroke="none"
+              font-size="13" font-family="system-ui">p</text>
+        <text x="70" y="69" text-anchor="middle" fill="currentColor" stroke="none"
+              font-size="11" font-family="ui-monospace,monospace" opacity=".65">0x7ffd…</text>
+
+        <path d="M135 54 H275" stroke-width="1.5"/>
+        <path d="M275 54 l-9 -5 v10 z" fill="currentColor" stroke="none"/>
+
+        <rect x="280" y="30" width="120" height="48" rx="6" stroke-width="1.5"/>
+        <text x="340" y="52" text-anchor="middle" fill="currentColor" stroke="none"
+              font-size="13" font-family="system-ui">age</text>
+        <text x="340" y="69" text-anchor="middle" fill="currentColor" stroke="none"
+              font-size="11" font-family="ui-monospace,monospace" opacity=".65">30</text>
+      </svg>
+      <figcaption>Figure 1 — <code>p</code> stores where <code>age</code> lives, not what it holds.</figcaption>
+    </figure>
+
+    <!-- Mermaid alternative, for flowcharts where hand-drawing SVG is not worth it.
+         Prefer TD: left-to-right charts over ~4 nodes shrink to unreadable text in a
+         68ch column. -->
+    <pre class="mermaid">
+flowchart TD
+  A[Source code] --> B[Preprocess]
+  B --> C[Compile]
+  C --> D[Assemble]
+  D --> E[Link]
+  E --> F[Runnable program]
+    </pre>
+  </section>
+
+  <!-- ===== 5. TRY IT — point at real files. Never inline the work. ===== -->
+  <section class="try-it">
+    <p>Open these in your editor and make the tests pass:</p>
+    <ul>
+      <li><code>exercises/01_declare_pointer.c</code> — declare a pointer and print through it</li>
+      <li><code>exercises/02_swap.c</code> — swap two variables using pointers</li>
+    </ul>
+    <p>Check your work with <code>make check-mine</code>.</p>
+
+    <details class="solution">
+      <summary>Show one approach</summary>
+      <div class="code" data-file="02_swap.c">
+<pre><code>void swap(int *a, int *b) {
+    int tmp = *a;
+    *a = *b;
+    *b = tmp;
+}</code></pre>
+      </div>
+      <p class="note">This is one approach, not the answer. You could swap with arithmetic
+      or with XOR — both work, and both are harder to read. Clear beats clever.</p>
+    </details>
+  </section>
+
+  <!-- ===== 6. ZOOM OUT — re-tie to the whole language, name what is next. ===== -->
+  <section class="zoom-out">
+    <h2>Zooming out</h2>
+    <p>Pointers are how C lets you reach memory directly, and nearly everything ahead
+    depends on them: strings, dynamic memory, structs passed to functions, and threads
+    sharing data. Next chapter you will use pointers to change a caller's variable from
+    inside a function — the first thing pointers let you do that nothing else can.</p>
+  </section>
+
+  <nav class="chapter-nav">
+    <a href="../1-chapter-previous/CONTENT.html">← Previous chapter</a>
+    <a href="QUIZ.html">Take the quiz →</a>
+  </nav>
+
+  <footer class="chapter-foot">
+    <a href="https://github.com/johnatorres226/foundations-of-programming-c/issues/new?template=chapter-feedback.yml&title=%5BM0C0%5D+">
+      Something wrong with this chapter?</a>
+  </footer>
+
+</article>
+
+<script src="../assets/mermaid.min.js"></script><!-- chapters: ../../../../assets/ -->
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    securityLevel: "strict",
+    theme: matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "default"
+  });
+</script>
+</body>
+</html>

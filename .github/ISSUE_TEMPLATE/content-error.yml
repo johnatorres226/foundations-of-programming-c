@@ -1,0 +1,23 @@
+name: Content error
+description: Something is factually wrong, a broken link, or a typo
+title: "[Error] "
+labels: ["bug", "content"]
+body:
+  - type: input
+    id: location
+    attributes:
+      label: Where is it?
+      placeholder: "src/modules/5-module-pointers/3-chapter-arithmetic/CONTENT.html"
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What is wrong?
+    validations:
+      required: true
+  - type: textarea
+    id: correct
+    attributes:
+      label: What should it say?
+      description: If you know. A source or citation helps.

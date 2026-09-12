@@ -1,0 +1,14 @@
+# Foundations of Programming: C — formatting is part of the lesson.
+# Beginners read this code. Keep it boring and consistent.
+BasedOnStyle: LLVM
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ColumnLimit: 88
+BreakBeforeBraces: Attach
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+PointerAlignment: Right
+SpaceAfterCStyleCast: true
+SortIncludes: false

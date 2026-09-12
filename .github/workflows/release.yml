@@ -1,0 +1,37 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify solutions before releasing
+        run: make check
+
+      # Offline bundle: the whole course, minus git and build output.
+      - name: Build course bundle
+        run: |
+          VERSION="${GITHUB_REF_NAME}"
+          NAME="foundations-of-programming-c-${VERSION}"
+          mkdir -p "dist/${NAME}"
+          rsync -a --exclude='.git' --exclude='dist' --exclude='build' . "dist/${NAME}/"
+          cd dist && zip -qr "${NAME}.zip" "${NAME}"
+          echo "Bundled ${NAME}.zip"
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.zip
+          generate_release_notes: true
+          body: |
+            **Foundations of Programming: C** — ${{ github.ref_name }}
+
+            Download the zip below for the full offline course, or clone the repo.
+            See [CHANGELOG.md](CHANGELOG.md) for what changed.

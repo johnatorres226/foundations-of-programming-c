@@ -1,0 +1,18 @@
+# Build output
+*.o
+*.out
+*.exe
+*.dSYM/
+a.out
+build/
+bin/
+
+# Learner's own compiled work
+**/exercises/**/*.bin
+**/tests/**/*.bin
+
+# Editor / OS
+.DS_Store
+.vscode/
+.idea/
+*.swp

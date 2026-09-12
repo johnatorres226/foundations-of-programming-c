@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    name: check (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compiler version
+        run: cc --version
+
+      # Every reference solution must compile with -Werror and pass its own
+      # assert-based self-checks, with address and UB sanitizers on.
+      - name: Compile and run reference solutions
+        run: make check
+
+  lint:
+    name: formatting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: clang-format
+        run: make lint
+
+  offline:
+    name: no external requests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # The course must render from file:// with no network. A CDN link or web font
+      # in any lesson breaks that promise, so fail the build on one.
+      - name: Reject CDN links and web fonts in lessons
+        run: |
+          if grep -rnE '(https?:)?//(cdn|unpkg|esm\.sh|fonts\.googleapis|fonts\.gstatic|ajax\.googleapis)' \
+               --include='*.html' --include='*.css' . ; then
+            echo ""
+            echo "ERROR: external resource found. Lessons must work offline - vendor it into assets/."
+            exit 1
+          fi
+          echo "No external resources. Offline promise intact."

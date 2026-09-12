@@ -1,0 +1,241 @@
+/* ============================================================================
+   Foundations of Programming — shared stylesheet
+   Reproducing for another language: change --accent and --accent-soft. That's it.
+   See .claude/DESIGN-GUIDELINES.md
+   ========================================================================= */
+
+:root {
+  /* ---- the ONE per-language swap (C = blue) ---- */
+  --accent: #2563eb;
+  --accent-soft: #dbeafe;
+
+  --bg: #fdfdfc;
+  --surface: #ffffff;
+  --border: #e4e4e0;
+  --text: #1c1c1a;
+  --text-muted: #6b6b66;
+
+  --warn: #b45309;  --warn-soft: #fef3c7;
+  --ok: #15803d;    --ok-soft: #dcfce7;
+  --err: #b91c1c;   --err-soft: #fee2e2;
+
+  --code-bg: #f6f6f4;
+  --term-bg: #1e1e23;
+  --term-fg: #e4e4e0;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  --t-xs: .8125rem;  --t-sm: .9375rem;  --t-base: 1.0625rem;
+  --t-lg: 1.375rem;  --t-xl: 1.75rem;   --t-2xl: 2.25rem;
+
+  --s-1: .25rem; --s-2: .5rem; --s-3: .75rem; --s-4: 1rem;
+  --s-6: 1.5rem; --s-8: 2rem;  --s-12: 3rem;
+
+  --radius: 8px;
+  --measure: 68ch;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --accent: #60a5fa; --accent-soft: #1e3a5f;
+    --bg: #16161a;     --surface: #1e1e23;  --border: #33333a;
+    --text: #ececee;   --text-muted: #9a9aa3;
+    --warn: #fbbf24;   --warn-soft: #3a2f14;
+    --ok: #4ade80;     --ok-soft: #14321f;
+    --err: #f87171;    --err-soft: #3a1a1a;
+    --code-bg: #22222a;
+    --term-bg: #0f0f13; --term-fg: #d4d4d8;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: var(--s-8) var(--s-4) var(--s-12);
+  background: var(--bg);
+  color: var(--text);
+  font: var(--t-base)/1.65 var(--font-sans);
+  -webkit-text-size-adjust: 100%;
+}
+
+.chapter { max-width: var(--measure); margin: 0 auto; }
+.chapter > * { max-width: 100%; }
+
+/* ---- headings ---------------------------------------------------------- */
+h1, h2, h3 { line-height: 1.25; font-weight: 650; margin: var(--s-8) 0 var(--s-3); }
+h1 { font-size: var(--t-2xl); margin-top: 0; letter-spacing: -.02em; }
+h2 { font-size: var(--t-xl); }
+h3 { font-size: var(--t-lg); }
+p, ul, ol { margin: 0 0 var(--s-4); }
+a { color: var(--accent); text-underline-offset: 2px; }
+a:focus-visible, button:focus-visible, summary:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px;
+}
+
+/* ---- chapter header ---------------------------------------------------- */
+.chapter-head { border-bottom: 1px solid var(--border); padding-bottom: var(--s-4);
+                margin-bottom: var(--s-8); }
+.crumb { font-size: var(--t-sm); color: var(--text-muted); margin: 0 0 var(--s-2);
+         text-transform: uppercase; letter-spacing: .08em; font-weight: 600; }
+
+/* ---- 1. recap ---------------------------------------------------------- */
+.recap {
+  font-size: var(--t-sm); color: var(--text-muted);
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: var(--s-3) var(--s-4);
+  margin-bottom: var(--s-8);
+}
+.recap::before {
+  content: "Where you are"; display: block; font-weight: 650; font-size: var(--t-xs);
+  text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted);
+  margin-bottom: var(--s-1);
+}
+
+/* ---- 2. big picture / 6. zoom out -------------------------------------- */
+.big-picture, .zoom-out {
+  border-left: 3px solid var(--accent);
+  background: var(--surface);
+  padding: var(--s-4) var(--s-6);
+  margin: var(--s-8) 0;
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+/* ---- 3. core idea ------------------------------------------------------ */
+.core-idea {
+  background: var(--accent-soft); color: var(--text);
+  border-radius: var(--radius); padding: var(--s-6);
+  margin: var(--s-8) 0; font-size: var(--t-lg); line-height: 1.45; font-weight: 500;
+}
+.core-idea::before {
+  content: "The core idea"; display: block; font-size: var(--t-xs); font-weight: 700;
+  text-transform: uppercase; letter-spacing: .08em; color: var(--accent);
+  margin-bottom: var(--s-2);
+}
+
+/* ---- code and terminal ------------------------------------------------- */
+pre, code, kbd { font-family: var(--font-mono); }
+code { font-size: .92em; background: var(--code-bg); padding: .12em .35em;
+       border-radius: 4px; }
+pre { margin: 0; padding: var(--s-4); overflow-x: auto; font-size: var(--t-sm);
+      line-height: 1.6; }
+pre code { background: none; padding: 0; font-size: inherit; }
+
+.code {
+  background: var(--code-bg); border: 1px solid var(--border);
+  border-radius: var(--radius); margin: var(--s-4) 0; overflow: hidden;
+}
+.code[data-file]::before {
+  content: attr(data-file); display: block;
+  padding: var(--s-2) var(--s-4); font: 600 var(--t-xs)/1 var(--font-mono);
+  color: var(--text-muted); background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.terminal {
+  background: var(--term-bg); color: var(--term-fg);
+  border-radius: var(--radius); margin: var(--s-4) 0; overflow: hidden;
+}
+.terminal::before {
+  content: "Terminal"; display: block; padding: var(--s-2) var(--s-4);
+  font: 600 var(--t-xs)/1 var(--font-sans); letter-spacing: .06em;
+  text-transform: uppercase; color: #8a8a95;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.terminal pre { color: var(--term-fg); }
+.terminal .prompt { color: #6ee7a8; user-select: none; }
+
+/* ---- 5. try it --------------------------------------------------------- */
+.try-it {
+  background: var(--accent-soft); border-radius: var(--radius);
+  padding: var(--s-6); margin: var(--s-8) 0;
+}
+.try-it::before {
+  content: "Try it"; display: block; font-size: var(--t-xs); font-weight: 700;
+  text-transform: uppercase; letter-spacing: .08em; color: var(--accent);
+  margin-bottom: var(--s-2);
+}
+.try-it ul { margin-bottom: 0; }
+
+/* ---- gotcha ------------------------------------------------------------ */
+.gotcha {
+  background: var(--warn-soft); border-left: 3px solid var(--warn);
+  padding: var(--s-4) var(--s-6); margin: var(--s-6) 0;
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.gotcha::before {
+  content: "Watch out"; display: block; font-size: var(--t-xs); font-weight: 700;
+  text-transform: uppercase; letter-spacing: .08em; color: var(--warn);
+  margin-bottom: var(--s-1);
+}
+
+/* ---- vocabulary chip --------------------------------------------------- */
+.vocab {
+  display: inline-block; background: var(--surface); border: 1px solid var(--border);
+  border-bottom: 2px solid var(--accent); border-radius: 4px;
+  padding: 0 .3em; font-weight: 600; font-style: normal;
+}
+
+/* ---- solution reveal --------------------------------------------------- */
+details.solution {
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface); padding: var(--s-3) var(--s-4); margin: var(--s-4) 0;
+}
+details.solution > summary {
+  cursor: pointer; font-weight: 600; color: var(--accent); list-style: none;
+}
+details.solution > summary::before { content: "▸ "; }
+details.solution[open] > summary::before { content: "▾ "; }
+details.solution > summary::-webkit-details-marker { display: none; }
+details.solution .note {
+  font-size: var(--t-sm); color: var(--text-muted); margin-top: var(--s-3);
+}
+
+/* ---- tables and diagrams ----------------------------------------------- */
+.scroll-x, figure { overflow-x: auto; margin: var(--s-6) 0; }
+table { border-collapse: collapse; width: 100%; font-size: var(--t-sm); }
+th, td { text-align: left; padding: var(--s-2) var(--s-3);
+         border-bottom: 1px solid var(--border); }
+th { font-weight: 650; }
+figure svg, figure img { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+figcaption { font-size: var(--t-sm); color: var(--text-muted); text-align: center;
+             margin-top: var(--s-2); }
+
+/* ---- nav and footer ---------------------------------------------------- */
+.chapter-nav {
+  display: flex; justify-content: space-between; gap: var(--s-4); flex-wrap: wrap;
+  border-top: 1px solid var(--border); margin-top: var(--s-12); padding-top: var(--s-4);
+  font-size: var(--t-sm);
+}
+.chapter-foot {
+  margin-top: var(--s-6); font-size: var(--t-sm); color: var(--text-muted);
+}
+
+/* ---- quiz (rendered by quiz.js) ---------------------------------------- */
+.quiz-q { border: 1px solid var(--border); border-radius: var(--radius);
+          background: var(--surface); padding: var(--s-6); margin: var(--s-6) 0; }
+.quiz-q > h3 { margin-top: 0; }
+.quiz-opt { display: block; border: 1px solid var(--border); border-radius: var(--radius);
+            padding: var(--s-3) var(--s-4); margin-bottom: var(--s-2); cursor: pointer;
+            background: var(--bg); }
+.quiz-opt:hover { border-color: var(--accent); }
+.quiz-opt input { margin-right: var(--s-2); }
+.quiz-opt.is-correct { border-color: var(--ok); background: var(--ok-soft); }
+.quiz-opt.is-wrong   { border-color: var(--err); background: var(--err-soft); }
+.quiz-opt.is-missed  { border-color: var(--ok); border-style: dashed; }
+.quiz-why { font-size: var(--t-sm); margin: var(--s-2) 0 0; padding-left: var(--s-6); }
+.quiz-answered .quiz-opt { cursor: default; }
+.quiz-btn { font: 600 var(--t-base) var(--font-sans); background: var(--accent);
+            color: #fff; border: 0; border-radius: var(--radius);
+            padding: var(--s-3) var(--s-6); cursor: pointer; }
+.quiz-btn:hover { filter: brightness(1.08); }
+.quiz-btn[disabled] { opacity: .5; cursor: not-allowed; }
+.quiz-score { font-size: var(--t-lg); font-weight: 650; margin: var(--s-6) 0; }
+
+/* ---- narrow screens ---------------------------------------------------- */
+@media (max-width: 480px) {
+  body { padding: var(--s-6) var(--s-3) var(--s-8); }
+  h1 { font-size: var(--t-xl); }
+  .core-idea, .try-it, .big-picture, .zoom-out, .quiz-q { padding: var(--s-4); }
+}

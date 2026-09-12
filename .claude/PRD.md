@@ -1,0 +1,284 @@
+# PRD — Foundations of Programming: C
+
+**This is an executable spec, not a pitch.** You are writing this course. Follow these
+rules literally. When a rule and your judgment disagree, the rule wins — or open an issue
+to change the rule.
+
+---
+
+## 1. Product
+
+| Field | Value |
+|---|---|
+| Name | **Foundations of Programming: C** |
+| Repo | `johnatorres226/foundations-of-programming-c` |
+| Series | Foundations of Programming — C, then C++, then Rust (separate repos, shared framework) |
+| Delivery | Clone the repo. Open HTML in a browser. Write C in real files. |
+| Audience | **Minimal programming experience.** Assume no prior language. |
+| Readability | **6th grade.** Non-negotiable. See §4. |
+| Outcome | Competent C application programmer, comfortable with memory and concurrency. |
+
+### Non-goals
+
+Do not write chapters on these. If a topic below feels necessary, open an issue instead:
+
+- Embedded / freestanding / bare-metal C
+- Kernel or driver development
+- GUI programming
+- C++ (that is repo #2)
+- Build systems beyond `make`
+- Progress tracking, accounts, or any server-side feature
+
+---
+
+## 2. Hard rules
+
+These break the build or the product if violated.
+
+1. **No build step.** A learner opens `CONTENT.html` from `file://` with no internet and
+   everything works. No CDN links. No npm. No bundler. Vendor every asset into `assets/`.
+2. **Cite, never mirror.** Link to external sources. Never copy their prose, images, or
+   code into this repo. See §7.
+3. **`-std=c17`.** All example and solution code compiles clean under
+   `-std=c17 -Wall -Wextra -Werror`. See §8.
+4. **No `localStorage`, no saved state.** Pages are stateless. The learner's progress is
+   the files in their `exercises/` directory.
+5. **Tests before prose.** See §9.
+
+---
+
+## 3. Teaching model — spiral / top-down
+
+State the big idea, descend into technical detail, then resurface and re-tie it to the
+whole. Every chapter reinforces the global picture, not just its own topic.
+
+### The six sections — fixed order, every chapter, no exceptions
+
+| # | Section | Rule |
+|---|---|---|
+| 1 | **Recap** | Exactly 2–3 sentences. What the previous chapter established, and where this one sits. Written against the **declared outcomes in `SYLLABUS.md`**, never against the previous chapter's actual prose. |
+| 2 | **Big Picture** | The advance organizer. Why this exists in C at all. |
+| 3 | **The Core Idea** | **One sentence.** Plain words. If it needs two, the chapter is too big. |
+| 4 | **How It Works** | The technical detail. Code, diagrams, gotchas. |
+| 5 | **Try It** | Points at real files in `exercises/`. Never inline the work here. |
+| 6 | **Zoom Out** | Re-tie to the whole language. Name what comes next. |
+
+> **Why Recap is written against SYLLABUS, not prior prose:** if recaps quote the previous
+> chapter's actual text, every chapter serializes and the course cannot be written in
+> parallel. `SYLLABUS.md` declares every chapter's outcomes up front precisely so any
+> chapter can be authored independently. **Never break this.**
+
+---
+
+## 4. Readability — 6th grade
+
+The audience has minimal programming experience. Jargon is the main way this course fails.
+
+- Short sentences. One idea per sentence.
+- **Define every technical term the first time it appears in a chapter**, even if an
+  earlier chapter defined it. Use a vocabulary chip (see `DESIGN-GUIDELINES.md`).
+- Prefer the concrete word: "memory address" over "referent", "runs" over "executes".
+- Analogies are welcome. Analogies that are wrong are not — if the analogy breaks down,
+  say where it breaks down.
+- Never write "simply", "just", "obviously", "of course", or "as you know". If it were
+  obvious the learner would not be reading.
+- Active voice. Second person ("you write", not "one writes").
+
+---
+
+## 5. Chapter sizing
+
+**A chapter is one sitting: about one hour total** — roughly 20 minutes reading, the rest
+exercises and digestion.
+
+This is a **consistency target, not a hard cap.** The learner commits to one chapter per
+session; every chapter should feel like the same size commitment. A topic that will not
+fit splits into **continuation chapters** (`5-chapter-pointers-part-1`,
+`5-chapter-pointers-part-2`), each a full six-section chapter in its own right.
+
+A module holds roughly 4–5 chapters.
+
+---
+
+## 6. Module map
+
+Authoritative list. Chapter-level outcomes live in `SYLLABUS.md`.
+
+| # | Module | Covers |
+|---|---|---|
+| 0 | What Is C? | history, C89→C23, what it solves, pros/cons, learning curve *and why*, real-world uses, **environment setup** |
+| 1 | Basics | structure, compiling, variables, types, I/O, **+ debugger & AddressSanitizer intro** |
+| 2 | Control Flow | conditionals, loops, `switch` |
+| 3 | Functions & Scope | declaration vs definition, parameters, scope, recursion |
+| 4 | Arrays & Strings | arrays, C strings, `string.h` |
+| 5 | Pointers | addresses, dereferencing, pointer arithmetic, the stack |
+| 6 | Structs, Enums, Unions | user-defined types |
+| 7 | Dynamic Memory | `malloc`/`free`, ownership, leaks |
+| 8 | Memory Deep Dive | layout, alignment, padding, lifetime, memory UB |
+| 9 | Files & I/O | streams, reading/writing, error handling |
+| 10 | Multi-File Projects | headers, preprocessor, `make`, linking |
+| 11 | Debugging & Tooling | `lldb`/`gdb`, sanitizers, valgrind, testing |
+| 12 | Concurrency I | **pthreads**, races, mutexes, condition variables |
+| 13 | Concurrency II | memory model, atomics, + C11 `threads.h` comparison |
+| 14 | Advanced | bit manipulation, function pointers, UB, performance |
+| — | Capstone | one substantial program spanning Modules 1–14 |
+
+**Tooling is deliberately split.** The debugger and `-fsanitize=address` are introduced in
+**Module 1** as part of "how you run C code", then revisited in depth in **Module 11**.
+Modules 7–8 teach memory bugs; the learner must already be able to *see* them.
+
+### Threading: pthreads, not C11
+
+**Module 12 teaches pthreads.** `<threads.h>` is an optional C11 feature and is **absent
+on Apple Clang and MSVC** — verified on the maintainer's machine:
+`fatal error: 'threads.h' file not found`. Teaching it first would break the
+clone-and-go promise on the most common learner platforms.
+
+Module 13 covers C11 `threads.h` as a **comparison chapter**: here is the standard API,
+here is why you rarely see it.
+
+---
+
+## 7. Citations — hard rules
+
+| Source | Tier | Rule |
+|---|---|---|
+| [learn-c.org](https://www.learn-c.org/) | Beginner | Free, interactive, no install. Safe from Module 1. |
+| [CS50x](https://cs50.harvard.edu/x/) | Beginner | **Week 1 is the C week.** Video. Safe from Module 1. |
+| [cppreference — C](https://en.cppreference.com/w/c) | Lookup | Safe anywhere as a reference, not as a lesson. |
+| [Beej's Guide to C](https://beej.us/guide/bgc/) | Intermediate | **NEVER cite before Module 6.** It states outright that it assumes you already know another language. |
+| [Modern C, 3rd ed.](https://gustedt.gitlabpages.inria.fr/modern-c/) | Advanced | **CC BY-NC-ND. Link only. Never excerpt, quote at length, or adapt.** |
+| [GCC C status](https://gcc.gnu.org/projects/c-status.html) · [Clang C status](https://clang.llvm.org/c_status.html) | Reference | For version/standard tables. |
+
+**Before adding any new source:** verify the URL is live, free, and that its license permits
+linking. Record it in the module `README.md`. YouTube links must be checked individually —
+channels vanish.
+
+---
+
+## 8. Code standards
+
+- **`-std=c17 -Wall -Wextra -Werror`.** Every `.c` file in this repo compiles clean.
+- C23 is the current standard (ISO/IEC 9899:2024) and Module 0 teaches that. The course
+  **pins C17** because Apple Clang's C23 support is partial and this audience cannot debug
+  a dialect error. Module 0 explains the pin.
+- `clang-format` with the repo `.clang-format`. CI enforces it.
+- Example code in HTML must be **copy-pasteable and compile as shown**. No `...` elisions
+  in anything the learner is told to run.
+- Every exercise and solution file carries a header comment naming its module and chapter.
+
+---
+
+## 9. TDD — test → solution → prose
+
+**This order is mandatory.** Write in this sequence, commit in this sequence:
+
+1. **Test.** `tests/*.c`, `assert`-based. This defines what the learner must achieve and
+   **is the chapter's acceptance criteria.** Write it before any solution exists.
+2. **Solution.** The reference solution in `src/back-of-the-book/`, written until the tests
+   pass.
+3. **Exercise.** The learner-facing stub in `exercises/` that the tests run against.
+4. **Prose.** `CONTENT.html`, `QUIZ.html`, chapter `README.md`.
+
+Prose written before the code is prose that describes code that does not exist yet.
+
+**Exception — Module 0.** Module 0 is an introduction, not an examined module: no tests,
+quizzes, project, or exam. Its chapters are reading; chapter 0.4's first program is a
+hands-on setup check the learner verifies by eye.
+
+---
+
+## 10. Answers, quizzes, and `back-of-the-book`
+
+**Honor system.** Everything ships in the repo. Solutions are framed as **"one approach
+among many"**, never as "the answer" — in C there are genuinely five ways to write any
+loop, and saying so is honest.
+
+- Every inline solution reveal sits behind a `<details>` element. Not to stop anyone —
+  so nobody loses the attempt by scrolling.
+- **`src/back-of-the-book/`** holds **correct answers plus reasoning only.** It is the
+  canonical record: what the right answer is and why. It does not enumerate wrong answers.
+
+### Quiz data schema
+
+Quiz content is **data, not code.** One shared `assets/quiz.js` renders every quiz. Each
+`QUIZ.html` carries a `<script type="application/json" id="quiz-data">` block.
+
+**Every option carries its own explanation** — why a wrong answer is wrong and what that
+misunderstanding teaches, and why the right answer is right:
+
+```json
+{
+  "questions": [
+    {
+      "q": "What does `int *p;` declare?",
+      "options": [
+        { "text": "An integer named p",
+          "correct": false,
+          "why": "This is the most common early mix-up. The `*` binds to `p`, not to `int` — it says p holds an address, not a number." },
+        { "text": "A pointer to an integer",
+          "correct": true,
+          "why": "Right. `p` stores the memory address where an int lives. It does not store the int itself." }
+      ]
+    }
+  ]
+}
+```
+
+`why` is required on **every** option, correct and incorrect alike. Wrap code in
+`backticks` in `q`, `text`, or `why` — `quiz.js` renders it as `<code>`. No other markup. A quiz that only
+explains the right answer teaches half as much.
+
+---
+
+## 11. Repository layout
+
+```
+README.md · SYLLABUS.md · CONTRIBUTING.md · CHANGELOG.md · CRITICAL-PATH.md · LICENSE
+Makefile · .clang-format · .gitignore
+.claude/PRD.md · .claude/DESIGN-GUIDELINES.md · .claude/CLAUDE.md
+.claude/chapter-template.html · .claude/quiz-template.html   # copy these, never start blank
+assets/style.css · assets/quiz.js · assets/mermaid.min.js
+.github/ISSUE_TEMPLATE/*.yml · .github/workflows/{ci,release}.yml
+src/modules/<N>-module-<topic>/
+    README.md
+    <N>-chapter-<topic>/
+        README.md · CONTENT.html · QUIZ.html · exercises/*.c · tests/*.c
+    module-project/ · module-exam/EXAM.html
+src/back-of-the-book/module-<N>/
+src/capstone/
+```
+
+### Module `README.md` — required metadata
+
+Every module README opens with: estimated time to complete, difficulty, tags, prerequisites,
+syllabus coverage (which `SYLLABUS.md` outcomes this module discharges), and references
+with live URLs.
+
+---
+
+## 12. Versioning
+
+SemVer, recorded in `CHANGELOG.md`:
+
+- **MAJOR** — curriculum restructure. Modules renumbered; learner bookmarks break.
+- **MINOR** — a new chapter or module ships.
+- **PATCH** — corrections, typos, fixed links.
+- **v1.0.0 = all 15 modules complete.** Everything before is `0.x`.
+
+---
+
+## 13. Definition of done — a chapter
+
+- [ ] `tests/*.c` written first, `assert`-based, and failing before the solution exists (not in Module 0)
+- [ ] Reference solution in `back-of-the-book/` passes `make check`
+- [ ] `exercises/*.c` stubs present, compile, and fail the tests until completed
+- [ ] `CONTENT.html` has all six sections in order
+- [ ] Core Idea is one sentence
+- [ ] Recap is 2–3 sentences, written against `SYLLABUS.md` outcomes
+- [ ] `QUIZ.html` has a `why` on **every** option (not in Module 0)
+- [ ] Every new technical term is defined on first use
+- [ ] No "simply", "just", "obviously", "of course", "as you know"
+- [ ] Citations respect §7 tiers
+- [ ] Opens correctly from `file://` **with wifi off**
+- [ ] Chapter README metadata complete

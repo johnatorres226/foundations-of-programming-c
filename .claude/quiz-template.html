@@ -1,0 +1,74 @@
+<!--
+  QUIZ TEMPLATE — copy to src/modules/<M>-module-<slug>/<C>-chapter-<slug>/QUIZ.html
+  Quiz content is DATA. Edit only the JSON block. Every option needs a "why",
+  wrong ones included. See .claude/PRD.md §10.
+  Asset paths assume this template's own location (.claude/) — chapters use ../../../../assets/
+-->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M0.0 Quiz — Chapter Template · Foundations of Programming: C</title>
+<link rel="stylesheet" href="../assets/style.css"><!-- chapters: ../../../../assets/style.css -->
+</head>
+<body>
+<article class="chapter">
+  <header class="chapter-head">
+    <p class="crumb">Module 0 · Chapter 0 · Quiz</p>
+    <h1>Check your understanding</h1>
+  </header>
+
+  <p>Pick one answer for each question, then check. Every answer — right or wrong — comes
+  with an explanation. The wrong ones are where most of the learning is.</p>
+
+  <div id="quiz"></div>
+
+  <nav class="chapter-nav">
+    <a href="CONTENT.html">← Back to the chapter</a>
+    <a href="../2-chapter-next/CONTENT.html">Next chapter →</a>
+  </nav>
+
+  <footer class="chapter-foot">
+    <a href="https://github.com/johnatorres226/foundations-of-programming-c/issues/new?template=chapter-feedback.yml&title=%5BM0C0+Quiz%5D+">
+      Something wrong with this quiz?</a>
+  </footer>
+</article>
+
+<script type="application/json" id="quiz-data">
+{
+  "questions": [
+    {
+      "q": "What does `int *p;` declare?",
+      "options": [
+        { "text": "An integer named p",
+          "correct": false,
+          "why": "This is the most common early mix-up. The `*` says `p` holds an address, not a number. An integer named p would be written `int p;`" },
+        { "text": "A pointer to an integer",
+          "correct": true,
+          "why": "Right. p stores the memory address where an int lives. It does not store the int itself." },
+        { "text": "An integer multiplied by p",
+          "correct": false,
+          "why": "In a declaration, `*` is not multiplication. The same symbol means different things in different places in C — which is confusing, and worth noticing." }
+      ]
+    },
+    {
+      "q": "A pointer was declared but never given an address. What happens if you read through it?",
+      "options": [
+        { "text": "It returns zero",
+          "correct": false,
+          "why": "C does not set variables to zero for you. An uninitialized pointer holds whatever bits happened to be in that memory." },
+        { "text": "The compiler refuses to build it",
+          "correct": false,
+          "why": "Sometimes it warns, and -Werror turns that into an error — but it cannot catch every case. You cannot rely on the compiler here." },
+        { "text": "Undefined behavior — anything can happen",
+          "correct": true,
+          "why": "Right. It may crash, print garbage, or appear to work perfectly. \"Appears to work\" is the dangerous one, because the bug hides until later." }
+      ]
+    }
+  ]
+}
+</script>
+<script src="../assets/quiz.js"></script><!-- chapters: ../../../../assets/quiz.js -->
+</body>
+</html>

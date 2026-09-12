@@ -1,0 +1,38 @@
+name: Content proposal
+description: Propose a new chapter, exercise, or change to the curriculum
+title: "[Proposal] "
+labels: ["proposal"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please open this **before** writing. Chapters are sized deliberately (~1 hour) and
+        ordered to fit the spiral structure, so placement matters as much as content.
+  - type: textarea
+    id: what
+    attributes:
+      label: What do you want to add or change?
+    validations:
+      required: true
+  - type: input
+    id: where
+    attributes:
+      label: Where does it belong in the syllabus?
+      placeholder: "After Module 7, Chapter 3"
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why does the course need it?
+      description: What can a learner do afterwards that they could not before?
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: This fits in about one hour of learner time
+        - label: It only relies on material from earlier modules
+        - label: I have read SYLLABUS.md and this is not already covered

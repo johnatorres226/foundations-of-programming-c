@@ -1,0 +1,33 @@
+name: Code or tooling bug
+description: Example code does not compile, tests fail, or CI is broken
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: How do we reproduce it?
+      placeholder: |
+        1. cd src/modules/...
+        2. make check
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Full error output
+      render: shell
+  - type: input
+    id: env
+    attributes:
+      label: OS and compiler
+      placeholder: "macOS 15, Apple clang 17.0.0"
+    validations:
+      required: true

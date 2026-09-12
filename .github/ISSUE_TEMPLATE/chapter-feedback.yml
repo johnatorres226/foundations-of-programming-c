@@ -1,0 +1,42 @@
+name: Chapter feedback
+description: A chapter was confusing, too hard, too easy, or unclear
+title: "[MxCy] "
+labels: ["feedback", "content"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you. Unclear explanations are bugs, and you are the only person who can see
+        this one clearly right now.
+  - type: input
+    id: chapter
+    attributes:
+      label: Which chapter?
+      placeholder: "Module 5, Chapter 3 — Pointer Arithmetic"
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What went wrong?
+      options:
+        - I could not follow the explanation
+        - Too hard for this point in the course
+        - Too easy / not enough depth
+        - The exercise did not match the lesson
+        - Something was wrong or out of date
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: where
+    attributes:
+      label: Where exactly did you get lost?
+      description: Quote the sentence or name the section if you can.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What would have helped?
+      description: Optional — a diagram, a worked example, a different order.
