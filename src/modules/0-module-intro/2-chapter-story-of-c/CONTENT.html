@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M0.2 — The Story of C · Foundations of Programming: C</title>
+<link rel="stylesheet" href="../../../../assets/style.css">
+</head>
+<body>
+<article class="chapter">
+
+  <header class="chapter-head">
+    <p class="crumb">Module 0 · Chapter 2</p>
+    <h1>The Story of C</h1>
+  </header>
+
+  <!-- ===== 1. RECAP ===== -->
+  <section class="recap">
+    <p>Last chapter you learned what a CPU does, what source code is, and the difference
+    between a compiled language and an interpreted one. C is a compiled language. This
+    chapter tells you where C came from, what problem it was built to solve, and why it
+    spread so far.</p>
+  </section>
+
+  <!-- ===== 2. BIG PICTURE ===== -->
+  <section class="big-picture">
+    <h2>The big picture</h2>
+    <p>Before C, moving a program to a different computer often meant rewriting it from
+    scratch. Programs were written in <span class="vocab">assembly language</span> —
+    instructions written for one exact kind of computer chip, using that chip's own
+    private vocabulary. An assembly program written for one machine would not run on a
+    different one at all.</p>
+    <p>That was a real problem for the people building
+    <span class="vocab">operating systems</span> — the software that manages a computer's
+    hardware and lets other programs run on it. Every new computer meant starting the
+    operating system over. C was built to end that. Knowing why explains a lot of what C
+    still looks like today: a language close enough to the hardware to be fast, but written
+    in a way that could move to a new machine without a full rewrite.</p>
+  </section>
+
+  <!-- ===== 3. CORE IDEA ===== -->
+  <section class="core-idea">
+    C exists because two programmers at Bell Labs needed a language almost as fast as
+    assembly, but able to move to a new computer without starting over.
+  </section>
+
+  <!-- ===== 4. HOW IT WORKS ===== -->
+  <section class="how">
+    <h2>How it works</h2>
+
+    <p>In the early 1970s, Ken Thompson and Dennis Ritchie worked at Bell Labs, a research
+    company in the United States. They were building an operating system called
+    <span class="vocab">Unix</span>. The first version of Unix was written in assembly
+    language for one specific computer, a PDP-7. It worked, but it was stuck on that one
+    machine.</p>
+
+    <p>Thompson first tried a simpler language called B, based on an older language named
+    BCPL. B was easier to move between computers than assembly language, but it was too
+    limited for the job — it had no real way to work with different kinds of data, like
+    whole numbers versus single characters. Between 1971 and 1973, Ritchie extended B with
+    those missing features. The result was a new language: C.</p>
+
+    <p>The turning point came when Thompson and Ritchie rewrote most of the Unix operating
+    system itself in C, finishing by 1973. This made Unix one of the first operating
+    systems in history whose core was not written in assembly language.</p>
+
+    <div class="gotcha">
+      <p>Rewriting an operating system in C did not make it slow. C was designed to compile
+      down to instructions almost as direct and fast as assembly language — the trade C
+      made was giving up assembly's dependence on one exact computer, not giving up speed.</p>
+    </div>
+
+    <p>That rewrite is why C and Unix spread together. A computer maker who wanted to run
+    Unix on new hardware no longer needed to rewrite an entire operating system by hand.
+    Someone had to write a new C <span class="vocab">compiler</span> — a program that turns
+    C source code into instructions a specific computer can run — for that hardware, and
+    most of Unix's own code could then move over with little or no change. Software that
+    can move to a new computer like this is called <span class="vocab">portable</span>.
+    Universities and companies picked up Unix because it could follow them onto new
+    machines. C rode along, since Unix and the tools that came with it were written in it.</p>
+
+    <p>By 1978, Kernighan and Ritchie's book <em>The C Programming Language</em> gave the
+    growing number of C programmers a shared, informal description of the language. Its
+    first example program, a few lines that print the words "hello, world," became the
+    traditional first program every C learner writes — including you, in a later chapter.</p>
+
+    <div class="code" data-file="hello.c">
+<pre><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    printf("hello, world\n");
+    return 0;
+}</code></pre>
+    </div>
+
+    <p>You are not compiling this yet — that starts in chapter 0.4, once your machine is
+    set up. For now, notice how old this exact greeting is. People have been typing some
+    version of it since the early 1970s.</p>
+  </section>
+
+  <!-- ===== 5. TRY IT ===== -->
+  <!-- Module 0 has no tests, quizzes, project, or exam (PRD §9) and 0.1-0.3 have no
+       exercises/ directory — they are reading chapters. This section is adapted to an
+       ungraded, no-compiler activity plus pointers to the primary sources used above. -->
+  <section class="try-it">
+    <p>Module 0 has no code exercises yet — those start in Module 1. Instead, try this:</p>
+    <ul>
+      <li>Name three pieces of software you use every day. Then guess: could any of them
+      be written in C? (A good bet: anything that runs on Linux, most phone operating
+      systems, and many programming languages themselves are built on C.)</li>
+      <li>Read Dennis Ritchie's own short account of building C, linked below. Look for the
+      part where he describes B's limits — it is the same problem this chapter already
+      described, in the words of the person who solved it.</li>
+    </ul>
+  </section>
+
+  <!-- ===== 6. ZOOM OUT ===== -->
+  <section class="zoom-out">
+    <h2>Zooming out</h2>
+    <p>C spread because it solved a real problem: it let an operating system move between
+    computers without a full rewrite. That same trade-off — close to the hardware, but not
+    glued to one machine — is why C is still under so much of the software you use every
+    day, more than fifty years later.</p>
+    <p>C did not stay frozen once it spread, though. The next chapter walks through how C
+    changed over time — the versions named C89, C99, C11, C17, and C23 — and explains why
+    this course teaches you C17, the second-newest version, instead of C23, the newest
+    one.</p>
+    <p>Sources: Dennis Ritchie,
+    <a href="https://www.bell-labs.com/usr/dmr/www/chist.html">"The Development of the C
+    Language"</a>, Bell Labs — and
+    <a href="https://en.wikipedia.org/wiki/C_(programming_language)">Wikipedia, "C
+    (programming language)"</a>, history section, for the Unix Version 4 rewrite date.</p>
+  </section>
+
+  <nav class="chapter-nav">
+    <a href="../1-chapter-what-a-program-is/CONTENT.html">← Previous chapter</a>
+    <a href="../3-chapter-versions-of-c/CONTENT.html">Next chapter →</a>
+  </nav>
+
+  <footer class="chapter-foot">
+    <a href="https://github.com/johnatorres226/foundations-of-programming-c/issues/new?template=chapter-feedback.yml&title=%5BM0C2%5D+">
+      Something wrong with this chapter?</a>
+  </footer>
+
+</article>
+</body>
+</html>
