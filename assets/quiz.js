@@ -10,6 +10,11 @@
  * Every option needs a "why" — wrong ones too. Explaining only the right answer
  * teaches half as much. See .claude/PRD.md §10.
  *
+ * A question may carry an optional "section" (e.g. "Chapter 2: Control Flow").
+ * When it differs from the previous question's section, a heading is inserted
+ * before that question — exams group by chapter this way. Quizzes never set
+ * it, so this is a no-op for them.
+ *
  * No localStorage. No network. Nothing is saved. (PRD §2 rule 4)
  */
 (function () {
@@ -52,7 +57,17 @@
   var form = document.createElement("form");
   form.setAttribute("novalidate", "");
 
+  var lastSection = null;
+
   questions.forEach(function (q, qi) {
+    if (q.section && q.section !== lastSection) {
+      var sectionHead = document.createElement("h2");
+      sectionHead.className = "quiz-section";
+      withCode(sectionHead, q.section);
+      form.appendChild(sectionHead);
+      lastSection = q.section;
+    }
+
     var box = document.createElement("section");
     box.className = "quiz-q";
 

@@ -229,6 +229,33 @@ misunderstanding teaches, and why the right answer is right:
 `backticks` in `q`, `text`, or `why` — `quiz.js` renders it as `<code>`. No other markup. A quiz that only
 explains the right answer teaches half as much.
 
+### Exams — the same schema, longer, grouped by chapter
+
+An **exam** (`module-exam/EXAM.html`) is a longer quiz covering every chapter in a module
+(Modules 1–14; Module 0 has no exam, see §9). It is rendered by the **same**
+`assets/quiz.js` — copy `.claude/exam-template.html`, never start a second engine.
+
+A question may carry an optional `"section"` field naming the chapter it covers, e.g.
+`"Chapter 2: Control Flow"`. `quiz.js` prints a heading whenever `section` changes between
+one question and the next, so the exam reads grouped by chapter. Quizzes never set
+`section` — the field is a no-op when absent.
+
+**Exam answers in `back-of-the-book`.** `src/back-of-the-book/module-<N>/exam-answers.md`
+holds the exam's correct answers and their reasoning — one entry per question, in the same
+order as `EXAM.html`. Wrong-answer `why` text is **not** duplicated here; per the honor-system
+rule above, that stays in the HTML where the learner already agreed to see it by taking the
+exam. Format:
+
+```markdown
+## Chapter 2: Control Flow
+
+**What does `int *p;` declare?**
+A pointer to an integer. `p` stores the memory address where an int lives.
+```
+
+This mirrors how exercise solutions work: `back-of-the-book` is the one place to find every
+correct answer and why, without re-deriving it from the interactive page.
+
 ---
 
 ## 11. Repository layout
@@ -237,7 +264,8 @@ explains the right answer teaches half as much.
 README.md · SYLLABUS.md · CONTRIBUTING.md · CHANGELOG.md · CRITICAL-PATH.md · LICENSE
 Makefile · .clang-format · .gitignore
 .claude/PRD.md · .claude/DESIGN-GUIDELINES.md · .claude/CLAUDE.md
-.claude/chapter-template.html · .claude/quiz-template.html   # copy these, never start blank
+.claude/chapter-template.html · .claude/quiz-template.html · .claude/exam-template.html
+    # copy these, never start blank
 assets/style.css · assets/quiz.js · assets/mermaid.min.js
 .github/ISSUE_TEMPLATE/*.yml · .github/workflows/{ci,release}.yml
 src/modules/<N>-module-<topic>/
@@ -246,6 +274,7 @@ src/modules/<N>-module-<topic>/
         README.md · CONTENT.html · QUIZ.html · exercises/*.c · tests/*.c
     module-project/ · module-exam/EXAM.html
 src/back-of-the-book/module-<N>/
+    exam-answers.md   # exam's correct answers + reasoning only, see §10
 src/capstone/
 ```
 
