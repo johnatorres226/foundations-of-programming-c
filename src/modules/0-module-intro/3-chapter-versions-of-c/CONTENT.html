@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M0.3 — The Versions of C · Foundations of Programming: C</title>
+<link rel="stylesheet" href="../../../../assets/style.css">
+</head>
+<body>
+<article class="chapter">
+
+  <header class="chapter-head">
+    <p class="crumb">Module 0 · Chapter 3</p>
+    <h1>The Versions of C</h1>
+  </header>
+
+  <!-- ===== 1. RECAP ===== -->
+  <section class="recap">
+    <p>Last chapter you learned where C came from, what problem it solved, and why Unix
+    made it spread. Once a language spreads to many computers made by many companies,
+    someone has to write down the exact rules for it, or every computer starts speaking
+    its own private dialect. This chapter is the story of those rulebooks.</p>
+  </section>
+
+  <!-- ===== 2. BIG PICTURE ===== -->
+  <section class="big-picture">
+    <h2>The big picture</h2>
+    <p>In the early days, "C" meant whatever one particular compiler accepted. A program
+    that worked on one machine could fail on another, for no reason a beginner could see.
+    So a group of engineers wrote down an official rulebook: the exact grammar, the exact
+    behavior, the exact edge cases. Every compiler maker agreed to follow it. That
+    rulebook is called a <span class="vocab">standard</span>, and C has had five of them.
+    Knowing which one you are writing against tells you which features you can use and
+    which ones will break on someone else's machine.</p>
+  </section>
+
+  <!-- ===== 3. CORE IDEA — one sentence ===== -->
+  <section class="core-idea">
+    A C standard is a rulebook that every compiler maker agrees to follow, and C has been
+    rewritten five times — C89, C99, C11, C17, and C23 — each version adding or clarifying
+    rules on top of the last.
+  </section>
+
+  <!-- ===== 4. HOW IT WORKS ===== -->
+  <section class="how">
+    <h2>How it works</h2>
+
+    <p>A standard is a written document, agreed on by a committee, that says exactly what
+    a correct C compiler must do. It is not software — it is a set of rules that software
+    follows. When people say "C99" or "C17", they mean "the version of the rulebook
+    published in that year."</p>
+
+    <div class="scroll-x">
+      <table>
+        <thead>
+          <tr><th>Standard</th><th>Year</th><th>What it changed</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>C89 (also called ANSI C or C90)</td>
+            <td>1989</td>
+            <td>The first official rulebook. Before this, every compiler had its own
+            rules. C89 is the reason old C code from the 1990s still compiles today.</td>
+          </tr>
+          <tr>
+            <td>C99</td>
+            <td>1999</td>
+            <td>Let you declare a variable anywhere in your code, not only at the top of
+            a block. Added <code>//</code> comments and fixed-width integer types like
+            <code>int32_t</code>, so a number takes up exactly the space you expect on
+            every machine.</td>
+          </tr>
+          <tr>
+            <td>C11</td>
+            <td>2011</td>
+            <td>Added optional support for threads (code that runs more than one task at
+            once) and atomics (safe ways for those tasks to share data). Both were made
+            optional, which matters later in this course.</td>
+          </tr>
+          <tr>
+            <td>C17</td>
+            <td>2018</td>
+            <td>Fixed mistakes and unclear wording left over from C11. It added no new
+            features at all — it only clarified the existing rules. This is the rulebook
+            this course uses.</td>
+          </tr>
+          <tr>
+            <td>C23 (ISO/IEC 9899:2024)</td>
+            <td>2024</td>
+            <td>The current rulebook. Added conveniences like a real <code>true</code> and
+            <code>false</code> built into the language, and <code>nullptr</code> for empty
+            pointers. It is the newest, but the newest rulebook is not always the one
+            every compiler follows yet.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>You tell a compiler which rulebook to use with a flag on the command line. This
+    course always compiles with:</p>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror hello.c -o hello</pre>
+    </div>
+
+    <p><code>-std=c17</code> tells the compiler: "follow the C17 rulebook, and nothing
+    newer." You will type this exact flag on every program you compile in this course.</p>
+
+    <div class="gotcha">
+      <p>C23 is the current standard, so why does this course pin C17 instead? Because
+      this course has to run the same way on every learner's computer — Windows, Linux,
+      and macOS — with no setup beyond installing a compiler. Apple's own compiler
+      (Clang, which ships with every Mac) only partially supports C23 as of this writing:
+      some C23 features work, some do not, and a beginner has no way to tell which is
+      which. C17 is fully and reliably supported everywhere this course runs. When your
+      whole toolchain supports C23 completely, you can switch the flag to
+      <code>-std=c23</code> and everything you learned still applies — a later standard
+      never removes what an earlier one taught you.</p>
+    </div>
+  </section>
+
+  <!-- ===== 5. TRY IT ===== -->
+  <section class="try-it">
+    <p>Module 0 has no exercise files yet — you do not have a compiler installed until
+    next chapter. For now, look back at the table above and answer this in your
+    head: if you found a ten-year-old C file online, which standard was it most likely
+    written against, and how could you check? (Hint: look for a <code>-std=</code> flag
+    in its build instructions, or for features — like variables declared anywhere — that
+    only work from C99 onward.)</p>
+    <p>Real hands-on compiling starts next chapter, once your toolchain is installed.</p>
+  </section>
+
+  <!-- ===== 6. ZOOM OUT ===== -->
+  <section class="zoom-out">
+    <h2>Zooming out</h2>
+    <p>Every standard after C89 has been additive: newer rulebooks add or clarify, they
+    do not take away. That is why code written for C17 still makes sense once you know
+    C23 exists, and it is why this course can teach you real, useful C on the C17
+    rulebook without shortchanging you. Next chapter you install a compiler, use it to
+    enforce that <code>-std=c17</code> flag yourself, and compile and run your first
+    program.</p>
+  </section>
+
+  <nav class="chapter-nav">
+    <a href="../2-chapter-story-of-c/CONTENT.html">← Previous chapter</a>
+    <a href="../4-chapter-set-up-your-machine/CONTENT.html">Next chapter →</a>
+  </nav>
+
+  <footer class="chapter-foot">
+    <p>Sources: <a href="https://gcc.gnu.org/projects/c-status.html">GCC C standards status</a>
+    and <a href="https://clang.llvm.org/c_status.html">Clang C standards status</a>, for
+    which standard each compiler supports and how completely.</p>
+    <a href="https://github.com/johnatorres226/foundations-of-programming-c/issues/new?template=chapter-feedback.yml&title=%5BM0C3%5D+">
+      Something wrong with this chapter?</a>
+  </footer>
+
+</article>
+
+</body>
+</html>
