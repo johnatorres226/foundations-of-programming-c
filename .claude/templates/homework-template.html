@@ -1,0 +1,98 @@
+<!--
+  HOMEWORK TEMPLATE — copy this to
+  src/modules/<M>-module-<slug>/<C>-chapter-<slug>/exercises/HOMEWORK.html
+
+  Required for every chapter with real exercises (everything outside Module 0's reading
+  chapters — PRD §9's exception). One part per exercise: what it asks, why (linking back to
+  the exact CONTENT.html subsection it exercises), and a hint — never the solution itself,
+  which stays in src/back-of-the-book/. See .claude/project-specs/PRD.md §9 "Homework —
+  bridging chapter to exercise."
+
+  This file sits one level DEEPER than CONTENT.html (inside exercises/), so its asset paths
+  need one more ../ than the chapter's own CONTENT.html. This template sits in .claude/ so
+  its own paths are ../../../assets/ — FIX THEM when you copy it (real chapters:
+  ../../../../../assets/).
+-->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M0.0 Homework — Chapter Template · Foundations of Programming: C</title>
+<link rel="stylesheet" href="../../../assets/style.css"><!-- real chapters: ../../../../../assets/style.css -->
+</head>
+<body>
+<article class="chapter">
+
+  <header class="chapter-head">
+    <p class="crumb">Module 0 · Chapter 0 · Homework</p>
+    <h1>Homework: Chapter Template</h1>
+  </header>
+
+  <!-- Short bridging orientation — not a Recap of a previous chapter, but the same "where
+       you are" framing, reused for a consistent visual language across the two pages. -->
+  <section class="recap">
+    <p>You read how declaring and dereferencing a pointer works. This homework has two
+    parts, one for each idea. Each one is a small, complete program or function you write
+    yourself in <code>exercises/</code>, checked by <code>make check-mine</code> — not by
+    reading this page.</p>
+  </section>
+
+  <!-- One plain <section> per exercise. No special component class: this is prose (h2, p,
+       reused .gotcha / .code / details.solution), not a new thing to add to the kit. -->
+  <section>
+    <h2 id="declare-a-pointer"><code>exercises/01_declare_pointer.c</code></h2>
+    <p><strong>What it asks:</strong> declare an <code>int</code> variable, declare a pointer
+    to it, and print the value through the pointer — not by naming the variable directly.</p>
+    <p><strong>Why:</strong> this is the exact pattern from
+    <a href="../CONTENT.html#declaring-a-pointer">"Declaring a pointer"</a> in the chapter,
+    with your own variable name in place of <code>age</code>.</p>
+
+    <div class="gotcha">
+      <p>Forgetting the <code>&amp;</code> when you point at your variable is the most common
+      first mistake here — without it, you are trying to store an <code>int</code>'s value in
+      a variable that expects an address, and the compiler refuses to compile it.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2 id="swap"><code>exercises/02_swap.c</code></h2>
+    <p><strong>What it asks:</strong> write a <code>swap</code> function that exchanges two
+    <code>int</code> values using pointers, so the change is visible back in the code that
+    called it.</p>
+    <p><strong>Why:</strong> this is what
+    <a href="../CONTENT.html#dereferencing-a-pointer">"Dereferencing a pointer"</a> in the
+    chapter was building toward — not only reading through a pointer, but writing through
+    one too.</p>
+
+    <details class="solution">
+      <summary>Stuck? Show one approach</summary>
+      <div class="code" data-file="02_swap.c">
+<pre><code>void swap(int *a, int *b) {
+    int tmp = *a;
+    *a = *b;
+    *b = tmp;
+}</code></pre>
+      </div>
+      <p class="note">This is one approach, not the answer. You could swap with arithmetic or
+      with XOR — both work, and both are harder to read. Clear beats clever.</p>
+    </details>
+  </section>
+
+  <section class="try-it">
+    <p>Check your work with <code>make check-mine</code>. To check only this chapter, run
+    <code>make check-mine CHAPTER=5-module-pointers/1-chapter-addresses</code>.</p>
+  </section>
+
+  <nav class="chapter-nav">
+    <a href="../CONTENT.html">← Back to the chapter</a>
+  </nav>
+
+  <footer class="chapter-foot">
+    <a href="https://github.com/johnatorres226/foundations-of-programming-c/issues/new?template=chapter-feedback.yml&title=%5BM0C0-HW%5D+">
+      Something wrong with this homework?</a>
+  </footer>
+
+</article>
+</body>
+</html>

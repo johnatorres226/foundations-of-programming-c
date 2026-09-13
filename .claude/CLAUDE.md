@@ -12,6 +12,7 @@ real files. Audience has **minimal programming experience**; prose targets **6th
 | **`SYLLABUS.md`** | Every chapter's declared learning outcomes. Recaps are written against this file. |
 | **`.claude/templates/chapter-template.html`** | Copy for every new `CONTENT.html`. All six sections and every component, verified rendering offline. Change asset paths to `../../../../assets/`. |
 | **`.claude/templates/quiz-template.html`** | Copy for every new `QUIZ.html`. Edit only the JSON block. |
+| **`.claude/templates/homework-template.html`** | Copy for every new `exercises/HOMEWORK.html` (chapters with real exercises — not Module 0). Bridges chapter concepts to what each exercise asks; see `.claude/project-specs/PRD.md` §9. |
 | **`.claude/templates/exam-template.html`** | Copy for every new `module-exam/EXAM.html`. Same schema and engine as the quiz template, longer, with an optional `section` field to group questions by chapter. Correct answers + reasoning also live in `src/back-of-the-book/module-<N>/exam-answers.md`; see `.claude/project-specs/PRD.md` §10. |
 | **`CRITICAL-PATH.md`** | What to work on next. Generated from the GitHub issue graph; dispatch only unblocked issues. Gitignored — local orchestration only, never pushed. Regenerate from the issue graph when stale. |
 

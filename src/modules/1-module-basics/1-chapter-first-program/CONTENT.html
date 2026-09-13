@@ -12,6 +12,25 @@
   <header class="chapter-head">
     <p class="crumb">Module 1 · Chapter 1</p>
     <h1>Your First Program, Line by Line</h1>
+    <nav class="chapter-toc" aria-label="Chapter contents">
+      <p>In this chapter</p>
+      <ol>
+        <li><a href="#big-picture">Big picture: why every C program states the same pieces up front</a></li>
+        <li><a href="#how">How it works</a>
+          <ol>
+            <li><a href="#include-line"><code>#include &lt;stdio.h&gt;</code></a></li>
+            <li><a href="#main-line"><code>int main(void)</code></a></li>
+            <li><a href="#printf-line"><code>printf("Hello, World!\n");</code></a></li>
+            <li><a href="#return-line"><code>return 0;</code></a></li>
+            <li><a href="#closing-brace">Closing brace</a></li>
+            <li><a href="#compile-command">Reading the compile command</a></li>
+          </ol>
+        </li>
+        <li><a href="#try-it">Try it</a></li>
+        <li><a href="#zoom-out">Zooming out: from reading tokens to watching the compiler work</a></li>
+        <li><a href="exercises/HOMEWORK.html">Homework →</a></li>
+      </ol>
+    </nav>
   </header>
 
   <!-- ===== 1. RECAP ===== -->
@@ -22,7 +41,7 @@
   </section>
 
   <!-- ===== 2. BIG PICTURE ===== -->
-  <section class="big-picture">
+  <section class="big-picture" id="big-picture">
     <h2>Big picture: why every C program states the same pieces up front</h2>
     <p>C does not guess what your program needs. The operating system that runs your program
     needs to know exactly where it should start, and the compiler needs to know exactly
@@ -47,7 +66,7 @@
   </section>
 
   <!-- ===== 4. HOW IT WORKS ===== -->
-  <section class="how">
+  <section class="how" id="how">
     <h2>How it works</h2>
 
     <p>Here is the program from last chapter again, in full:</p>
@@ -62,15 +81,6 @@ int main(void) {
     </div>
 
     <p>Five lines, four jobs. Here is what each one is doing.</p>
-
-    <p class="how-index">
-      <a href="#include-line">#include &lt;stdio.h&gt;</a> ·
-      <a href="#main-line">int main(void)</a> ·
-      <a href="#printf-line">printf(...)</a> ·
-      <a href="#return-line">return 0;</a> ·
-      <a href="#closing-brace">Closing brace</a> ·
-      <a href="#compile-command">Reading the compile command</a>
-    </p>
 
     <h3 id="include-line"><code>#include &lt;stdio.h&gt;</code></h3>
     <p>A <span class="vocab">header file</span> is a file full of information the compiler
@@ -473,41 +483,20 @@ clang: error: linker command failed with exit code 1</pre>
   </section>
 
   <!-- ===== 5. TRY IT ===== -->
-  <section class="try-it">
-    <p>Open these files in your editor and finish each program. Each one is a full program:
-    write your own <code>#include</code>, <code>main</code>, <code>printf</code> calls, and
-    <code>return</code> — the same four pieces explained above.</p>
-    <ul>
-      <li><code>exercises/01_hello_world.c</code> — print exactly one line: the classic
-      hello-world message</li>
-      <li><code>exercises/02_two_lines.c</code> — print two lines with two separate
-      <code>printf</code> calls</li>
-      <li><code>exercises/03_quoted_message.c</code> — print a line that itself contains
-      quotation marks, using <code>\"</code></li>
-    </ul>
+  <section class="try-it" id="try-it">
+    <p>You read what each of the four pieces does. Now write all four yourself, three
+    times, in three small programs: <code>exercises/01_hello_world.c</code>,
+    <code>02_two_lines.c</code>, and <code>03_quoted_message.c</code>.</p>
+    <p><a href="exercises/HOMEWORK.html">Open your homework →</a> for what each one asks,
+    why, and a hint if you get stuck.</p>
     <p>Check your work with <code>make check-mine</code>. To check only this chapter, run
     <code>make check-mine CHAPTER=1-module-basics/1-chapter-first-program</code>. Each
     exercise compares your program's exact output to the answer on file — match it letter
     for letter, including the newline at the end of each line.</p>
-
-    <details class="solution">
-      <summary>Stuck on the quoted-message exercise? Show one approach</summary>
-      <div class="code" data-file="03_quoted_message.c">
-<pre><code>#include &lt;stdio.h&gt;
-
-int main(void) {
-    printf("She said \"hello\" back.\n");
-    return 0;
-}</code></pre>
-      </div>
-      <p class="note">This is one approach, not the answer. Any message with an escaped
-      <code>\"</code> in the right place passes — the exact words you print don't have to
-      match this example, only the shape of the escape.</p>
-    </details>
   </section>
 
   <!-- ===== 6. ZOOM OUT ===== -->
-  <section class="zoom-out">
+  <section class="zoom-out" id="zoom-out">
     <h2>Zooming out: from reading tokens to watching the compiler work</h2>
     <p>You can now read every token of a hello-world program: what <code>#include</code>
     borrows, what <code>main</code> starts, what <code>printf</code> prints, and what

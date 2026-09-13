@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M1.1 Homework — Your First Program · Foundations of Programming: C</title>
+<link rel="stylesheet" href="../../../../../assets/style.css">
+</head>
+<body>
+<article class="chapter">
+
+  <header class="chapter-head">
+    <p class="crumb">Module 1 · Chapter 1 · Homework</p>
+    <h1>Homework: Your First Program</h1>
+  </header>
+
+  <section class="recap">
+    <p>You read what each of the four pieces of <code>hello.c</code> does — the
+    <code>#include</code>, <code>main</code>, <code>printf</code>, and <code>return</code>.
+    This homework has three parts, each a complete program you write from scratch using
+    that same shape. Nothing here is inlined for you to copy — write each file yourself in
+    <code>exercises/</code>, and check your work with <code>make check-mine</code>, not by
+    reading this page.</p>
+  </section>
+
+  <section>
+    <h2 id="hello-world"><code>exercises/01_hello_world.c</code></h2>
+    <p><strong>What it asks:</strong> a complete program that prints exactly one line, the
+    classic hello-world message, then exits successfully.</p>
+    <p><strong>Why:</strong> this is the whole skeleton from the chapter in one file — the
+    <a href="../CONTENT.html#include-line">header you borrow</a>, the
+    <a href="../CONTENT.html#main-line">one starting point</a>, the
+    <a href="../CONTENT.html#printf-line">line that does the printing</a>, and the
+    <a href="../CONTENT.html#return-line">line that reports back</a>. If you can write this
+    one without looking anything up, you have the shape.</p>
+
+    <div class="gotcha">
+      <p>The test compares your output letter for letter, including the newline at the end.
+      A <code>printf</code> call without a trailing <code>\n</code> will fail even if the
+      visible words look identical — the missing newline is a real difference the test can
+      see.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2 id="two-lines"><code>exercises/02_two_lines.c</code></h2>
+    <p><strong>What it asks:</strong> a complete program that prints two separate lines,
+    using two separate <code>printf</code> calls.</p>
+    <p><strong>Why:</strong> the chapter showed that
+    <a href="../CONTENT.html#printf-line">statements run in the order they are written</a> —
+    this exercise is that idea, made real. Two calls, two lines, top to bottom.</p>
+
+    <div class="gotcha">
+      <p>Each <code>printf</code> call needs its own <code>\n</code>. Forgetting the first
+      one runs both lines together on the same line of output — the program still compiles
+      and runs, it doesn't produce two separate lines.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2 id="quoted-message"><code>exercises/03_quoted_message.c</code></h2>
+    <p><strong>What it asks:</strong> a complete program that prints one line containing its
+    own double quotation marks — for example, someone's quoted words inside the message.</p>
+    <p><strong>Why:</strong> this is the
+    <a href="../CONTENT.html#printf-line">escaped-quote gotcha</a> from the chapter: a bare
+    <code>"</code> in the middle of a string literal ends the string early, so you need
+    <code>\"</code> wherever a real double quote belongs inside your message.</p>
+
+    <details class="solution">
+      <summary>Stuck? Show one approach</summary>
+      <div class="code" data-file="03_quoted_message.c">
+<pre><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    printf("She said \"hello\" back.\n");
+    return 0;
+}</code></pre>
+      </div>
+      <p class="note">This is one approach, not the answer. Any message with an escaped
+      <code>\"</code> in the right place passes — the exact words you print don't have to
+      match this example, only the shape of the escape.</p>
+    </details>
+  </section>
+
+  <section class="try-it">
+    <p>Check all three with <code>make check-mine</code>. To check only this chapter, run
+    <code>make check-mine CHAPTER=1-module-basics/1-chapter-first-program</code>.</p>
+  </section>
+
+  <nav class="chapter-nav">
+    <a href="../CONTENT.html">← Back to the chapter</a>
+  </nav>
+
+  <footer class="chapter-foot">
+    <a href="https://github.com/johnatorres226/foundations-of-programming-c/issues/new?template=chapter-feedback.yml&title=%5BM1C1-HW%5D+">
+      Something wrong with this homework?</a>
+  </footer>
+
+</article>
+</body>
+</html>

@@ -83,23 +83,53 @@ under it. Every chapter's headings carry the connection in the words themselves:
 Never ship the bare `The big picture` / `Zooming out` text — it is a sign the chapter's own
 author has not yet named the connection.
 
-### The "how it works" index
+### The chapter table of contents
 
-When `.how` has **two or more `<h3>` subsections**, open the section with a `.how-index`: a
-short line of anchor links to those subsections, dot-separated, styled like `.crumb`:
+Every chapter opens with a real table of contents — not a link list — inside
+`.chapter-head`, immediately after `<h1>`. It is a nested `<nav class="chapter-toc">`, not
+a dot-separated line of links buried inside `.how`: a learner should see the chapter's
+whole shape before reading a word of it, not stumble onto an index halfway through:
 
 ```html
-<h2>How it works</h2>
-<p class="how-index">
-  <a href="#macos">macOS</a> · <a href="#linux">Linux</a> · <a href="#windows">Windows</a>
-</p>
+<header class="chapter-head">
+  <p class="crumb">Module 1 · Chapter 1</p>
+  <h1>Your First Program, Line by Line</h1>
+  <nav class="chapter-toc" aria-label="Chapter contents">
+    <p>In this chapter</p>
+    <ol>
+      <li><a href="#big-picture">Big picture: why every C program states the same pieces up front</a></li>
+      <li><a href="#how">How it works</a>
+        <ol>
+          <li><a href="#include-line">#include &lt;stdio.h&gt;</a></li>
+          <li><a href="#main-line">int main(void)</a></li>
+        </ol>
+      </li>
+      <li><a href="#try-it">Try it</a></li>
+      <li><a href="#zoom-out">Zooming out: from reading tokens to watching the compiler work</a></li>
+      <li><a href="exercises/HOMEWORK.html">Homework →</a></li>
+    </ol>
+  </nav>
+</header>
 ```
 
-Give each `<h3>` a matching `id`. This is not decoration — it lets a learner see the
-chapter's shape (how many parts, what each covers) before committing to read it start to
-end, and lets them jump back to one part later. A chapter that is a single narrative
-(0.1–0.3 are, for example) has no subsections and needs no index — don't invent artificial
-`<h3>` breaks just to hang one on.
+Rules:
+
+- **Four entries always: Big Picture, How It Works, Try It, Zoom Out.** Recap and Core Idea
+  are 2–3 sentences and one sentence respectively — framing, not content to navigate to —
+  and are left out. Each `<h2>`-bearing section needs a matching `id` (`big-picture`, `how`,
+  `try-it`, `zoom-out`) for the anchors to resolve.
+- **How It Works nests its `<h3>` subsections** one level deeper, in their own `<ol>`, each
+  with a matching `id` — this is the part worth previewing in detail, since it's most of the
+  chapter's length. A chapter with only one flat block under `.how` (no natural
+  subsections) still gets the four top-level entries; it just has no nested list under "How
+  it works."
+- **A fifth entry, "Homework →", links to `exercises/HOMEWORK.html`** for any chapter that
+  has one (every chapter with real exercises — see the new Homework section below). It is a
+  real page link, not an anchor, and it is fine for it to be the only non-anchor entry in the
+  list. Chapters with no exercises (Module 0) omit this entry.
+- This is not decoration — it lets a learner see the chapter's shape (how many parts, what
+  each covers, and that homework is waiting at the end) before committing to read it start
+  to end, and lets them jump back to one part later.
 
 ---
 
@@ -337,6 +367,38 @@ Two files, named after the exercise, sit next to its test and change how
   reports that exercise **SKIP**, never a false pass or fail. Module 13.4 (C11 `threads.h`)
   is the first user.
 
+### Homework — bridging chapter to exercise
+
+Early chapters shipped with exercises that felt bolted on: `CONTENT.html` taught the ideas,
+then `.try-it` dropped a bare file list with no bridge between "here is how this works" and
+"here is what your three files are actually asking you to do." **Homework** is the fix.
+
+**`exercises/HOMEWORK.html`** is a required file for every chapter that has real exercises
+(anything outside Module 0's reading chapters — see PRD §9's exception). Copy
+`.claude/templates/homework-template.html`; never write one blank. It is a page in its own
+right (same `assets/style.css`, one directory deeper than `CONTENT.html` — fix asset paths
+to `../../../../../assets/`), not a section inside `CONTENT.html`.
+
+What it contains, one part per exercise:
+
+- **What it asks** — restate the exercise's goal in one or two sentences, concretely (not
+  "practice what you learned" — name the actual output or behavior expected).
+- **Why** — tie it back to the specific `.how` subsection it exercises, linking to that
+  subsection's `id` in `CONTENT.html` (e.g. `../CONTENT.html#printf-line`). This is the
+  bridge the old `.try-it` bullet list didn't have.
+- **A hint, not the solution** — a `.gotcha` naming the trap this exercise is likely to hit,
+  or a `<details class="solution">` "one approach" reveal per §10's honor-system rule. The
+  canonical answer still lives only in `src/back-of-the-book/`.
+
+What `CONTENT.html`'s own `.try-it` section keeps, once Homework exists: a short bridging
+paragraph (what you're about to do and why, in 1–3 sentences) and the `make check-mine`
+command — not the per-exercise breakdown or the solution reveal, both of which move to
+Homework. Point to it plainly: `<a href="exercises/HOMEWORK.html">Open your homework →</a>`.
+The chapter table of contents (above) also links it as a final "Homework →" entry.
+
+Module 0 chapters have no `exercises/HOMEWORK.html` and no Homework link anywhere — they
+have no exercises to bridge to, per the existing Module 0 exception.
+
 ### Checking your work
 
 ```sh
@@ -435,6 +497,7 @@ CRITICAL-PATH.md   # gitignored — local orchestration only, regenerated from t
 Makefile · .clang-format · .gitignore
 .claude/project-specs/PRD.md · .claude/project-specs/DESIGN-GUIDELINES.md · .claude/CLAUDE.md
 .claude/templates/chapter-template.html · .claude/templates/quiz-template.html · .claude/templates/exam-template.html
+.claude/templates/homework-template.html
     # copy these, never start blank
 assets/style.css · assets/quiz.js · assets/mermaid.min.js
 .github/ISSUE_TEMPLATE/*.yml · .github/workflows/{ci,release}.yml
@@ -444,6 +507,7 @@ src/modules/<N>-module-<topic>/
     <N>-chapter-<topic>/
         README.md · CONTENT.html · QUIZ.html
         exercises/NN_name.c            # learner-facing stub, no solution logic
+        exercises/HOMEWORK.html        # bridges chapter to exercises, see §9. Not in Module 0.
         tests/NN_name_test.c           # function exercise: main() + assert()
         tests/NN_name.expected         # program exercise: exact stdout
         tests/NN_name.input            # program exercise: optional stdin
@@ -488,11 +552,13 @@ SemVer, recorded in `CHANGELOG.md`:
 - [ ] `tests/*.c` written first, `assert`-based, and failing before the solution exists (not in Module 0)
 - [ ] Reference solution in `back-of-the-book/` passes `make check`
 - [ ] `exercises/*.c` stubs present, compile, and fail the tests until completed
+- [ ] `exercises/HOMEWORK.html` present (not in Module 0), copied from the template, one part per exercise, each linking back to its `.how` subsection (§9)
 - [ ] `CONTENT.html` has all six sections in order
 - [ ] Core Idea is one sentence
 - [ ] Recap is 2–3 sentences, written against `SYLLABUS.md` outcomes
 - [ ] Big Picture and Zoom Out headings name what they connect to — not the bare label (§3)
-- [ ] `.how-index` present if `.how` has 2+ `<h3>` subsections (§3)
+- [ ] `.chapter-toc` present in `.chapter-head`, right after `<h1>`, with a nested list for `.how`'s subsections and a final "Homework →" entry if the chapter has one (§3)
+- [ ] `.try-it` bridges to Homework in 1–3 sentences plus the check command — the per-exercise breakdown and solution reveal live in Homework, not here (§9)
 - [ ] Passes the depth checklist (§5) — word count in the target band, or a documented reason if not
 - [ ] `QUIZ.html` has a `why` on **every** option (not in Module 0)
 - [ ] Every new technical term is defined on first use

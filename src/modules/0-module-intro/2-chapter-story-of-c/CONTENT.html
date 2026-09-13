@@ -12,6 +12,25 @@
   <header class="chapter-head">
     <p class="crumb">Module 0 · Chapter 2</p>
     <h1>The Story of C</h1>
+    <nav class="chapter-toc" aria-label="Chapter contents">
+      <p>In this chapter</p>
+      <ol>
+        <li><a href="#big-picture">Big picture: the portability problem C was built to solve</a></li>
+        <li><a href="#how">How it works</a>
+          <ol>
+            <li><a href="#before-c">Before C: one machine, one language</a></li>
+            <li><a href="#from-b-to-c">From B to C (1971–1973)</a></li>
+            <li><a href="#the-1973-unix-rewrite">The 1973 Unix rewrite</a></li>
+            <li><a href="#why-c-and-unix-spread">Why C and Unix spread together</a></li>
+            <li><a href="#the-1978-book">The book that taught everyone (1978)</a></li>
+            <li><a href="#the-people-behind-the-language">The people behind the language</a></li>
+            <li><a href="#where-c-is-used-today">Where C is used today</a></li>
+          </ol>
+        </li>
+        <li><a href="#try-it">Try it</a></li>
+        <li><a href="#zoom-out">Zooming out: from why C spread to how the language itself changed</a></li>
+      </ol>
+    </nav>
   </header>
 
   <!-- ===== 1. RECAP ===== -->
@@ -23,7 +42,7 @@
   </section>
 
   <!-- ===== 2. BIG PICTURE ===== -->
-  <section class="big-picture">
+  <section class="big-picture" id="big-picture">
     <h2>Big picture: the portability problem C was built to solve</h2>
     <p>Before C, moving a program to a different computer often meant rewriting it from
     scratch. Programs were written in <span class="vocab">assembly language</span> —
@@ -66,18 +85,8 @@
   </section>
 
   <!-- ===== 4. HOW IT WORKS ===== -->
-  <section class="how">
+  <section class="how" id="how">
     <h2>How it works</h2>
-
-    <p class="how-index">
-      <a href="#before-c">Before C: one machine, one language</a> ·
-      <a href="#from-b-to-c">From B to C (1971–1973)</a> ·
-      <a href="#the-1973-unix-rewrite">The 1973 Unix rewrite</a> ·
-      <a href="#why-c-and-unix-spread">Why C and Unix spread together</a> ·
-      <a href="#the-1978-book">The book that taught everyone (1978)</a> ·
-      <a href="#the-people-behind-the-language">The people behind the language</a> ·
-      <a href="#where-c-is-used-today">Where C is used today</a>
-    </p>
 
     <h3 id="before-c">Before C: one machine, one language</h3>
     <p>Bell Labs, where this story starts, was the research arm of AT&amp;T, the American
@@ -393,7 +402,7 @@ int main(void) {
   <!-- Module 0 has no tests, quizzes, project, or exam (PRD §9) and 0.1-0.3 have no
        exercises/ directory — they are reading chapters. This section is adapted to an
        ungraded, no-compiler activity plus pointers to the primary sources used above. -->
-  <section class="try-it">
+  <section class="try-it" id="try-it">
     <p>Module 0 has no code exercises yet — those start in Module 1. Instead, try this:</p>
     <ul>
       <li>Name three pieces of software you use every day. Then guess: could any of them be
@@ -410,7 +419,7 @@ int main(void) {
   </section>
 
   <!-- ===== 6. ZOOM OUT ===== -->
-  <section class="zoom-out">
+  <section class="zoom-out" id="zoom-out">
     <h2>Zooming out: from why C spread to how the language itself changed</h2>
     <p>C spread because it solved a real problem: it let an operating system move between
     computers without a full rewrite. That same trade-off — close to the hardware, but not

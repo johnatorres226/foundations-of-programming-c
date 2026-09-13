@@ -80,6 +80,18 @@ a:focus-visible, button:focus-visible, summary:focus-visible {
 .crumb { font-size: var(--t-sm); color: var(--text-muted); margin: 0 0 var(--s-2);
          text-transform: uppercase; letter-spacing: .08em; font-weight: 600; }
 
+/* ---- chapter table of contents ----------------------------------------- */
+.chapter-toc { margin: var(--s-6) 0 0; font-size: var(--t-sm); }
+.chapter-toc > p {
+  margin: 0 0 var(--s-2); font-weight: 700; font-size: var(--t-xs);
+  text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted);
+}
+.chapter-toc ol { margin: 0; padding-left: 1.3em; }
+.chapter-toc li { margin: var(--s-1) 0; }
+.chapter-toc ol ol { margin: var(--s-1) 0 var(--s-1) .2em; font-size: .95em; }
+.chapter-toc a { color: var(--text); text-decoration: none; }
+.chapter-toc a:hover { color: var(--accent); text-decoration: underline; }
+
 /* ---- 1. recap ---------------------------------------------------------- */
 .recap {
   font-size: var(--t-sm); color: var(--text-muted);
@@ -113,11 +125,6 @@ a:focus-visible, button:focus-visible, summary:focus-visible {
   text-transform: uppercase; letter-spacing: .08em; color: var(--accent);
   margin-bottom: var(--s-2);
 }
-
-/* ---- how-it-works index ------------------------------------------------ */
-.how-index { font-size: var(--t-sm); color: var(--text-muted); margin: 0 0 var(--s-6); }
-.how-index a { color: var(--text-muted); }
-.how-index a:hover { color: var(--accent); }
 
 /* ---- code and terminal ------------------------------------------------- */
 pre, code, kbd { font-family: var(--font-mono); }

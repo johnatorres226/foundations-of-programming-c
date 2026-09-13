@@ -2,6 +2,9 @@
   CHAPTER TEMPLATE — copy this to src/modules/<M>-module-<slug>/<C>-chapter-<slug>/CONTENT.html
 
   Six sections, fixed order. Do not reorder, do not omit. See .claude/project-specs/PRD.md §3.
+  This chapter has real exercises, so it also needs a copy of homework-template.html at
+  exercises/HOMEWORK.html — a Module 0 reading chapter skips that file and the "Homework →"
+  row in the table of contents below (PRD §9).
   Asset paths below assume a real chapter four levels deep. This template sits in
   .claude/ so its own paths are ../assets/ — FIX THEM when you copy it.
 -->
@@ -16,9 +19,29 @@
 <body>
 <article class="chapter">
 
+  <!-- Chapter table of contents lives HERE, right after <h1> — not buried inside .how.
+       Four entries always (Big Picture / How It Works / Try It / Zoom Out; Recap and Core
+       Idea are framing, not content, so they're left out), How It Works nests its <h3>
+       subsections one level deeper, and a chapter with real exercises adds a final
+       "Homework →" page link. See PRD §3 "The chapter table of contents." -->
   <header class="chapter-head">
     <p class="crumb">Module 0 · Chapter 0</p>
     <h1>Chapter Template</h1>
+    <nav class="chapter-toc" aria-label="Chapter contents">
+      <p>In this chapter</p>
+      <ol>
+        <li><a href="#big-picture">Big picture: why C hands you the keys to memory</a></li>
+        <li><a href="#how">How it works</a>
+          <ol>
+            <li><a href="#declaring-a-pointer">Declaring a pointer</a></li>
+            <li><a href="#dereferencing-a-pointer">Dereferencing a pointer</a></li>
+          </ol>
+        </li>
+        <li><a href="#try-it">Try it</a></li>
+        <li><a href="#zoom-out">Zooming out: from one pointer to everything built on pointers</a></li>
+        <li><a href="exercises/HOMEWORK.html">Homework →</a></li>
+      </ol>
+    </nav>
   </header>
 
   <!-- ===== 1. RECAP — 2-3 sentences. Written against SYLLABUS.md outcomes,
@@ -31,7 +54,7 @@
   <!-- ===== 2. BIG PICTURE — the advance organizer. Why does this exist at all?
        The <h2> must NAME the connection: "Big picture: <what this ties to>", never the
        bare words "The big picture" — see PRD §3. ===== -->
-  <section class="big-picture">
+  <section class="big-picture" id="big-picture">
     <h2>Big picture: why C hands you the keys to memory</h2>
     <p>C gives you direct access to memory. That is the whole bargain: you get speed and
     control, and in exchange you are responsible for things other languages handle for
@@ -44,16 +67,10 @@
   </section>
 
   <!-- ===== 4. HOW IT WORKS — the detail. Code, diagrams, traps.
-       TWO OR MORE <h3> subsections? Open with a .how-index (dot-separated anchor links,
-       styled like .crumb) and give each <h3> a matching id — see PRD §3. A single-thread
-       narrative chapter (no natural subsections) skips both; don't force a split. ===== -->
-  <section class="how">
+       Each <h3> subsection needs a matching id — the chapter-toc nav up in .chapter-head
+       links to them. No separate index lives down here anymore; PRD §3. ===== -->
+  <section class="how" id="how">
     <h2>How it works</h2>
-
-    <p class="how-index">
-      <a href="#declaring-a-pointer">Declaring a pointer</a> ·
-      <a href="#dereferencing-a-pointer">Dereferencing a pointer</a>
-    </p>
 
     <h3 id="declaring-a-pointer">Declaring a pointer</h3>
     <p>A <span class="vocab">pointer</span> does not hold a value. It holds the
@@ -130,45 +147,37 @@ flowchart TD
     </pre>
   </section>
 
-  <!-- ===== 5. TRY IT — point at real files. Never inline the work.
+  <!-- ===== 5. TRY IT — a short bridge to Homework, not the exercise breakdown itself.
        Two exercise shapes (PRD §9): a FUNCTION exercise pairs exercises/NN_name.c
        (no main) with tests/NN_name_test.c (main + assert), built and run together —
        01_declare_pointer.c below is this shape. A PROGRAM exercise is a full program
        whose stdout tests/NN_name.expected checks exactly (tests/NN_name.input feeds
-       stdin, if the program reads any). Use whichever shape fits the exercise.
+       stdin, if the program reads any).
 
-       READING-ONLY CHAPTERS (Module 0 — no exercises/, no tests/, no quiz): swap
-       this section for a short ungraded activity instead — a reflection question,
-       or "go read this primary source and look for X." Do not invent exercise
-       files that don't exist for this chapter. This is a settled pattern, not a
-       per-chapter judgment call — 0.1 through 0.4 all use it. ===== -->
-  <section class="try-it">
-    <p>Open these in your editor and make the tests pass:</p>
-    <ul>
-      <li><code>exercises/01_declare_pointer.c</code> — declare a pointer and print through it</li>
-      <li><code>exercises/02_swap.c</code> — swap two variables using pointers</li>
-    </ul>
+       What used to live here — the per-exercise bullet list and the solution reveal —
+       now lives in exercises/HOMEWORK.html (copy .claude/templates/homework-template.html).
+       This section stays short: what you're about to do, why, the homework link, and the
+       check command. See PRD §9 "Homework — bridging chapter to exercise."
+
+       READING-ONLY CHAPTERS (Module 0 — no exercises/, no tests/, no quiz, no homework):
+       swap this section for a short ungraded activity instead — a reflection question,
+       or "go read this primary source and look for X." Do not invent exercise files that
+       don't exist for this chapter. This is a settled pattern — 0.1 through 0.4 all use
+       it — and drop the "Homework →" row from the chapter-toc entirely for these. ===== -->
+  <section class="try-it" id="try-it">
+    <p>You read how declaring and dereferencing a pointer works. Now write both
+    yourself: <code>exercises/01_declare_pointer.c</code> and
+    <code>exercises/02_swap.c</code>.</p>
+    <p><a href="exercises/HOMEWORK.html">Open your homework →</a> for what each exercise
+    asks, why, and a hint if you get stuck.</p>
     <p>Check your work with <code>make check-mine</code>. To check only this chapter, run
     <code>make check-mine CHAPTER=5-module-pointers/1-chapter-addresses</code>.</p>
-
-    <details class="solution">
-      <summary>Show one approach</summary>
-      <div class="code" data-file="02_swap.c">
-<pre><code>void swap(int *a, int *b) {
-    int tmp = *a;
-    *a = *b;
-    *b = tmp;
-}</code></pre>
-      </div>
-      <p class="note">This is one approach, not the answer. You could swap with arithmetic
-      or with XOR — both work, and both are harder to read. Clear beats clever.</p>
-    </details>
   </section>
 
   <!-- ===== 6. ZOOM OUT — re-tie to the whole language, name what is next.
        The <h2> must name what this zooms out TO, never the bare words "Zooming out"
        — see PRD §3. ===== -->
-  <section class="zoom-out">
+  <section class="zoom-out" id="zoom-out">
     <h2>Zooming out: from one pointer to everything built on pointers</h2>
     <p>Pointers are how C lets you reach memory directly, and nearly everything ahead
     depends on them: strings, dynamic memory, structs passed to functions, and threads

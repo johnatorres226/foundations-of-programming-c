@@ -124,7 +124,7 @@ without adding them here first.
 | `.recap` | Muted, small. 2–3 sentences of orientation. |
 | `.big-picture` | Accent left-border callout. The advance organizer. Its `<h2>` names what the chapter connects to, not the bare label — see `PRD.md` §3. |
 | `.core-idea` | Boxed, accent background, larger type. **One sentence.** |
-| `.how-index` | Muted, small, dot-separated links. Only when `.how` has 2+ `<h3>` subsections — see `PRD.md` §3. |
+| `.chapter-toc` | A real nested table of contents — not a link list — inside `.chapter-head`, right after `<h1>`. Every chapter has one. See `PRD.md` §3. |
 | `.code` | Code sample. Requires a `data-file` attribute showing the filename. |
 | `.terminal` | Command + output. Visually distinct from `.code` — dark ground, `$` prompt. |
 | `.try-it` | Accent box linking to `exercises/*.c`. |

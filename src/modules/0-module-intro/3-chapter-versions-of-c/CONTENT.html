@@ -12,6 +12,28 @@
   <header class="chapter-head">
     <p class="crumb">Module 0 · Chapter 3</p>
     <h1>The Versions of C</h1>
+    <nav class="chapter-toc" aria-label="Chapter contents">
+      <p>In this chapter</p>
+      <ol>
+        <li><a href="#big-picture">Big picture: why C needed an official rulebook</a></li>
+        <li><a href="#how">How it works</a>
+          <ol>
+            <li><a href="#c89">C89: taming a thousand private dialects</a></li>
+            <li><a href="#c99">C99: what actually changed for a working programmer</a></li>
+            <li><a href="#c11">C11: features a compiler is allowed to skip</a></li>
+            <li><a href="#c17">C17: a rulebook with no new rules</a></li>
+            <li><a href="#c23">C23: the newest rulebook, not yet the safest bet</a></li>
+            <li><a href="#the-number-in-the-name">The number in the name</a></li>
+            <li><a href="#who-writes-a-standard">Who actually writes a standard?</a></li>
+            <li><a href="#why-not-one-perfect-version">Why not one perfect version?</a></li>
+            <li><a href="#telling-standards-apart">Telling standards apart by their features</a></li>
+            <li><a href="#does-this-matter-yet">Does this matter for you yet?</a></li>
+          </ol>
+        </li>
+        <li><a href="#try-it">Try it</a></li>
+        <li><a href="#zoom-out">Zooming out: from picking a rulebook to installing the tools that enforce it</a></li>
+      </ol>
+    </nav>
   </header>
 
   <!-- ===== 1. RECAP ===== -->
@@ -23,7 +45,7 @@
   </section>
 
   <!-- ===== 2. BIG PICTURE ===== -->
-  <section class="big-picture">
+  <section class="big-picture" id="big-picture">
     <h2>Big picture: why C needed an official rulebook</h2>
     <p>In the early days, "C" meant whatever one particular compiler accepted. A program
     that worked on one machine could fail on another, for no reason a beginner could see.
@@ -49,7 +71,7 @@
   </section>
 
   <!-- ===== 4. HOW IT WORKS ===== -->
-  <section class="how">
+  <section class="how" id="how">
     <h2>How it works</h2>
 
     <p>A standard is a written document, agreed on by a committee, that says exactly what
@@ -103,16 +125,6 @@
         </tbody>
       </table>
     </div>
-
-    <p class="how-index">
-      <a href="#c89">C89</a> · <a href="#c99">C99</a> · <a href="#c11">C11</a> ·
-      <a href="#c17">C17</a> · <a href="#c23">C23</a> ·
-      <a href="#the-number-in-the-name">The number in the name</a> ·
-      <a href="#who-writes-a-standard">Who writes a standard</a> ·
-      <a href="#why-not-one-perfect-version">Why not one perfect version</a> ·
-      <a href="#telling-standards-apart">Telling standards apart by their features</a> ·
-      <a href="#does-this-matter-yet">Does this matter for you yet?</a>
-    </p>
 
     <h3 id="c89">C89: taming a thousand private dialects</h3>
     <p>Before 1989, the closest thing C had to a rulebook was <em>The C Programming
@@ -419,7 +431,7 @@ for (int i = 0; i &lt; 10; i++) { /* ... */ }</code></pre>
   </section>
 
   <!-- ===== 5. TRY IT ===== -->
-  <section class="try-it">
+  <section class="try-it" id="try-it">
     <p>Module 0 has no exercise files yet — you do not have a compiler installed until
     next chapter. For now, look back at the table above and answer this in your
     head: if you found a ten-year-old C file online, which standard was it most likely
@@ -430,7 +442,7 @@ for (int i = 0; i &lt; 10; i++) { /* ... */ }</code></pre>
   </section>
 
   <!-- ===== 6. ZOOM OUT ===== -->
-  <section class="zoom-out">
+  <section class="zoom-out" id="zoom-out">
     <h2>Zooming out: from picking a rulebook to installing the tools that enforce it</h2>
     <p>Every standard after C89 has been additive: newer rulebooks add or clarify, they
     do not take away. That is why code written for C17 still makes sense once you know

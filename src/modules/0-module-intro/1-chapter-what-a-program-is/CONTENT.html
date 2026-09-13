@@ -12,6 +12,25 @@
   <header class="chapter-head">
     <p class="crumb">Module 0 · Chapter 1</p>
     <h1>What a Program Actually Is</h1>
+    <nav class="chapter-toc" aria-label="Chapter contents">
+      <p>In this chapter</p>
+      <ol>
+        <li><a href="#big-picture">Big picture: why this question matters more in C than most languages</a></li>
+        <li><a href="#how">How it works</a>
+          <ol>
+            <li><a href="#what-happens-when-you-run-something">What happens when you run something</a></li>
+            <li><a href="#source-code-vs-machine-code">Source code vs. machine code</a></li>
+            <li><a href="#compiled-vs-interpreted">Compiled vs. interpreted</a></li>
+            <li><a href="#what-you-gain-and-give-up">What you gain and give up in C</a></li>
+            <li><a href="#where-c-is-running-right-now">Where C is running right now</a></li>
+            <li><a href="#why-c-has-a-reputation">Why C has a reputation for being hard — and why that's manageable</a></li>
+            <li><a href="#quick-myths-checked">Quick myths, checked</a></li>
+          </ol>
+        </li>
+        <li><a href="#try-it">Try it</a></li>
+        <li><a href="#zoom-out">Zooming out: from what a program is to where C came from</a></li>
+      </ol>
+    </nav>
   </header>
 
   <!-- ===== 1. RECAP — this is the first chapter in the course, so there is nothing to
@@ -24,7 +43,7 @@
   </section>
 
   <!-- ===== 2. BIG PICTURE ===== -->
-  <section class="big-picture">
+  <section class="big-picture" id="big-picture">
     <h2>Big picture: why this question matters more in C than most languages</h2>
     <p>Every piece of software you have ever used — a game, a calculator app, the page you
     are reading this on — is a <strong>program</strong>. Before you write a single line of
@@ -50,18 +69,8 @@
   </section>
 
   <!-- ===== 4. HOW IT WORKS ===== -->
-  <section class="how">
+  <section class="how" id="how">
     <h2>How it works</h2>
-
-    <p class="how-index">
-      <a href="#what-happens-when-you-run-something">What happens when you run something</a> ·
-      <a href="#source-code-vs-machine-code">Source code vs. machine code</a> ·
-      <a href="#compiled-vs-interpreted">Compiled vs. interpreted</a> ·
-      <a href="#what-you-gain-and-give-up">What you gain and give up in C</a> ·
-      <a href="#where-c-is-running-right-now">Where C is running right now</a> ·
-      <a href="#why-c-has-a-reputation">Why C has a reputation for being hard</a> ·
-      <a href="#quick-myths-checked">Quick myths, checked</a>
-    </p>
 
     <h3 id="what-happens-when-you-run-something">What happens when you run something</h3>
     <p>Think about the last time you opened an app — a calculator, a game, anything at all.
@@ -370,7 +379,7 @@ flowchart TD
   <!-- ===== 5. TRY IT — Module 0 has no exercises/ or tests/ (PRD §9 exception). This is
        a look-at-your-own-computer activity that needs no compiler, since setup is
        chapter 0.4. ===== -->
-  <section class="try-it">
+  <section class="try-it" id="try-it">
     <p>Module 0 has no exercise files to check against a test — that starts in Module 1.
     For now, try this on your own computer. It needs no compiler and no install.</p>
     <ul>
@@ -389,7 +398,7 @@ flowchart TD
   </section>
 
   <!-- ===== 6. ZOOM OUT ===== -->
-  <section class="zoom-out">
+  <section class="zoom-out" id="zoom-out">
     <h2>Zooming out: from what a program is to where C came from</h2>
     <p>You now know what a program is, and why C needs a compiler to turn your source code
     into something the CPU can run. That one fact — C is compiled, not interpreted —

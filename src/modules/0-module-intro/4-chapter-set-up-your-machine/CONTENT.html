@@ -12,6 +12,26 @@
   <header class="chapter-head">
     <p class="crumb">Module 0 · Chapter 4</p>
     <h1>Set Up Your Machine</h1>
+    <nav class="chapter-toc" aria-label="Chapter contents">
+      <p>In this chapter</p>
+      <ol>
+        <li><a href="#big-picture">Big picture: why nothing runs until a compiler is installed</a></li>
+        <li><a href="#how">How it works</a>
+          <ol>
+            <li><a href="#getting-the-course-files">Getting the course files onto your computer</a></li>
+            <li><a href="#opening-a-terminal">Opening a terminal and finding your files</a></li>
+            <li><a href="#macos">macOS</a></li>
+            <li><a href="#linux">Linux</a></li>
+            <li><a href="#windows">Windows</a></li>
+            <li><a href="#choosing-a-text-editor">Choosing a text editor</a></li>
+            <li><a href="#compile-and-run-your-first-program">Compile and run your first program</a></li>
+            <li><a href="#checking-your-install">Checking your install: PATH and version</a></li>
+          </ol>
+        </li>
+        <li><a href="#try-it">Try it</a></li>
+        <li><a href="#zoom-out">Zooming out: from a working toolchain to reading your first program</a></li>
+      </ol>
+    </nav>
   </header>
 
   <!-- ===== 1. RECAP ===== -->
@@ -23,7 +43,7 @@
   </section>
 
   <!-- ===== 2. BIG PICTURE ===== -->
-  <section class="big-picture">
+  <section class="big-picture" id="big-picture">
     <h2>Big picture: why nothing runs until a compiler is installed</h2>
     <p>You cannot run C code by opening it, the way you open a photo or a text document.
     A computer only runs a special kind of file made of instructions it understands
@@ -60,7 +80,7 @@
   </section>
 
   <!-- ===== 4. HOW IT WORKS ===== -->
-  <section class="how">
+  <section class="how" id="how">
     <h2>How it works</h2>
 
     <p>A compiler is one part of a bigger set of tools called a
@@ -69,15 +89,6 @@
     once. You will type the install commands into a
     <span class="vocab">terminal</span> — a window where you type commands instead of
     clicking buttons. Find the section below for your operating system.</p>
-
-    <p class="how-index">
-      <a href="#getting-the-course-files">Getting the course files</a> ·
-      <a href="#opening-a-terminal">Opening a terminal</a> ·
-      <a href="#macos">macOS</a> · <a href="#linux">Linux</a> · <a href="#windows">Windows</a> ·
-      <a href="#choosing-a-text-editor">Choosing a text editor</a> ·
-      <a href="#compile-and-run-your-first-program">Compile and run your first program</a> ·
-      <a href="#checking-your-install">Checking your install: PATH and version</a>
-    </p>
 
     <figure>
       <svg viewBox="0 0 460 110" role="img" aria-label="Three boxes connected by arrows:
@@ -466,7 +477,7 @@ Target: x86_64-apple-darwin24.6.0
   </section>
 
   <!-- ===== 5. TRY IT ===== -->
-  <section class="try-it">
+  <section class="try-it" id="try-it">
     <p>Install the toolchain for your operating system above. Then open
     <code>exercises/hello.c</code> and compile and run it yourself:</p>
     <ul>
@@ -479,7 +490,7 @@ Target: x86_64-apple-darwin24.6.0
   </section>
 
   <!-- ===== 6. ZOOM OUT ===== -->
-  <section class="zoom-out">
+  <section class="zoom-out" id="zoom-out">
     <h2>Zooming out: from a working toolchain to reading your first program</h2>
     <p>You now have a working C toolchain — the one thing every later chapter assumes you
     already have. That is the last setup step in this course; from here on, every chapter
