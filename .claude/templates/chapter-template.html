@@ -117,14 +117,20 @@ flowchart TD
        (no main) with tests/NN_name_test.c (main + assert), built and run together —
        01_declare_pointer.c below is this shape. A PROGRAM exercise is a full program
        whose stdout tests/NN_name.expected checks exactly (tests/NN_name.input feeds
-       stdin, if the program reads any). Use whichever shape fits the exercise. ===== -->
+       stdin, if the program reads any). Use whichever shape fits the exercise.
+
+       READING-ONLY CHAPTERS (Module 0 — no exercises/, no tests/, no quiz): swap
+       this section for a short ungraded activity instead — a reflection question,
+       or "go read this primary source and look for X." Do not invent exercise
+       files that don't exist for this chapter. This is a settled pattern, not a
+       per-chapter judgment call — 0.1 through 0.4 all use it. ===== -->
   <section class="try-it">
     <p>Open these in your editor and make the tests pass:</p>
     <ul>
       <li><code>exercises/01_declare_pointer.c</code> — declare a pointer and print through it</li>
       <li><code>exercises/02_swap.c</code> — swap two variables using pointers</li>
     </ul>
-    <p>Check your work with <code>make check-mine</code>. Just this chapter:
+    <p>Check your work with <code>make check-mine</code>. To check only this chapter, run
     <code>make check-mine CHAPTER=5-module-pointers/1-chapter-addresses</code>.</p>
 
     <details class="solution">
@@ -150,6 +156,9 @@ flowchart TD
     inside a function — the first thing pointers let you do that nothing else can.</p>
   </section>
 
+  <!-- No previous chapter (this is chapter 1 of its module) or no quiz (reading-only
+       chapter): drop that link and keep only the ones that apply. Never link to a
+       page that doesn't exist. -->
   <nav class="chapter-nav">
     <a href="../1-chapter-previous/CONTENT.html">← Previous chapter</a>
     <a href="QUIZ.html">Take the quiz →</a>
