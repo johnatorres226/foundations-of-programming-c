@@ -153,23 +153,37 @@ EOF
 
 This counts **Big Picture + How It Works + Zoom Out** — prose, code, and terminal text
 alike (a beginner reads a code block slowly, not for free), excluding only inline SVG
-diagram markup. Chapter 1.1, calibrated by hand while writing this rule, lands at **~1,100
-words (~7–8 minutes)** with four gotchas, a `.how-index` over five subsections, a diagram,
-and a solution reveal — genuinely thorough for "read five lines token by token," and there
-was no honest way to add another 1,000 words without padding sentences or duplicating a
-later chapter. Use it, not a round number, as the calibration point:
+diagram markup.
 
-- **Under ~600 words:** very likely too thin. Add coverage of a real gap — a gotcha the
-  topic actually has, a second worked example, a diagram — never padding sentences.
-- **~900–2,000 words:** the normal band for most chapters.
-- **Over ~3,000 words:** split into a continuation chapter (§5) rather than asking the
-  learner to sit through two topics' worth in one sitting.
+**Prototype-phase target: 3,500–5,200 words per chapter (~18–22 minutes at ~240
+words/minute).** This is deliberately generous for where the course is right now: build
+every chapter out to real depth first — worked examples, gotchas, diagrams, second and
+third angles on the idea — and curate/trim once all ~65 chapters exist and can be compared
+side by side. Cutting a too-long chapter later is easy; a thin chapter nobody expanded is a
+silent gap. Treat this band as the current target for **every** chapter, Module 0 included,
+not a ceiling to avoid — a first draft that lands under 3,500 is not done yet.
 
-This is a **floor-and-ceiling guard, not a precise target** — the remaining 20 minutes of
-the "one hour" is the exercises, not more prose. A chapter that is naturally a tight single
-idea (like 1.1) can sit at the low end with nothing wrong with it; a chapter covering
-several real sub-topics (like pointers) should sit higher because it has more to say, not
-because the rule demands it. Document in the PR why, if a chapter lands outside the band.
+- **Under ~2,500 words:** not done. Add real coverage — another angle on the idea, a second
+  worked example, a diagram, a gotcha the topic actually has — never padding sentences.
+- **~3,500–5,200 words:** the prototype target band.
+- **Over ~6,000 words:** likely two topics wearing one chapter — split into a continuation
+  chapter (§5) instead.
+
+This band will shrink once the whole course exists and curation starts — it is a
+build-it-out number for the prototype, not a permanent one. Document in the PR if a chapter
+lands outside it.
+
+### Write the heading after the paragraph, against the paragraph
+
+The Big Picture and Zoom Out `<h2>` (§3) must describe what **that section's own prose**
+argues — not the module's general topic, and not a later chapter's payoff. Draft the
+paragraph first, then write the heading to match what it actually says. A heading that
+correctly previews something true two chapters from now, but that this section's own
+paragraph never mentions, is still wrong — it's describing the module, not the section a
+reader is looking at. (Chapter 0.1 shipped this exact mistake once: title "What a Program
+Actually Is," but its Big Picture heading named the compiler — a chapter-0.4 idea the
+paragraph beneath it never raised. Fixed to name what the paragraph actually argues: that
+this question matters more in C than in most languages.)
 
 Two structural signals correlate with real depth and are easy to check without counting
 words:
