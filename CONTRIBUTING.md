@@ -56,9 +56,27 @@ The full spec is [`.claude/PRD.md`](.claude/PRD.md); visual rules are in
 
 ## Git workflow
 
-> 📌 **Not yet specified.** Branch naming, PR review rules, and merge strategy are being
-> decided. Until then: branch off `main`, one chapter or fix per PR, and describe what you
-> changed and why.
+This is a solo dev-space repo with no release branch to protect, so the workflow stays
+lightweight — the minimum that keeps ~60 parallel chapters from colliding.
+
+- **One branch per issue**, named after the issue's chapter or infra code:
+  `m5.3-pointer-arithmetic`, `f1-tdd-harness`. Each subagent works in its own `git worktree`
+  so parallel work never shares a checkout.
+- **One PR per issue**, closed with `Closes #N` in the PR body.
+- **Review:** the orchestrator (Opus) reads the diff against the issue's acceptance
+  criteria and `make check` / `make lint` before merging. No second human reviewer required
+  in this repo's current single-maintainer phase.
+- **Merge commits, never squash.** PRD §9 requires tests committed before the solution;
+  squash-merging erases that order from history. `git merge --no-ff`.
+- **Commit messages:** plain, present tense, one line — `Add chapter 5.3: Pointer
+  Arithmetic`. No trailers, no attribution.
+- **CI:** `ci.yml` (ubuntu + macos `make check`, plus lint) must be green before merge.
+  Branch protection isn't configured — enforced by review discipline instead, until
+  collaborators beyond the maintainer join.
+- **Shared-file collisions:** chapter work never edits its module's `README.md` or the
+  root `CHANGELOG.md` — only its own chapter directory. Module `README.md` status and the
+  changelog are updated once, when a module's chapters all close, not per-chapter. This is
+  what makes ~60 parallel PRs conflict-free by construction instead of by locking.
 
 ## For educators
 
