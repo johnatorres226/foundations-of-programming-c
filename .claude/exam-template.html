@@ -1,0 +1,111 @@
+<!--
+  EXAM TEMPLATE — copy to src/modules/<M>-module-<slug>/module-exam/EXAM.html
+  An exam is a longer quiz. It uses the SAME engine as QUIZ.html (assets/quiz.js).
+  Edit only the JSON block. Every option needs a "why", wrong ones included.
+  Questions carry an optional "section" naming the chapter they cover — the
+  engine prints a heading whenever "section" changes between questions, so
+  exam questions read grouped by chapter. See .claude/PRD.md §10.
+  Asset paths assume this template's own location (.claude/) — module-exam/EXAM.html
+  sits as deep as a chapter dir, so it uses ../../../../assets/ same as CONTENT.html.
+-->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Module 0 Exam · Foundations of Programming: C</title>
+<link rel="stylesheet" href="../assets/style.css"><!-- module-exam: ../../../../assets/style.css -->
+</head>
+<body>
+<article class="chapter">
+  <header class="chapter-head">
+    <p class="crumb">Module 0 · Exam</p>
+    <h1>Module 0 exam</h1>
+  </header>
+
+  <p>This covers every chapter in the module. Pick one answer per question, then check.
+  Every answer — right or wrong — comes with an explanation. If you miss one, go back to
+  the chapter it points at before moving on.</p>
+
+  <div id="quiz"></div>
+
+  <nav class="chapter-nav">
+    <a href="../5-chapter-last/CONTENT.html">← Back to the last chapter</a>
+    <a href="../../1-module-next/1-chapter-first/CONTENT.html">Next module →</a>
+  </nav>
+
+  <footer class="chapter-foot">
+    <a href="https://github.com/johnatorres226/foundations-of-programming-c/issues/new?template=chapter-feedback.yml&title=%5BM0+Exam%5D+">
+      Something wrong with this exam?</a>
+  </footer>
+</article>
+
+<script type="application/json" id="quiz-data">
+{
+  "questions": [
+    {
+      "section": "Chapter 1: What a Program Is",
+      "q": "What does a compiler do?",
+      "options": [
+        { "text": "It runs your program",
+          "correct": false,
+          "why": "Running the program is a separate step. The compiler's job ends once it has produced a program the machine can run." },
+        { "text": "It turns source code into a program the machine can run",
+          "correct": true,
+          "why": "Right. The compiler translates the C you wrote into machine instructions, then you run those instructions." },
+        { "text": "It fixes mistakes in your code automatically",
+          "correct": false,
+          "why": "A compiler reports mistakes — it does not fix them. You still have to read the error and change the code yourself." }
+      ]
+    },
+    {
+      "section": "Chapter 1: What a Program Is",
+      "q": "Why does C need a compiler instead of running the source file directly?",
+      "options": [
+        { "text": "Because C source files are too large to run directly",
+          "correct": false,
+          "why": "File size is not the reason. Even a one-line C file needs compiling first." },
+        { "text": "Because the machine only understands machine instructions, not C syntax",
+          "correct": true,
+          "why": "Right. The processor executes machine instructions. Compiling is the translation step from human-readable C to that." },
+        { "text": "Because C files are encrypted",
+          "correct": false,
+          "why": "C source files are plain text — open one in any text editor and you can read it. Nothing is encrypted." }
+      ]
+    },
+    {
+      "section": "Chapter 2: The Story of C",
+      "q": "Roughly when was C created?",
+      "options": [
+        { "text": "The early 1970s",
+          "correct": true,
+          "why": "Right. Dennis Ritchie created C at Bell Labs in the early 1970s, alongside the early development of Unix." },
+        { "text": "The early 1990s",
+          "correct": false,
+          "why": "By the early 1990s C was already about twenty years old and widely used. That decade is when C++ and the web took off, not C's creation." },
+        { "text": "The early 2010s",
+          "correct": false,
+          "why": "C is one of the oldest languages still in daily use. It was not created recently — that is part of why so much existing software is written in it." }
+      ]
+    },
+    {
+      "section": "Chapter 2: The Story of C",
+      "q": "Why is so much software still written in C today?",
+      "options": [
+        { "text": "It is the easiest language to learn",
+          "correct": false,
+          "why": "C is not the easiest language to learn — it hands you direct control of memory, which is exactly what makes it powerful and also what makes it hard at first." },
+        { "text": "It gives programmers direct, fast control over memory and hardware",
+          "correct": true,
+          "why": "Right. Operating systems, embedded devices, and other performance-critical software need that direct control, and C provides it without much in the way." },
+        { "text": "Newer languages cannot run on modern computers",
+          "correct": false,
+          "why": "Newer languages run fine on modern computers. C's staying power is about control and performance, not about other languages being unable to run." }
+      ]
+    }
+  ]
+}
+</script>
+<script src="../assets/quiz.js"></script><!-- module-exam: ../../../../assets/quiz.js -->
+</body>
+</html>
