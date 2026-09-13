@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M1.1 — Your First Program, Line by Line · Foundations of Programming: C</title>
+<link rel="stylesheet" href="../../../../assets/style.css">
+</head>
+<body>
+<article class="chapter">
+
+  <header class="chapter-head">
+    <p class="crumb">Module 1 · Chapter 1</p>
+    <h1>Your First Program, Line by Line</h1>
+  </header>
+
+  <!-- ===== 1. RECAP ===== -->
+  <section class="recap">
+    <p>Last chapter you installed a working C compiler and ran one program to prove your
+    toolchain works. That program was five short lines that looked like magic. This chapter
+    opens it up and explains what each line does, word by word.</p>
+  </section>
+
+  <!-- ===== 2. BIG PICTURE ===== -->
+  <section class="big-picture">
+    <h2>The big picture</h2>
+    <p>C does not guess what your program needs. The operating system that runs your program
+    needs to know exactly where it should start, and the compiler needs to know exactly
+    which tools you plan to borrow before it lets you use them. Every C program states both
+    things up front, in the same handful of pieces, in the same order. Learn to read those
+    pieces once and you can read the first few lines of almost any C program you meet next,
+    in this course or anywhere else.</p>
+  </section>
+
+  <!-- ===== 3. CORE IDEA ===== -->
+  <section class="core-idea">
+    A hello-world program is four required pieces — an <code>#include</code> line, a
+    <code>main</code> function, a <code>printf</code> call, and a <code>return</code> —
+    and each piece does exactly one job.
+  </section>
+
+  <!-- ===== 4. HOW IT WORKS ===== -->
+  <section class="how">
+    <h2>How it works</h2>
+
+    <p>Here is the program from last chapter again, in full:</p>
+
+    <div class="code" data-file="hello.c">
+<pre><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    printf("Hello, World!\n");
+    return 0;
+}</code></pre>
+    </div>
+
+    <p>Five lines, four jobs. Here is what each one is doing.</p>
+
+    <h3><code>#include &lt;stdio.h&gt;</code></h3>
+    <p>A <span class="vocab">header file</span> is a file full of information the compiler
+    needs about functions someone else already wrote. <code>#include</code> tells the
+    compiler "read that file before you read the rest of mine." <code>stdio.h</code> stands
+    for <em>standard input/output</em> — it describes functions for reading and printing
+    text, including <code>printf</code>. Without this line, the compiler has never heard of
+    <code>printf</code> and refuses to compile your program.</p>
+
+    <h3><code>int main(void)</code></h3>
+    <p>A <span class="vocab">function</span> is a named block of code that runs when
+    something calls it. <code>main</code> is special: it is the one function every C program
+    must have, and it is the first function that runs — nothing calls it, the operating
+    system does. The <code>int</code> in front says <code>main</code> reports back a whole
+    number when it finishes. The <code>(void)</code> says <code>main</code> takes no
+    information in from whatever starts it.</p>
+
+    <h3><code>printf("Hello, World!\n");</code></h3>
+    <p>This line calls the <code>printf</code> function — the parentheses are what "calling"
+    a function looks like in C, and they hold the information you are handing it. Here,
+    that information is a <span class="vocab">string literal</span>: text wrapped in double
+    quotes, printed exactly as written. The two characters <code>\n</code> inside it are one
+    <span class="vocab">escape sequence</span> — a backslash followed by a letter that means
+    something other than the letter itself. <code>\n</code> means "move to a new line." It
+    does not appear in the output; it controls where the next thing printed will go. The
+    semicolon at the end marks where this instruction, called a
+    <span class="vocab">statement</span>, finishes. C does not care about line breaks —
+    only the semicolon tells it a statement is done.</p>
+
+    <div class="gotcha">
+      <p>Forget the semicolon and the compiler cannot tell where one statement ends and the
+      next begins. It will report an error, usually pointing at the line <em>after</em> the
+      one you actually forgot it on — that confuses almost everyone the first time.</p>
+    </div>
+
+    <p>A program can call <code>printf</code> more than once. Each call is its own statement,
+    and statements run in the order they are written, top to bottom. Two calls, each ending
+    in <code>\n</code>, print two separate lines:</p>
+
+    <div class="code" data-file="two_lines_example.c">
+<pre><code>printf("First line.\n");
+printf("Second line.\n");</code></pre>
+    </div>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror hello.c -o hello
+<span class="prompt">$</span> ./hello
+Hello, World!</pre>
+    </div>
+
+    <p>A string literal can hold almost any character, but a double quote is a problem — it
+    looks like the end of the string. Put a backslash in front of it, <code>\"</code>, and
+    <code>printf</code> prints a real double quote instead of ending the string early:</p>
+
+    <div class="code" data-file="quote_example.c">
+<pre><code>printf("She said \"hello\" back.\n");</code></pre>
+    </div>
+
+    <div class="gotcha">
+      <p>A stray, un-escaped <code>"</code> in the middle of a string literal ends the
+      string right there. Everything after it confuses the compiler, which then reports an
+      error somewhere that looks unrelated to the real mistake.</p>
+    </div>
+
+    <h3><code>return 0;</code></h3>
+    <p>This is the last statement <code>main</code> runs. <code>return</code> ends the
+    function and hands back the number that follows it — this is the whole number
+    <code>int main</code> promised earlier. That number is called an
+    <span class="vocab">exit status</span>: a report to whatever started the program about
+    how it went. By convention, <code>0</code> means "everything worked." Any other number
+    means "something went wrong." You will not use this number much yet, but tools that run
+    your program automatically — including the ones that check your exercises in this
+    course — read it to decide whether your program succeeded.</p>
+
+    <h3>Closing brace</h3>
+    <p>The <code>{</code> after <code>int main(void)</code> opens the block of statements
+    that belong to <code>main</code>; the matching <code>}</code> at the end closes it. Every
+    opening brace in C needs exactly one matching closing brace.</p>
+  </section>
+
+  <!-- ===== 5. TRY IT ===== -->
+  <section class="try-it">
+    <p>Open these files in your editor and finish each program. Each one is a full program:
+    write your own <code>#include</code>, <code>main</code>, <code>printf</code> calls, and
+    <code>return</code> — the same four pieces explained above.</p>
+    <ul>
+      <li><code>exercises/01_hello_world.c</code> — print exactly one line: the classic
+      hello-world message</li>
+      <li><code>exercises/02_two_lines.c</code> — print two lines with two separate
+      <code>printf</code> calls</li>
+      <li><code>exercises/03_quoted_message.c</code> — print a line that itself contains
+      quotation marks, using <code>\"</code></li>
+    </ul>
+    <p>Check your work with <code>make check-mine</code>. To check only this chapter, run
+    <code>make check-mine CHAPTER=1-module-basics/1-chapter-first-program</code>. Each
+    exercise compares your program's exact output to the answer on file — match it letter
+    for letter, including the newline at the end of each line.</p>
+  </section>
+
+  <!-- ===== 6. ZOOM OUT ===== -->
+  <section class="zoom-out">
+    <h2>Zooming out</h2>
+    <p>You can now read every token of a hello-world program: what <code>#include</code>
+    borrows, what <code>main</code> starts, what <code>printf</code> prints, and what
+    <code>return</code> reports back. What you have not seen yet is what the compiler does
+    with that text between the moment you save <code>hello.c</code> and the moment
+    <code>./hello</code> runs. The next chapter opens that up: preprocess, compile, assemble,
+    link — four steps, and what the compiler is actually doing at each one.</p>
+  </section>
+
+  <p>Go deeper: learn-c.org's
+  <a href="https://www.learn-c.org/en/Hello%2C_World%21">Hello, World! lesson</a>
+  runs a hello-world program in your browser, no install needed. Harvard's
+  <a href="https://cs50.harvard.edu/x/">CS50x, Week 1</a> covers this same ground on video,
+  free.</p>
+
+  <nav class="chapter-nav">
+    <a href="../../0-module-intro/4-chapter-set-up-your-machine/CONTENT.html">← Previous chapter</a>
+    <a href="QUIZ.html">Take the quiz →</a>
+  </nav>
+
+  <footer class="chapter-foot">
+    <a href="https://github.com/johnatorres226/foundations-of-programming-c/issues/new?template=chapter-feedback.yml&title=%5BM1C1%5D+">
+      Something wrong with this chapter?</a>
+  </footer>
+
+</article>
+</body>
+</html>
