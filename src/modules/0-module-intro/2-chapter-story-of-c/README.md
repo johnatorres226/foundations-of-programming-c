@@ -1,6 +1,6 @@
 # 0.2 — The Story of C
 
-**Status:** 🚧 Not yet written · **Module 0 — What Is C?** · **Exercises:** 0
+**Status:** ✅ Written · **Module 0 — What Is C?** · **Exercises:** 0
 
 ## Outcome
 
