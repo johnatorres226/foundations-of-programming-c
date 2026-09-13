@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M1.1 Quiz — Your First Program, Line by Line · Foundations of Programming: C</title>
+<link rel="stylesheet" href="../../../../assets/style.css">
+</head>
+<body>
+<article class="chapter">
+  <header class="chapter-head">
+    <p class="crumb">Module 1 · Chapter 1 · Quiz</p>
+    <h1>Check your understanding</h1>
+  </header>
+
+  <p>Pick one answer for each question, then check. Every answer — right or wrong — comes
+  with an explanation. The wrong ones are where most of the learning is.</p>
+
+  <div id="quiz"></div>
+
+  <nav class="chapter-nav">
+    <a href="CONTENT.html">← Back to the chapter</a>
+    <a href="../2-chapter-how-c-becomes-a-program/CONTENT.html">Next chapter →</a>
+  </nav>
+
+  <footer class="chapter-foot">
+    <a href="https://github.com/johnatorres226/foundations-of-programming-c/issues/new?template=chapter-feedback.yml&title=%5BM1C1+Quiz%5D+">
+      Something wrong with this quiz?</a>
+  </footer>
+</article>
+
+<script type="application/json" id="quiz-data">
+{
+  "questions": [
+    {
+      "q": "What does `#include <stdio.h>` do?",
+      "options": [
+        { "text": "It runs the stdio.h program before your program starts",
+          "correct": false,
+          "why": "`stdio.h` is not a program you run — it is a header file, a file of information the compiler reads. Nothing in it executes." },
+        { "text": "It tells the compiler about functions like `printf`, defined elsewhere, before it reads the rest of your file",
+          "correct": true,
+          "why": "Right. `stdio.h` stands for standard input/output. Without this line the compiler has never heard of `printf` and refuses to compile." },
+        { "text": "It creates the `main` function for you",
+          "correct": false,
+          "why": "`#include` never writes code for you. You still write `main` yourself — `#include` only makes other functions available to call." }
+      ]
+    },
+    {
+      "q": "Why does `main` need to exist in every C program?",
+      "options": [
+        { "text": "It is the one function the operating system looks for and runs first",
+          "correct": true,
+          "why": "Right. Nothing in your code calls `main` — the operating system does, which is why every C program needs exactly one." },
+        { "text": "It makes the program run faster than other functions would",
+          "correct": false,
+          "why": "Speed has nothing to do with it. `main` is not special because it is fast — it is special because it is where the operating system starts." },
+        { "text": "It is only required if the program uses `printf`",
+          "correct": false,
+          "why": "Every C program needs `main`, whether or not it prints anything. `printf` needs `#include <stdio.h>`, which is a separate requirement." }
+      ]
+    },
+    {
+      "q": "Inside `printf(\"Hi\\n\");`, what does `\\n` do?",
+      "options": [
+        { "text": "It prints the two characters backslash and n",
+          "correct": false,
+          "why": "That is what it would mean if you wrote `\\\\n` — two backslashes. A single `\\n` is one escape sequence, not two literal characters." },
+        { "text": "It moves output to a new line and does not appear in the printed text itself",
+          "correct": true,
+          "why": "Right. `\\n` is an escape sequence — a backslash plus a letter meaning something other than the letter itself. It controls where the next printed text goes." },
+        { "text": "It ends the `printf` statement, the same job as the semicolon",
+          "correct": false,
+          "why": "The semicolon ends the statement. `\\n` is inside the string literal and only affects the printed text — you can have more code after it on the same line." }
+      ]
+    },
+    {
+      "q": "A program is missing the closing `\"` on one of its string literals, part-way through. What happens?",
+      "options": [
+        { "text": "The compiler prints the rest of the file as if it were part of that string",
+          "correct": true,
+          "why": "Right, in effect — the compiler keeps scanning for the closing quote, so everything after the missing `\"` is read as string text instead of code, and the error it reports often points somewhere far from the real mistake." },
+        { "text": "The compiler automatically closes the string at the end of the line",
+          "correct": false,
+          "why": "C does not do this for you. A string literal that never closes is a compile error, not something the compiler quietly fixes." },
+        { "text": "Nothing — missing quotes are optional in C",
+          "correct": false,
+          "why": "Quotes are not optional. A string literal needs an opening and a closing `\"` or the compiler cannot tell where the text ends." }
+      ]
+    },
+    {
+      "q": "What does `return 0;` at the end of `main` communicate?",
+      "options": [
+        { "text": "The program printed the number 0",
+          "correct": false,
+          "why": "`return 0;` does not print anything. Only `printf` puts text on the screen — `return` hands a number back to whatever started the program, silently." },
+        { "text": "The program ran successfully — this is the exit status the operating system reads",
+          "correct": true,
+          "why": "Right. By convention, `0` means everything worked. Any other number signals something went wrong. Tools that run your program automatically, including this course's checker, read this number." },
+        { "text": "The value 0 will be stored in the variable `main` for later use",
+          "correct": false,
+          "why": "`main` is a function, not a variable — it cannot store a value. `return` ends the function and reports a number to whatever called it, then that number is gone." }
+      ]
+    }
+  ]
+}
+</script>
+<script src="../../../../assets/quiz.js"></script>
+</body>
+</html>
