@@ -24,7 +24,7 @@
 
   <!-- ===== 2. BIG PICTURE ===== -->
   <section class="big-picture">
-    <h2>The big picture</h2>
+    <h2>Big picture: why nothing runs until a compiler is installed</h2>
     <p>You cannot run C code by opening it, the way you open a photo or a text document.
     A computer only runs a special kind of file made of instructions it understands
     directly. A <span class="vocab">compiler</span> is a program that reads the C code you
@@ -49,6 +49,11 @@
     once. You will type the install commands into a
     <span class="vocab">terminal</span> — a window where you type commands instead of
     clicking buttons. Find the section below for your operating system.</p>
+
+    <p class="how-index">
+      <a href="#macos">macOS</a> · <a href="#linux">Linux</a> · <a href="#windows">Windows</a>
+      · <a href="#compile-and-run-your-first-program">Compile and run your first program</a>
+    </p>
 
     <figure>
       <svg viewBox="0 0 460 110" role="img" aria-label="Three boxes connected by arrows:
@@ -82,7 +87,7 @@
       can run directly.</figcaption>
     </figure>
 
-    <h3>macOS</h3>
+    <h3 id="macos">macOS</h3>
     <p>Apple ships a compiler as part of a small package called the Command Line Tools.
     Open a terminal (search for "Terminal" in Spotlight) and run:</p>
 
@@ -94,7 +99,7 @@
     minutes. This gives you <code>clang</code>, a compiler that also understands the
     <code>cc</code> command used in this course.</p>
 
-    <h3>Linux</h3>
+    <h3 id="linux">Linux</h3>
     <p>On Ubuntu, Debian, and most distributions built on them, one package installs
     everything you need: a compiler, <code>make</code> (a tool later chapters use to build
     multi-file programs), and the standard library headers. Open a terminal and run:</p>
@@ -108,7 +113,7 @@
     Arch, use <code>sudo pacman -S base-devel</code>. All three install the same kind of
     toolchain under a different package name.</p>
 
-    <h3>Windows</h3>
+    <h3 id="windows">Windows</h3>
     <p>Windows has no C compiler built in, so you have two options.</p>
 
     <p><strong>Option A — MinGW-w64.</strong> This installs a real Windows compiler,
@@ -140,7 +145,7 @@
       compiler when it starts up.</p>
     </div>
 
-    <h3>Compile and run your first program</h3>
+    <h3 id="compile-and-run-your-first-program">Compile and run your first program</h3>
     <p>Chapter 0.3 explained why this course writes C17 code. That is why
     <code>-std=c17</code> appears in every compile command you will see, starting now.
     <code>-Wall -Wextra</code> tell the compiler to warn you about common mistakes, and
@@ -188,7 +193,7 @@ Hello, C!</pre>
 
   <!-- ===== 6. ZOOM OUT ===== -->
   <section class="zoom-out">
-    <h2>Zooming out</h2>
+    <h2>Zooming out: from a working toolchain to reading your first program</h2>
     <p>You now have a working C toolchain — the one thing every later chapter assumes you
     already have. That is the last setup step in this course; from here on, every chapter
     is about the language itself. Next chapter you will take the exact program you just

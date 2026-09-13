@@ -116,20 +116,21 @@ diagrams may exceed it.
 
 ## 4. Component kit
 
-Ten blocks. Everything in a chapter is built from these — do not invent new ones without
-adding them here first.
+Eleven blocks. Everything in a chapter is built from these — do not invent new ones
+without adding them here first.
 
 | Class | Use |
 |---|---|
 | `.recap` | Muted, small. 2–3 sentences of orientation. |
-| `.big-picture` | Accent left-border callout. The advance organizer. |
+| `.big-picture` | Accent left-border callout. The advance organizer. Its `<h2>` names what the chapter connects to, not the bare label — see `PRD.md` §3. |
 | `.core-idea` | Boxed, accent background, larger type. **One sentence.** |
+| `.how-index` | Muted, small, dot-separated links. Only when `.how` has 2+ `<h3>` subsections — see `PRD.md` §3. |
 | `.code` | Code sample. Requires a `data-file` attribute showing the filename. |
 | `.terminal` | Command + output. Visually distinct from `.code` — dark ground, `$` prompt. |
 | `.try-it` | Accent box linking to `exercises/*.c`. |
 | `.gotcha` | Warning colors. Undefined behavior and common beginner traps. |
 | `.vocab` | Inline chip defining a term on first use. |
-| `.zoom-out` | Closing recap, mirrors `.big-picture` styling. |
+| `.zoom-out` | Closing recap, mirrors `.big-picture` styling. Its `<h2>` names what the chapter zooms out **to** — see `PRD.md` §3. |
 | `.chapter-nav` | Prev / next links. |
 
 ### Required footer

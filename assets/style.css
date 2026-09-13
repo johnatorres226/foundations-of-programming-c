@@ -114,6 +114,11 @@ a:focus-visible, button:focus-visible, summary:focus-visible {
   margin-bottom: var(--s-2);
 }
 
+/* ---- how-it-works index ------------------------------------------------ */
+.how-index { font-size: var(--t-sm); color: var(--text-muted); margin: 0 0 var(--s-6); }
+.how-index a { color: var(--text-muted); }
+.how-index a:hover { color: var(--accent); }
+
 /* ---- code and terminal ------------------------------------------------- */
 pre, code, kbd { font-family: var(--font-mono); }
 code { font-size: .92em; background: var(--code-bg); padding: .12em .35em;

@@ -23,7 +23,7 @@
 
   <!-- ===== 2. BIG PICTURE ===== -->
   <section class="big-picture">
-    <h2>The big picture</h2>
+    <h2>Big picture: why every C program states the same pieces up front</h2>
     <p>C does not guess what your program needs. The operating system that runs your program
     needs to know exactly where it should start, and the compiler needs to know exactly
     which tools you plan to borrow before it lets you use them. Every C program states both
@@ -56,7 +56,15 @@ int main(void) {
 
     <p>Five lines, four jobs. Here is what each one is doing.</p>
 
-    <h3><code>#include &lt;stdio.h&gt;</code></h3>
+    <p class="how-index">
+      <a href="#include-line">#include &lt;stdio.h&gt;</a> ·
+      <a href="#main-line">int main(void)</a> ·
+      <a href="#printf-line">printf(...)</a> ·
+      <a href="#return-line">return 0;</a> ·
+      <a href="#closing-brace">Closing brace</a>
+    </p>
+
+    <h3 id="include-line"><code>#include &lt;stdio.h&gt;</code></h3>
     <p>A <span class="vocab">header file</span> is a file full of information the compiler
     needs about functions someone else already wrote. <code>#include</code> tells the
     compiler "read that file before you read the rest of mine." <code>stdio.h</code> stands
@@ -64,7 +72,25 @@ int main(void) {
     text, including <code>printf</code>. Without this line, the compiler has never heard of
     <code>printf</code> and refuses to compile your program.</p>
 
-    <h3><code>int main(void)</code></h3>
+    <div class="gotcha">
+      <p>Delete the <code>#include</code> line and try to compile, and the compiler stops
+      you before your program ever runs:</p>
+      <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror hello.c -o hello
+hello.c:2:5: error: call to undeclared library function 'printf' with type
+    'int (const char *, ...)'; ISO C99 and later do not support implicit
+    function declarations [-Wimplicit-function-declaration]
+    printf("Hello, World!\n");
+    ^
+hello.c:2:5: note: include the header &lt;stdio.h&gt; or explicitly provide a
+    declaration for 'printf'</pre>
+      </div>
+      <p>The compiler is not guessing what <code>printf</code> means — without
+      <code>#include &lt;stdio.h&gt;</code> it has never been told <code>printf</code> exists at
+      all, so it refuses to compile rather than assume.</p>
+    </div>
+
+    <h3 id="main-line"><code>int main(void)</code></h3>
     <p>A <span class="vocab">function</span> is a named block of code that runs when
     something calls it. <code>main</code> is special: it is the one function every C program
     must have, and it is the first function that runs — nothing calls it, the operating
@@ -72,7 +98,7 @@ int main(void) {
     number when it finishes. The <code>(void)</code> says <code>main</code> takes no
     information in from whatever starts it.</p>
 
-    <h3><code>printf("Hello, World!\n");</code></h3>
+    <h3 id="printf-line"><code>printf("Hello, World!\n");</code></h3>
     <p>This line calls the <code>printf</code> function — the parentheses are what "calling"
     a function looks like in C, and they hold the information you are handing it. Here,
     that information is a <span class="vocab">string literal</span>: text wrapped in double
@@ -83,6 +109,12 @@ int main(void) {
     semicolon at the end marks where this instruction, called a
     <span class="vocab">statement</span>, finishes. C does not care about line breaks —
     only the semicolon tells it a statement is done.</p>
+
+    <p><code>\n</code> is the escape sequence you will use the most, but it is not the only
+    one. <code>\t</code> prints a tab — useful for lining up columns of text. <code>\\</code>
+    prints a single literal backslash, for the same reason <code>\"</code> exists: a
+    backslash normally starts an escape sequence, so printing a real one needs its own
+    escape. You will meet the rest of the list as you need them.</p>
 
     <div class="gotcha">
       <p>Forget the semicolon and the compiler cannot tell where one statement ends and the
@@ -119,7 +151,7 @@ Hello, World!</pre>
       error somewhere that looks unrelated to the real mistake.</p>
     </div>
 
-    <h3><code>return 0;</code></h3>
+    <h3 id="return-line"><code>return 0;</code></h3>
     <p>This is the last statement <code>main</code> runs. <code>return</code> ends the
     function and hands back the number that follows it — this is the whole number
     <code>int main</code> promised earlier. That number is called an
@@ -129,10 +161,61 @@ Hello, World!</pre>
     your program automatically — including the ones that check your exercises in this
     course — read it to decide whether your program succeeded.</p>
 
-    <h3>Closing brace</h3>
+    <p>You can see this number yourself. Most terminals keep the last program's exit status
+    in a variable named <code>$?</code>:</p>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> ./hello
+Hello, World!
+<span class="prompt">$</span> echo $?
+0</pre>
+    </div>
+
+    <p>Change <code>return 0;</code> to <code>return 1;</code>, recompile, and run it again —
+    <code>echo $?</code> now prints <code>1</code>. The text your program prints and the
+    number it returns are two completely separate things: one is for a person reading the
+    screen, the other is for whatever program ran yours next.</p>
+
+    <div class="gotcha">
+      <p>Leaving off <code>return 0;</code> entirely is not the same mistake as forgetting a
+      semicolon elsewhere — modern compilers assume a missing return at the very end of
+      <code>main</code> means "everything worked" and fill in <code>0</code> for you. That
+      rule applies to <code>main</code> only. Every other function that promises to return a
+      number and does not is a real bug, and <code>-Wall</code> will warn you about it.</p>
+    </div>
+
+    <h3 id="closing-brace">Closing brace</h3>
     <p>The <code>{</code> after <code>int main(void)</code> opens the block of statements
     that belong to <code>main</code>; the matching <code>}</code> at the end closes it. Every
     opening brace in C needs exactly one matching closing brace.</p>
+
+    <figure>
+      <svg viewBox="0 0 460 150" role="img" aria-label="Five lines of hello.c labeled with
+           the four jobs they do: include borrows printf, main is where the program starts,
+           printf prints text, and return reports back to whatever ran the program."
+           xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor">
+        <text x="10" y="24" font-size="13" font-family="ui-monospace,monospace"
+              fill="currentColor" stroke="none">#include &lt;stdio.h&gt;</text>
+        <text x="10" y="54" font-size="13" font-family="ui-monospace,monospace"
+              fill="currentColor" stroke="none">int main(void) {</text>
+        <text x="30" y="84" font-size="13" font-family="ui-monospace,monospace"
+              fill="currentColor" stroke="none">printf("Hello, World!\n");</text>
+        <text x="30" y="114" font-size="13" font-family="ui-monospace,monospace"
+              fill="currentColor" stroke="none">return 0;</text>
+        <text x="10" y="144" font-size="13" font-family="ui-monospace,monospace"
+              fill="currentColor" stroke="none">}</text>
+
+        <text x="270" y="24" font-size="11" font-family="system-ui" opacity=".7"
+              fill="currentColor" stroke="none">1. borrow printf</text>
+        <text x="270" y="54" font-size="11" font-family="system-ui" opacity=".7"
+              fill="currentColor" stroke="none">2. where the program starts</text>
+        <text x="270" y="84" font-size="11" font-family="system-ui" opacity=".7"
+              fill="currentColor" stroke="none">3. print text</text>
+        <text x="270" y="114" font-size="11" font-family="system-ui" opacity=".7"
+              fill="currentColor" stroke="none">4. report back, done</text>
+      </svg>
+      <figcaption>Figure 1 — the same five lines, each job labeled where it happens.</figcaption>
+    </figure>
   </section>
 
   <!-- ===== 5. TRY IT ===== -->
@@ -152,11 +235,26 @@ Hello, World!</pre>
     <code>make check-mine CHAPTER=1-module-basics/1-chapter-first-program</code>. Each
     exercise compares your program's exact output to the answer on file — match it letter
     for letter, including the newline at the end of each line.</p>
+
+    <details class="solution">
+      <summary>Stuck on the quoted-message exercise? Show one approach</summary>
+      <div class="code" data-file="03_quoted_message.c">
+<pre><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    printf("She said \"hello\" back.\n");
+    return 0;
+}</code></pre>
+      </div>
+      <p class="note">This is one approach, not the answer. Any message with an escaped
+      <code>\"</code> in the right place passes — the exact words you print don't have to
+      match this example, only the shape of the escape.</p>
+    </details>
   </section>
 
   <!-- ===== 6. ZOOM OUT ===== -->
   <section class="zoom-out">
-    <h2>Zooming out</h2>
+    <h2>Zooming out: from reading tokens to watching the compiler work</h2>
     <p>You can now read every token of a hello-world program: what <code>#include</code>
     borrows, what <code>main</code> starts, what <code>printf</code> prints, and what
     <code>return</code> reports back. What you have not seen yet is what the compiler does

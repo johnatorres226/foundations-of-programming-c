@@ -28,9 +28,11 @@
     what the compiler is actually doing to your code along the way.</p>
   </section>
 
-  <!-- ===== 2. BIG PICTURE — the advance organizer. Why does this exist at all? ===== -->
+  <!-- ===== 2. BIG PICTURE — the advance organizer. Why does this exist at all?
+       The <h2> must NAME the connection: "Big picture: <what this ties to>", never the
+       bare words "The big picture" — see PRD §3. ===== -->
   <section class="big-picture">
-    <h2>The big picture</h2>
+    <h2>Big picture: why C hands you the keys to memory</h2>
     <p>C gives you direct access to memory. That is the whole bargain: you get speed and
     control, and in exchange you are responsible for things other languages handle for
     you. Everything in this module is one half of that bargain or the other.</p>
@@ -41,10 +43,19 @@
     A pointer is a variable that holds the address of another variable.
   </section>
 
-  <!-- ===== 4. HOW IT WORKS — the detail. Code, diagrams, traps. ===== -->
+  <!-- ===== 4. HOW IT WORKS — the detail. Code, diagrams, traps.
+       TWO OR MORE <h3> subsections? Open with a .how-index (dot-separated anchor links,
+       styled like .crumb) and give each <h3> a matching id — see PRD §3. A single-thread
+       narrative chapter (no natural subsections) skips both; don't force a split. ===== -->
   <section class="how">
     <h2>How it works</h2>
 
+    <p class="how-index">
+      <a href="#declaring-a-pointer">Declaring a pointer</a> ·
+      <a href="#dereferencing-a-pointer">Dereferencing a pointer</a>
+    </p>
+
+    <h3 id="declaring-a-pointer">Declaring a pointer</h3>
     <p>A <span class="vocab">pointer</span> does not hold a value. It holds the
     <span class="vocab">address</span> where a value lives — like a house number rather
     than the house.</p>
@@ -99,6 +110,13 @@ value through p: 30</pre>
       <figcaption>Figure 1 — <code>p</code> stores where <code>age</code> lives, not what it holds.</figcaption>
     </figure>
 
+    <h3 id="dereferencing-a-pointer">Dereferencing a pointer</h3>
+    <p>The <code>*</code> in <code>*p</code> is called the
+    <span class="vocab">dereference operator</span>: "go to the address <code>p</code>
+    holds, and give me the value sitting there." <code>printf</code> above prints two
+    identical numbers — one read directly from <code>age</code>, one read by following
+    <code>p</code> to that same address — because they are the same memory.</p>
+
     <!-- Mermaid alternative, for flowcharts where hand-drawing SVG is not worth it.
          Prefer TD: left-to-right charts over ~4 nodes shrink to unreadable text in a
          68ch column. -->
@@ -147,9 +165,11 @@ flowchart TD
     </details>
   </section>
 
-  <!-- ===== 6. ZOOM OUT — re-tie to the whole language, name what is next. ===== -->
+  <!-- ===== 6. ZOOM OUT — re-tie to the whole language, name what is next.
+       The <h2> must name what this zooms out TO, never the bare words "Zooming out"
+       — see PRD §3. ===== -->
   <section class="zoom-out">
-    <h2>Zooming out</h2>
+    <h2>Zooming out: from one pointer to everything built on pointers</h2>
     <p>Pointers are how C lets you reach memory directly, and nearly everything ahead
     depends on them: strings, dynamic memory, structs passed to functions, and threads
     sharing data. Next chapter you will use pointers to change a caller's variable from

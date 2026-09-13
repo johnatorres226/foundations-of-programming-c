@@ -68,6 +68,39 @@ whole. Every chapter reinforces the global picture, not just its own topic.
 > parallel. `SYLLABUS.md` declares every chapter's outcomes up front precisely so any
 > chapter can be authored independently. **Never break this.**
 
+### Headings must name what they connect to
+
+`<h2>The big picture</h2>` and `<h2>Zooming out</h2>` are placeholders, not finished
+headings — a reader hitting the same bare label in every chapter has no way to tell what
+this chapter's big picture or zoom-out is actually *about* until they read the paragraph
+under it. Every chapter's headings carry the connection in the words themselves:
+
+- **Big Picture:** `Big picture: <what this chapter connects to>` — e.g. `Big picture: why
+  every C program needs a starting point`.
+- **Zoom Out:** `Zooming out: <what this chapter zooms out to>` — e.g. `Zooming out: from
+  reading tokens to watching the compiler work`.
+
+Never ship the bare `The big picture` / `Zooming out` text — it is a sign the chapter's own
+author has not yet named the connection.
+
+### The "how it works" index
+
+When `.how` has **two or more `<h3>` subsections**, open the section with a `.how-index`: a
+short line of anchor links to those subsections, dot-separated, styled like `.crumb`:
+
+```html
+<h2>How it works</h2>
+<p class="how-index">
+  <a href="#macos">macOS</a> · <a href="#linux">Linux</a> · <a href="#windows">Windows</a>
+</p>
+```
+
+Give each `<h3>` a matching `id`. This is not decoration — it lets a learner see the
+chapter's shape (how many parts, what each covers) before committing to read it start to
+end, and lets them jump back to one part later. A chapter that is a single narrative
+(0.1–0.3 are, for example) has no subsections and needs no index — don't invent artificial
+`<h3>` breaks just to hang one on.
+
 ---
 
 ## 4. Readability — 6th grade
@@ -97,6 +130,56 @@ fit splits into **continuation chapters** (`5-chapter-pointers-part-1`,
 `5-chapter-pointers-part-2`), each a full six-section chapter in its own right.
 
 A module holds roughly 4–5 chapters.
+
+### Depth checklist — a measurable floor, not a vibe
+
+"About 20 minutes" is not checkable by eye once ~65 chapters exist. Before a chapter is
+called done, run this from the repo root (a plain `grep -o` undercounts badly — HTML
+attributes wrap across lines, so it has to parse the three sections as blocks, not lines):
+
+```sh
+python3 - "src/modules/<path>/CONTENT.html" <<'EOF'
+import re, sys
+html = open(sys.argv[1]).read()
+total = 0
+for cls in ("big-picture", "how", "zoom-out"):
+    m = re.search(rf'<section class="{cls}">(.*?)</section>', html, re.S)
+    body = re.sub(r'<svg.*?</svg>', '', m.group(1), flags=re.S)
+    words = re.sub(r'<[^>]+>', ' ', body).split()
+    total += len(words)
+print(total, "words, ~%.1f min @150wpm" % (total / 150))
+EOF
+```
+
+This counts **Big Picture + How It Works + Zoom Out** — prose, code, and terminal text
+alike (a beginner reads a code block slowly, not for free), excluding only inline SVG
+diagram markup. Chapter 1.1, calibrated by hand while writing this rule, lands at **~1,100
+words (~7–8 minutes)** with four gotchas, a `.how-index` over five subsections, a diagram,
+and a solution reveal — genuinely thorough for "read five lines token by token," and there
+was no honest way to add another 1,000 words without padding sentences or duplicating a
+later chapter. Use it, not a round number, as the calibration point:
+
+- **Under ~600 words:** very likely too thin. Add coverage of a real gap — a gotcha the
+  topic actually has, a second worked example, a diagram — never padding sentences.
+- **~900–2,000 words:** the normal band for most chapters.
+- **Over ~3,000 words:** split into a continuation chapter (§5) rather than asking the
+  learner to sit through two topics' worth in one sitting.
+
+This is a **floor-and-ceiling guard, not a precise target** — the remaining 20 minutes of
+the "one hour" is the exercises, not more prose. A chapter that is naturally a tight single
+idea (like 1.1) can sit at the low end with nothing wrong with it; a chapter covering
+several real sub-topics (like pointers) should sit higher because it has more to say, not
+because the rule demands it. Document in the PR why, if a chapter lands outside the band.
+
+Two structural signals correlate with real depth and are easy to check without counting
+words:
+
+- **`.how` has at least one `.gotcha` or figure/diagram per `<h3>` subsection** once it has
+  subsections — naming a sub-topic without its trap or its picture is a heading with nothing
+  under it.
+- **The chapter's `.how-index` (if present) has 2+ entries** — a section too thin to name
+  more than one part of itself is a section that has not been broken down enough to show its
+  own progression.
 
 ---
 
@@ -394,6 +477,9 @@ SemVer, recorded in `CHANGELOG.md`:
 - [ ] `CONTENT.html` has all six sections in order
 - [ ] Core Idea is one sentence
 - [ ] Recap is 2–3 sentences, written against `SYLLABUS.md` outcomes
+- [ ] Big Picture and Zoom Out headings name what they connect to — not the bare label (§3)
+- [ ] `.how-index` present if `.how` has 2+ `<h3>` subsections (§3)
+- [ ] Passes the depth checklist (§5) — word count in the target band, or a documented reason if not
 - [ ] `QUIZ.html` has a `why` on **every** option (not in Module 0)
 - [ ] Every new technical term is defined on first use
 - [ ] No "simply", "just", "obviously", "of course", "as you know"
