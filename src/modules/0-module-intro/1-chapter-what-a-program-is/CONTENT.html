@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M0.1 — What a Program Actually Is · Foundations of Programming: C</title>
+<link rel="stylesheet" href="../../../../assets/style.css">
+</head>
+<body>
+<article class="chapter">
+
+  <header class="chapter-head">
+    <p class="crumb">Module 0 · Chapter 1</p>
+    <h1>What a Program Actually Is</h1>
+  </header>
+
+  <!-- ===== 1. RECAP — this is the first chapter in the course, so there is nothing to
+       recap. Orient the learner to the course structure instead (see issue #20). ===== -->
+  <section class="recap">
+    <p>This is the very first chapter, so there is nothing to recap yet. Here is how the
+    rest of the course works instead: every chapter has six parts, always in the same
+    order, so you always know what is coming. Module 0 has four chapters like this one —
+    no code to write yet, just the ideas you need before you touch a keyboard.</p>
+  </section>
+
+  <!-- ===== 2. BIG PICTURE ===== -->
+  <section class="big-picture">
+    <h2>The big picture</h2>
+    <p>Every piece of software you have ever used — a game, a calculator app, the page you
+    are reading this on — is a <strong>program</strong>. Before you write a single line of
+    C, it helps to know what a program actually is and what happens when you run one. C
+    sits closer to the machine than most languages you may have heard of, so the ideas in
+    this chapter matter more here than they would somewhere else.</p>
+  </section>
+
+  <!-- ===== 3. CORE IDEA — exactly one sentence. ===== -->
+  <section class="core-idea">
+    A computer program is a list of exact instructions that tells a computer's CPU what to
+    do, one step at a time.
+  </section>
+
+  <!-- ===== 4. HOW IT WORKS ===== -->
+  <section class="how">
+    <h2>How it works</h2>
+
+    <p>The <span class="vocab">CPU</span> (short for central processing unit) is the chip
+    inside a computer that carries out instructions. It does not understand English, and it
+    does not understand ideas. It only follows one simple instruction after another,
+    extremely fast — millions or billions of them every second.</p>
+
+    <p>You do not write those instructions directly. You write <span class="vocab">source
+    code</span>: the text a programmer types into an editor, using words like <code>if</code>
+    and <code>printf</code>. Source code is readable by a person. The CPU cannot run it as
+    written — the CPU only understands <span class="vocab">machine code</span>, which is
+    streams of numbers that map to specific electrical operations inside the chip.</p>
+
+    <p>Something has to turn your source code into machine code. There are two common ways
+    to do that, and the difference between them is one of the first things that makes C
+    different from languages like Python.</p>
+
+    <p>C is a <span class="vocab">compiled language</span>. A program called a
+    <span class="vocab">compiler</span> reads your entire source file and translates it into
+    machine code, all at once, before you ever run it. The output is a new file — the
+    <strong>program</strong> — that the CPU can run directly, without the compiler's help.</p>
+
+    <p>Python and JavaScript are <span class="vocab">interpreted languages</span>. Instead
+    of translating everything up front, another program called an
+    <span class="vocab">interpreter</span> reads your source code one line at a time and
+    carries out each line immediately. It does this every single time the program runs.</p>
+
+    <div class="gotcha">
+      <p>Compiling does not make your code faster on its own — the CPU runs at the same
+      speed either way. What compiling removes is the translation step at run time. A
+      compiled program is already machine code, so it can start immediately. An interpreted
+      program has to be translated line by line, every time, which is why interpreted
+      programs are often slower to run.</p>
+    </div>
+
+    <pre class="mermaid">
+flowchart TD
+  A[Your source code] -->|compiled language, like C| B[Compiler runs once]
+  B --> C[Machine code file]
+  C --> D[CPU runs it]
+  A -->|interpreted language, like Python| E[Interpreter runs every time]
+  E --> D
+    </pre>
+  </section>
+
+  <!-- ===== 5. TRY IT — Module 0 has no exercises/ or tests/ (PRD §9 exception). This is
+       a look-at-your-own-computer activity that needs no compiler, since setup is
+       chapter 0.4. ===== -->
+  <section class="try-it">
+    <p>Module 0 has no exercise files to check against a test — that starts in Module 1.
+    For now, try this on your own computer. It needs no compiler and no install.</p>
+    <ul>
+      <li>Open any plain text file (a <code>.txt</code> file works) in a text editor. This
+      is what source code looks like: readable words and symbols, meant for a person.</li>
+      <li>Now try opening an installed application's program file in that same text editor
+      — do not run it, just open it as text. Most editors will either refuse or show you a
+      wall of strange symbols.</li>
+      <li>That wall of symbols is close to what machine code looks like when a program
+      meant for a person tries to display it: numbers, not words. That is what the CPU
+      actually reads.</li>
+    </ul>
+    <p>If you want to see and hear this explained a different way before moving on, Harvard's
+    free <a href="https://cs50.harvard.edu/x/">CS50x</a> course covers source code, compilers,
+    and machine code in its first week, which focuses on C.</p>
+  </section>
+
+  <!-- ===== 6. ZOOM OUT ===== -->
+  <section class="zoom-out">
+    <h2>Zooming out</h2>
+    <p>You now know what a program is, and why C needs a compiler to turn your source code
+    into something the CPU can run. That one fact — C is compiled, not interpreted —
+    explains a lot of what makes C feel different from other languages you may have tried.
+    Next, chapter 0.2 tells the story of C itself: where it came from, what problem it
+    solved, and why Unix made it spread. When you are ready to start typing real C, the free
+    interactive exercises at <a href="https://www.learn-c.org/">learn-c.org</a> are a good
+    place to practice alongside this course.</p>
+  </section>
+
+  <nav class="chapter-nav">
+    <a href="../2-chapter-story-of-c/CONTENT.html">Next chapter: The Story of C →</a>
+  </nav>
+
+  <footer class="chapter-foot">
+    <a href="https://github.com/johnatorres226/foundations-of-programming-c/issues/new?template=chapter-feedback.yml&title=%5BM0C1%5D+">
+      Something wrong with this chapter?</a>
+  </footer>
+
+</article>
+
+<script src="../../../../assets/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    securityLevel: "strict",
+    theme: matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "default"
+  });
+</script>
+</body>
+</html>
