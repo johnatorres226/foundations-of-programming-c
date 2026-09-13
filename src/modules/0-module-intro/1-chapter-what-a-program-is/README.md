@@ -1,6 +1,6 @@
 # 0.1 — What a Program Actually Is
 
-**Status:** 🚧 Not yet written · **Module 0 — What Is C?** · **Exercises:** 0
+**Status:** ✅ Written · **Module 0 — What Is C?** · **Exercises:** 0
 
 ## Outcome
 
