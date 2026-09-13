@@ -112,14 +112,20 @@ flowchart TD
     </pre>
   </section>
 
-  <!-- ===== 5. TRY IT — point at real files. Never inline the work. ===== -->
+  <!-- ===== 5. TRY IT — point at real files. Never inline the work.
+       Two exercise shapes (PRD §9): a FUNCTION exercise pairs exercises/NN_name.c
+       (no main) with tests/NN_name_test.c (main + assert), built and run together —
+       01_declare_pointer.c below is this shape. A PROGRAM exercise is a full program
+       whose stdout tests/NN_name.expected checks exactly (tests/NN_name.input feeds
+       stdin, if the program reads any). Use whichever shape fits the exercise. ===== -->
   <section class="try-it">
     <p>Open these in your editor and make the tests pass:</p>
     <ul>
       <li><code>exercises/01_declare_pointer.c</code> — declare a pointer and print through it</li>
       <li><code>exercises/02_swap.c</code> — swap two variables using pointers</li>
     </ul>
-    <p>Check your work with <code>make check-mine</code>.</p>
+    <p>Check your work with <code>make check-mine</code>. Just this chapter:
+    <code>make check-mine CHAPTER=5-module-pointers/1-chapter-addresses</code>.</p>
 
     <details class="solution">
       <summary>Show one approach</summary>

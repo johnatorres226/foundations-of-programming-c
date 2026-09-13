@@ -186,6 +186,71 @@ Prose written before the code is prose that describes code that does not exist y
 quizzes, project, or exam. Its chapters are reading; chapter 0.4's first program is a
 hands-on setup check the learner verifies by eye.
 
+### Exercise shapes
+
+Every exercise is one of two shapes. `tools/run-tests.sh` (invoked by `make check` and
+`make check-mine`) tells them apart by what it finds in `tests/`:
+
+- **Function exercise.** `exercises/NN_name.c` defines functions and has **no `main`**.
+  `tests/NN_name_test.c` has `main()` and `assert()`s, forward-declares the function(s) it
+  calls, and is compiled together with the exercise (or solution) file and run as one
+  program. Use this whenever the point is a function's return value or its effect on
+  arguments — most chapters.
+- **Program exercise.** `exercises/NN_name.c` is a full program with its own `main`.
+  `tests/NN_name.expected` holds the exact stdout it must produce; `tests/NN_name.input`,
+  if present, is piped to its stdin. Use this where the output *is* the behavior — early
+  chapters especially, before the learner can write a function with a return value worth
+  asserting on.
+
+Both shapes share one filename stem (`NN_name`) across `exercises/`, `tests/`, and the
+matching file in `src/back-of-the-book/`.
+
+### Unfinished stubs
+
+A stub committed to `exercises/` must **compile clean** under `-std=c17 -Wall -Wextra
+-Werror` and then **fail with a message a beginner can read** — never a linker error, never
+a silent wrong answer. Cast unused parameters to `(void)` so an unimplemented function's
+signature does not trip `-Wunused-parameter`, then report and exit:
+
+```c
+int add(int a, int b) {
+    (void) a;
+    (void) b;
+    fprintf(stderr, "TODO: implement add() in exercises/01_add.c\n");
+    exit(1);
+}
+```
+
+A program-exercise stub does the same in `main`: print a `TODO:` line to `stderr`, `return
+1`. Its empty stdout will not match `tests/NN_name.expected`, so `make check-mine` reports a
+clear `FAIL`, not a crash dump.
+
+### Per-exercise overrides
+
+Two files, named after the exercise, sit next to its test and change how
+`tools/run-tests.sh` builds it:
+
+- **`tests/NN_name.sanitize`** — contents `thread` swap in ThreadSanitizer for that one
+  exercise instead of the course-default AddressSanitizer + UBSan, which cannot be combined
+  with it. Module 12.3 (race conditions) is the first user.
+- **`tests/NN_name.requires`** — a header name (for example `threads.h`) that must compile
+  on the current platform. When it does not (Apple Clang has no `<threads.h>`), the harness
+  reports that exercise **SKIP**, never a false pass or fail. Module 13.4 (C11 `threads.h`)
+  is the first user.
+
+### Checking your work
+
+```sh
+make check                              # every reference solution, whole course
+make check-mine                         # your exercises/, whole course
+make check-mine CHAPTER=1-module-basics/1-chapter-first-program   # one chapter only
+make selftest                           # regression-tests the harness itself
+```
+
+`CHAPTER` is a substring match against `<module-dir>/<chapter-dir>`, so a shorter unique
+fragment (`CHAPTER=first-program`) also works. Whole-course runs are noise while most
+exercises are unfinished — always scope to the chapter you are writing.
+
 ---
 
 ## 10. Answers, quizzes, and `back-of-the-book`
@@ -229,6 +294,11 @@ misunderstanding teaches, and why the right answer is right:
 `backticks` in `q`, `text`, or `why` — `quiz.js` renders it as `<code>`. No other markup. A quiz that only
 explains the right answer teaches half as much.
 
+**Quiz answers in `back-of-the-book`.** Each chapter's
+`src/back-of-the-book/module-<N>/<N>-chapter-<topic>/ANSWERS.md` holds `QUIZ.html`'s correct
+answers and their reasoning, one entry per question, in the same format as exam answers
+below. Wrong-answer `why` text stays in `QUIZ.html` only.
+
 ### Exams — the same schema, longer, grouped by chapter
 
 An **exam** (`module-exam/EXAM.html`) is a longer quiz covering every chapter in a module
@@ -269,15 +339,31 @@ Makefile · .clang-format · .gitignore
     # copy these, never start blank
 assets/style.css · assets/quiz.js · assets/mermaid.min.js
 .github/ISSUE_TEMPLATE/*.yml · .github/workflows/{ci,release}.yml
+tools/run-tests.sh · tools/selftest.sh · tools/selftest/    # the TDD harness, see §9
 src/modules/<N>-module-<topic>/
     README.md
     <N>-chapter-<topic>/
-        README.md · CONTENT.html · QUIZ.html · exercises/*.c · tests/*.c
+        README.md · CONTENT.html · QUIZ.html
+        exercises/NN_name.c            # learner-facing stub, no solution logic
+        tests/NN_name_test.c           # function exercise: main() + assert()
+        tests/NN_name.expected         # program exercise: exact stdout
+        tests/NN_name.input            # program exercise: optional stdin
+        tests/NN_name.sanitize         # optional: "thread" overrides the default sanitizer
+        tests/NN_name.requires         # optional: a header that gates the exercise to SKIP
     module-project/ · module-exam/EXAM.html
 src/back-of-the-book/module-<N>/
-    exam-answers.md   # exam's correct answers + reasoning only, see §10
+    exam-answers.md                    # exam's correct answers + reasoning only, see §10
+    <N>-chapter-<topic>/NN_name.c      # reference solution, mirrors the exercise filename
+    <N>-chapter-<topic>/ANSWERS.md     # that chapter's quiz answers + reasoning, see §10
 src/capstone/
 ```
+
+`ANSWERS.md` lives in the chapter's `src/back-of-the-book/module-<N>/<N>-chapter-<topic>/`
+directory alongside its solutions, even for chapters with no code — quiz answers need the
+same "correct answer plus reasoning, no wrong-answer walkthrough" treatment as code (see
+§10). Module exams use the separate module-level `exam-answers.md` next to it, since one
+exam spans every chapter in the module. Either way, wrong-answer explanations stay in the
+HTML (`QUIZ.html` / `EXAM.html`), never here.
 
 ### Module `README.md` — required metadata
 

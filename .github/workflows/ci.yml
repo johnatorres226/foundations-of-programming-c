@@ -20,10 +20,17 @@ jobs:
       - name: Compiler version
         run: cc --version
 
-      # Every reference solution must compile with -Werror and pass its own
-      # assert-based self-checks, with address and UB sanitizers on.
+      # Every reference solution must compile with -Werror and pass its
+      # chapter's tests/, with address and UB sanitizers on.
       - name: Compile and run reference solutions
         run: make check
+
+      # Regression-tests the harness itself: both exercise shapes, the
+      # per-exercise sanitizer override, and the platform-skip mechanism
+      # (this is why both OSes matter here — macOS is the one missing
+      # <threads.h>).
+      - name: Harness self-test
+        run: make selftest
 
   lint:
     name: formatting

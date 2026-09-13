@@ -35,11 +35,30 @@ real files. Audience has **minimal programming experience**; prose targets **6th
    programming experience. Never excerpt *Modern C* — it is CC BY-NC-ND.
 4. **No saved state.** No `localStorage`. Progress is the learner's `exercises/` files.
 
+## Exercise shapes (PRD §9)
+
+Two shapes, told apart by what's in `tests/`. A **function exercise** pairs
+`exercises/NN_name.c` (no `main`) with `tests/NN_name_test.c` (`main` + `assert`s),
+compiled and run together. A **program exercise** pairs a full-program
+`exercises/NN_name.c` with `tests/NN_name.expected` (its exact stdout), optionally fed
+`tests/NN_name.input` on stdin. Unfinished stubs must compile clean under `-Werror`
+(`(void)` your unused parameters) and fail with a `TODO:` message, never a linker dump.
+Solutions live at the matching path under `src/back-of-the-book/module-<N>/`; quiz/exam
+answers go in that same chapter's `ANSWERS.md`.
+
+Per-exercise overrides sit next to the test: `tests/NN_name.sanitize` (`thread` swaps in
+ThreadSanitizer, since it cannot combine with the course-default AddressSanitizer) and
+`tests/NN_name.requires` (a header that must compile here, or the harness reports SKIP
+instead of a false pass — `<threads.h>` on Apple Clang is the reason this exists).
+
 ## Verify
 
 ```sh
-make check    # compile + run every reference solution, -Werror
-make lint     # clang-format check
+make check                          # every reference solution against tests/, -Werror
+make check-mine                     # your own exercises/ against tests/
+make check-mine CHAPTER=<fragment>  # scope either to one chapter — do this while writing one
+make selftest                       # regression-tests the harness itself (tools/selftest/)
+make lint                           # clang-format check
 ```
 
 Then open a `CONTENT.html` from `file://` **with wifi off**. That is the delivery promise.
