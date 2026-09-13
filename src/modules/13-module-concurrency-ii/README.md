@@ -30,6 +30,6 @@ Discharges the Module 13 outcomes declared in [SYLLABUS.md](../../../SYLLABUS.md
 
 ## References
 
-<!-- Populate when this module is written. Cite-only, never mirror. See .claude/PRD.md §7. -->
+<!-- Populate when this module is written. Cite-only, never mirror. See .claude/project-specs/PRD.md §7. -->
 
 - _TODO: add per-chapter references at the tier appropriate for Module 13._

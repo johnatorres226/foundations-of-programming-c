@@ -29,6 +29,6 @@ None. Module 0 is an introduction, not an examined module — no tests, quizzes,
 
 ## References
 
-<!-- Populate when this module is written. Cite-only, never mirror. See .claude/PRD.md §7. -->
+<!-- Populate when this module is written. Cite-only, never mirror. See .claude/project-specs/PRD.md §7. -->
 
 - _TODO: add per-chapter references at the tier appropriate for Module 0._

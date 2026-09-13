@@ -51,8 +51,8 @@ the network, it is broken — see the rules below.
 - A chapter is about **one hour of work total** (~20 min reading). Too big means splitting
   into a continuation chapter, not writing faster.
 
-The full spec is [`.claude/PRD.md`](.claude/PRD.md); visual rules are in
-[`.claude/DESIGN-GUIDELINES.md`](.claude/DESIGN-GUIDELINES.md).
+The full spec is [`.claude/project-specs/PRD.md`](.claude/project-specs/PRD.md); visual rules are in
+[`.claude/project-specs/DESIGN-GUIDELINES.md`](.claude/project-specs/DESIGN-GUIDELINES.md).
 
 ## Git workflow
 

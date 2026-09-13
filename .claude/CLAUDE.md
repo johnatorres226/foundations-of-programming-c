@@ -7,13 +7,30 @@ real files. Audience has **minimal programming experience**; prose targets **6th
 
 | File | What it governs |
 |---|---|
-| **`.claude/PRD.md`** | The executable spec. Curriculum, chapter structure, citation rules, TDD order, definition of done. |
-| **`.claude/DESIGN-GUIDELINES.md`** | Branding and the component kit. Deliberately short. |
+| **`.claude/project-specs/PRD.md`** | The executable spec. Curriculum, chapter structure, citation rules, TDD order, definition of done. |
+| **`.claude/project-specs/DESIGN-GUIDELINES.md`** | Branding and the component kit. Deliberately short. |
 | **`SYLLABUS.md`** | Every chapter's declared learning outcomes. Recaps are written against this file. |
-| **`.claude/chapter-template.html`** | Copy for every new `CONTENT.html`. All six sections and every component, verified rendering offline. Change asset paths to `../../../../assets/`. |
-| **`.claude/quiz-template.html`** | Copy for every new `QUIZ.html`. Edit only the JSON block. |
-| **`.claude/exam-template.html`** | Copy for every new `module-exam/EXAM.html`. Same schema and engine as the quiz template, longer, with an optional `section` field to group questions by chapter. Correct answers + reasoning also live in `src/back-of-the-book/module-<N>/exam-answers.md`; see `.claude/PRD.md` §10. |
+| **`.claude/templates/chapter-template.html`** | Copy for every new `CONTENT.html`. All six sections and every component, verified rendering offline. Change asset paths to `../../../../assets/`. |
+| **`.claude/templates/quiz-template.html`** | Copy for every new `QUIZ.html`. Edit only the JSON block. |
+| **`.claude/templates/exam-template.html`** | Copy for every new `module-exam/EXAM.html`. Same schema and engine as the quiz template, longer, with an optional `section` field to group questions by chapter. Correct answers + reasoning also live in `src/back-of-the-book/module-<N>/exam-answers.md`; see `.claude/project-specs/PRD.md` §10. |
 | **`CRITICAL-PATH.md`** | What to work on next. Generated from the GitHub issue graph; dispatch only unblocked issues. Gitignored — local orchestration only, never pushed. Regenerate from the issue graph when stale. |
+
+## `.claude/` layout
+
+This file is the only thing you read cold — everything else it points to. Two
+directories behind it, split by what a reader does with the file, not by topic:
+
+- **`.claude/project-specs/`** — rules you follow but never copy: `PRD.md`,
+  `DESIGN-GUIDELINES.md`. Read-only decisions; changing one changes the rule for
+  every chapter, so a change here is a real design change, not routine authoring.
+- **`.claude/templates/`** — files you copy then edit: `chapter-template.html`,
+  `quiz-template.html`, `exam-template.html`. Each new `CONTENT.html`/`QUIZ.html`/
+  `EXAM.html` starts as a copy of one of these with asset paths corrected for its
+  real depth, never written blank.
+
+New spec content goes in `project-specs/`; a new copyable skeleton goes in
+`templates/`. Don't add a third top-level `.claude/` file — put it in whichever of
+these two it is, or ask whether it needs a third category before creating one.
 
 ## Coding philosophy
 

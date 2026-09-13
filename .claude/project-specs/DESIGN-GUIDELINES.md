@@ -108,7 +108,7 @@ Every `CONTENT.html`:
 </article>
 ```
 
-Working reference: **`.claude/chapter-template.html`** — copy it rather than writing a page
+Working reference: **`.claude/templates/chapter-template.html`** — copy it rather than writing a page
 from scratch. Section order is fixed by `PRD.md` §3. Body text is capped at `--measure`; code and
 diagrams may exceed it.
 

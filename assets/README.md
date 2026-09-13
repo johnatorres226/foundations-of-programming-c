@@ -19,5 +19,5 @@ the bundle lives here — 3.4 MB, the single largest file in the repo.
 > with `mermaid-cli` and drop this file — authors keep the Mermaid syntax, learners
 > download nothing. Not worth the extra authoring step yet.
 
-Inline SVG remains the **default** for diagrams (see `.claude/DESIGN-GUIDELINES.md` §5).
+Inline SVG remains the **default** for diagrams (see `.claude/project-specs/DESIGN-GUIDELINES.md` §5).
 Mermaid is for flowcharts and state diagrams where hand-authoring SVG is not worth it.

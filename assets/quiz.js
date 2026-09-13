@@ -8,7 +8,7 @@
  *
  * Wrap code in `backticks` inside q, text, and why — it renders as <code>.
  * Every option needs a "why" — wrong ones too. Explaining only the right answer
- * teaches half as much. See .claude/PRD.md §10.
+ * teaches half as much. See .claude/project-specs/PRD.md §10.
  *
  * A question may carry an optional "section" (e.g. "Chapter 2: Control Flow").
  * When it differs from the previous question's section, a heading is inserted

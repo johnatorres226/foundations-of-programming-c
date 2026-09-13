@@ -303,7 +303,7 @@ below. Wrong-answer `why` text stays in `QUIZ.html` only.
 
 An **exam** (`module-exam/EXAM.html`) is a longer quiz covering every chapter in a module
 (Modules 1–14; Module 0 has no exam, see §9). It is rendered by the **same**
-`assets/quiz.js` — copy `.claude/exam-template.html`, never start a second engine.
+`assets/quiz.js` — copy `.claude/templates/exam-template.html`, never start a second engine.
 
 A question may carry an optional `"section"` field naming the chapter it covers, e.g.
 `"Chapter 2: Control Flow"`. `quiz.js` prints a heading whenever `section` changes between
@@ -334,8 +334,8 @@ correct answer and why, without re-deriving it from the interactive page.
 README.md · SYLLABUS.md · CONTRIBUTING.md · CHANGELOG.md · LICENSE
 CRITICAL-PATH.md   # gitignored — local orchestration only, regenerated from the issue graph
 Makefile · .clang-format · .gitignore
-.claude/PRD.md · .claude/DESIGN-GUIDELINES.md · .claude/CLAUDE.md
-.claude/chapter-template.html · .claude/quiz-template.html · .claude/exam-template.html
+.claude/project-specs/PRD.md · .claude/project-specs/DESIGN-GUIDELINES.md · .claude/CLAUDE.md
+.claude/templates/chapter-template.html · .claude/templates/quiz-template.html · .claude/templates/exam-template.html
     # copy these, never start blank
 assets/style.css · assets/quiz.js · assets/mermaid.min.js
 .github/ISSUE_TEMPLATE/*.yml · .github/workflows/{ci,release}.yml
