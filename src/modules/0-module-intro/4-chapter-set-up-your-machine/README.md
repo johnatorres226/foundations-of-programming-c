@@ -1,6 +1,6 @@
 # 0.4 — Set Up Your Machine
 
-**Status:** 🚧 Not yet written · **Module 0 — What Is C?** · **Exercises:** 0 (guided setup check, not tested)
+**Status:** ✅ Written · **Module 0 — What Is C?** · **Exercises:** 0 (guided setup check, not tested)
 
 ## Outcome
 
