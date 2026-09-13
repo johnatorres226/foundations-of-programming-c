@@ -151,8 +151,10 @@ here is why you rarely see it.
 | [GCC C status](https://gcc.gnu.org/projects/c-status.html) · [Clang C status](https://clang.llvm.org/c_status.html) | Reference | For version/standard tables. |
 
 **Before adding any new source:** verify the URL is live, free, and that its license permits
-linking. Record it in the module `README.md`. YouTube links must be checked individually —
-channels vanish.
+linking. Note it in your chapter's PR description for the module README update at module
+close — per `CONTRIBUTING.md` § Git workflow, chapter PRs never edit a module `README.md`
+directly, so citations don't collide across ~60 parallel PRs the way a per-chapter edit
+would. YouTube links must be checked individually — channels vanish.
 
 ---
 
