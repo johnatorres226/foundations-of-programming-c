@@ -294,15 +294,49 @@ misunderstanding teaches, and why the right answer is right:
 `backticks` in `q`, `text`, or `why` — `quiz.js` renders it as `<code>`. No other markup. A quiz that only
 explains the right answer teaches half as much.
 
+**Quiz answers in `back-of-the-book`.** Each chapter's
+`src/back-of-the-book/module-<N>/<N>-chapter-<topic>/ANSWERS.md` holds `QUIZ.html`'s correct
+answers and their reasoning, one entry per question, in the same format as exam answers
+below. Wrong-answer `why` text stays in `QUIZ.html` only.
+
+### Exams — the same schema, longer, grouped by chapter
+
+An **exam** (`module-exam/EXAM.html`) is a longer quiz covering every chapter in a module
+(Modules 1–14; Module 0 has no exam, see §9). It is rendered by the **same**
+`assets/quiz.js` — copy `.claude/exam-template.html`, never start a second engine.
+
+A question may carry an optional `"section"` field naming the chapter it covers, e.g.
+`"Chapter 2: Control Flow"`. `quiz.js` prints a heading whenever `section` changes between
+one question and the next, so the exam reads grouped by chapter. Quizzes never set
+`section` — the field is a no-op when absent.
+
+**Exam answers in `back-of-the-book`.** `src/back-of-the-book/module-<N>/exam-answers.md`
+holds the exam's correct answers and their reasoning — one entry per question, in the same
+order as `EXAM.html`. Wrong-answer `why` text is **not** duplicated here; per the honor-system
+rule above, that stays in the HTML where the learner already agreed to see it by taking the
+exam. Format:
+
+```markdown
+## Chapter 2: Control Flow
+
+**What does `int *p;` declare?**
+A pointer to an integer. `p` stores the memory address where an int lives.
+```
+
+This mirrors how exercise solutions work: `back-of-the-book` is the one place to find every
+correct answer and why, without re-deriving it from the interactive page.
+
 ---
 
 ## 11. Repository layout
 
 ```
-README.md · SYLLABUS.md · CONTRIBUTING.md · CHANGELOG.md · CRITICAL-PATH.md · LICENSE
+README.md · SYLLABUS.md · CONTRIBUTING.md · CHANGELOG.md · LICENSE
+CRITICAL-PATH.md   # gitignored — local orchestration only, regenerated from the issue graph
 Makefile · .clang-format · .gitignore
 .claude/PRD.md · .claude/DESIGN-GUIDELINES.md · .claude/CLAUDE.md
-.claude/chapter-template.html · .claude/quiz-template.html   # copy these, never start blank
+.claude/chapter-template.html · .claude/quiz-template.html · .claude/exam-template.html
+    # copy these, never start blank
 assets/style.css · assets/quiz.js · assets/mermaid.min.js
 .github/ISSUE_TEMPLATE/*.yml · .github/workflows/{ci,release}.yml
 tools/run-tests.sh · tools/selftest.sh · tools/selftest/    # the TDD harness, see §9
@@ -318,16 +352,18 @@ src/modules/<N>-module-<topic>/
         tests/NN_name.requires         # optional: a header that gates the exercise to SKIP
     module-project/ · module-exam/EXAM.html
 src/back-of-the-book/module-<N>/
+    exam-answers.md                    # exam's correct answers + reasoning only, see §10
     <N>-chapter-<topic>/NN_name.c      # reference solution, mirrors the exercise filename
-    ANSWERS.md                         # quiz/exam answers + reasoning, correct answers only
+    <N>-chapter-<topic>/ANSWERS.md     # that chapter's quiz answers + reasoning, see §10
 src/capstone/
 ```
 
 `ANSWERS.md` lives in the chapter's `src/back-of-the-book/module-<N>/<N>-chapter-<topic>/`
-directory alongside its solutions, even for chapters with no code — quiz and exam answers
-need the same "correct answer plus reasoning, no wrong-answer walkthrough" treatment as
-code (see §10). The wrong-answer explanations belong in `QUIZ.html`'s `why` fields, not
-here.
+directory alongside its solutions, even for chapters with no code — quiz answers need the
+same "correct answer plus reasoning, no wrong-answer walkthrough" treatment as code (see
+§10). Module exams use the separate module-level `exam-answers.md` next to it, since one
+exam spans every chapter in the module. Either way, wrong-answer explanations stay in the
+HTML (`QUIZ.html` / `EXAM.html`), never here.
 
 ### Module `README.md` — required metadata
 
