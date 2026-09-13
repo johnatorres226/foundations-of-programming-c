@@ -31,6 +31,26 @@
     write and turns it into that kind of file. Every chapter after this one asks you to
     write C code and run it — none of that works until a compiler is installed on your own
     computer.</p>
+    <p>Chapter 0.1 called this trade-off directly: a computer's CPU only understands machine
+    code, and a compiled language like C needs something to do that translation before your
+    program can run at all. A compiler is that something. Think of it like needing a working
+    oven before you can bake a cake from a recipe — the recipe (your C code) is correct and
+    complete, but it stays a piece of paper until something actually turns it into food. No
+    working oven, no cake, no matter how good the recipe is.</p>
+    <p>Some languages hide this step from you. Open certain websites and you can type code
+    into a box in your browser and watch it run immediately, with nothing installed at all.
+    This course does not take that shortcut on purpose. Installing a real toolchain on your
+    own computer, once, means every program you write from here on is a real file you own,
+    that runs the same way whether or not you have internet access — and it means you
+    understand what "running a program" actually involves, instead of trusting a website to
+    hide it from you.</p>
+    <p>This chapter's own page follows the same rule it is asking of you. Every lesson in
+    this course opens straight from a file on your computer, with no internet connection
+    required — you could turn off your wifi entirely right now and keep reading. The course
+    asks you to set up a compiler that works the same way: installed once, working offline,
+    answerable only to you. That consistency is not an accident; it is the same "own your
+    tools" idea applied twice, once to how you read this course and once to how you run the
+    code you write for it.</p>
   </section>
 
   <!-- ===== 3. CORE IDEA ===== -->
@@ -51,8 +71,12 @@
     clicking buttons. Find the section below for your operating system.</p>
 
     <p class="how-index">
-      <a href="#macos">macOS</a> · <a href="#linux">Linux</a> · <a href="#windows">Windows</a>
-      · <a href="#compile-and-run-your-first-program">Compile and run your first program</a>
+      <a href="#getting-the-course-files">Getting the course files</a> ·
+      <a href="#opening-a-terminal">Opening a terminal</a> ·
+      <a href="#macos">macOS</a> · <a href="#linux">Linux</a> · <a href="#windows">Windows</a> ·
+      <a href="#choosing-a-text-editor">Choosing a text editor</a> ·
+      <a href="#compile-and-run-your-first-program">Compile and run your first program</a> ·
+      <a href="#checking-your-install">Checking your install: PATH and version</a>
     </p>
 
     <figure>
@@ -87,34 +111,190 @@
       can run directly.</figcaption>
     </figure>
 
+    <h3 id="getting-the-course-files">Getting the course files onto your computer</h3>
+    <p>Every exercise in this course is a real file, meant to live on your own computer, not
+    inside a website. Before anything below, you need your own copy of this course's files
+    sitting somewhere on your hard drive. There are two ways to get one.</p>
+
+    <p>The simplest way needs no extra software: on the course's GitHub page, click the green
+    "Code" button, then "Download ZIP." Your browser downloads a single compressed file. Open
+    it — double-click on macOS and Windows, or use your file manager's "extract" option on
+    Linux — and you have a normal folder full of the course's files, including this very
+    page.</p>
+
+    <p>The way most working programmers actually use is a tool called
+    <span class="vocab">Git</span> — software for tracking changes to a project's files over
+    time, covered properly in a later module. For now you only need one command, once Git
+    itself is installed (macOS and Linux normally already have it; Windows users following
+    the WSL path above already installed it as part of that):</p>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> git clone https://github.com/johnatorres226/foundations-of-programming-c.git
+<span class="prompt">$</span> cd foundations-of-programming-c</pre>
+    </div>
+
+    <p><code>git clone</code> downloads the whole project into a new folder named after the
+    repository. The second command moves your terminal's current directory into it — the
+    first real use of <code>cd</code> you will make in this course, and the same command the
+    next section explains properly.</p>
+
+    <p>Either way, you now have a folder that matches the file paths this course refers to
+    throughout — <code>src/modules/...</code>, <code>assets/...</code>, and so on. The rest
+    of this chapter assumes you are inside that folder, or know how to reach it, before you
+    start compiling anything.</p>
+
+    <div class="gotcha">
+      <p>If double-clicking a downloaded <code>CONTENT.html</code> file shows raw text full
+      of <code>&lt;</code> and <code>&gt;</code> symbols instead of a formatted page, it
+      opened in a text editor instead of a web browser. Right-click the file and choose "Open
+      with," then pick your browser instead.</p>
+    </div>
+
+    <h3 id="opening-a-terminal">Opening a terminal and finding your files</h3>
+    <p>Every step below assumes you already have a terminal open and know how to reach the
+    folder that holds your files. A terminal only runs the exact command you type — it does
+    not guess what you mean, and it does not know where your files are unless you tell it.
+    Get comfortable with these few ideas first, and every install step below will make more
+    sense.</p>
+
+    <p>When a terminal opens, it shows a short line of text followed by a blinking cursor.
+    That line is called a <span class="vocab">prompt</span> — it means the terminal is idle
+    and waiting for you to type a command. This course shows a prompt as a plain
+    <code>$</code> in every terminal example, the same as you have already seen in this
+    chapter. Your own terminal's prompt will look different — it might show your username,
+    your computer's name, or a folder name — but the <code>$</code> in this course always
+    means "wherever your own prompt is, type this next."</p>
+
+    <p>A terminal always has one folder it is "in" at any moment, called its
+    <span class="vocab">current directory</span>. Every plain filename you type —
+    <code>hello.c</code>, for example — is understood relative to that folder. Two commands
+    you will use constantly:</p>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> pwd
+/Users/yourname/foundations-of-programming-c
+<span class="prompt">$</span> ls
+CONTRIBUTING.md  README.md  SYLLABUS.md  assets  src  ...</pre>
+    </div>
+
+    <p><code>pwd</code> ("print working directory") shows the current directory's full path.
+    <code>ls</code> ("list") shows the files and folders inside it. To move into a folder,
+    use <code>cd</code> ("change directory") followed by its name:</p>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cd src/modules/0-module-intro/4-chapter-set-up-your-machine/exercises
+<span class="prompt">$</span> ls
+hello.c</pre>
+    </div>
+
+    <p>That is the exact folder this chapter's exercise file lives in, once you have cloned
+    the course onto your own computer. Every "open a terminal and run" instruction from here
+    on assumes you have already used <code>cd</code> to reach the right folder — usually the
+    one holding the file you are about to work on.</p>
+
+    <div class="gotcha">
+      <p>"File not found" or "No such file or directory" almost always means your terminal's
+      current directory is not where you think it is — not that the file itself is missing.
+      Run <code>pwd</code> to check where you actually are, and <code>ls</code> to see what
+      is actually there, before you go looking for another explanation.</p>
+    </div>
+
+    <p>One more thing before you install anything: this course's Windows path (MSYS2 or WSL,
+    both covered below) gives you a terminal that understands <code>pwd</code>,
+    <code>ls</code>, and <code>cd</code> exactly like macOS and Linux do. You will not need
+    separate Windows-only versions of these commands anywhere in this course.</p>
+
     <h3 id="macos">macOS</h3>
-    <p>Apple ships a compiler as part of a small package called the Command Line Tools.
-    Open a terminal (search for "Terminal" in Spotlight) and run:</p>
+    <p>Apple ships a compiler as part of a small package called the Command Line Tools. To
+    open a terminal, press <kbd>Cmd</kbd> + <kbd>Space</kbd> to open Spotlight — a search box
+    built into macOS — type "Terminal," and press Enter. A new window opens with a prompt
+    waiting for you. In it, run:</p>
 
     <div class="terminal">
 <pre><span class="prompt">$</span> xcode-select --install</pre>
     </div>
 
     <p>A window pops up asking you to confirm. Click install, and wait — it can take a few
-    minutes. This gives you <code>clang</code>, a compiler that also understands the
-    <code>cc</code> command used in this course.</p>
+    minutes, since it downloads several hundred megabytes over your internet connection. This
+    gives you <code>clang</code>, a compiler that also understands the <code>cc</code>
+    command used throughout this course — on macOS, <code>cc</code> and <code>clang</code>
+    are two names for the exact same program.</p>
+
+    <p>Some macOS tutorials elsewhere online instead recommend installing a separate compiler
+    through <span class="vocab">Homebrew</span>, a popular package manager for macOS. You do
+    not need Homebrew for this course — the Command Line Tools already give you everything
+    these chapters ask for. If you already have Homebrew installed for other reasons, that is
+    fine too; nothing here conflicts with it.</p>
+
+    <div class="gotcha">
+      <p>If <code>xcode-select --install</code> reports that the Command Line Tools are
+      already installed, you already have a working compiler — there is nothing else to do
+      here. You do not need the full Xcode app for this course. Xcode is a much larger
+      download from the App Store, meant for building iPhone and Mac apps with a graphical
+      editor; the Command Line Tools it is built from are the only part a C course needs.</p>
+    </div>
 
     <h3 id="linux">Linux</h3>
-    <p>On Ubuntu, Debian, and most distributions built on them, one package installs
-    everything you need: a compiler, <code>make</code> (a tool later chapters use to build
-    multi-file programs), and the standard library headers. Open a terminal and run:</p>
+    <p>Linux comes in many <span class="vocab">distributions</span> (often shortened to
+    "distros") — different companies and communities package the same underlying operating
+    system with their own set of tools and their own <span class="vocab">package
+    manager</span>, a program for installing and updating software from the command line.
+    Which command you run depends on your distribution, but all of them install the same
+    three things: a compiler, <code>make</code> (a tool later chapters use to build
+    multi-file programs), and the standard library headers.</p>
+
+    <p>On Ubuntu, Debian, and most distributions built on them, one package installs all
+    three at once. Open a terminal and run:</p>
 
     <div class="terminal">
 <pre><span class="prompt">$</span> sudo apt update
 <span class="prompt">$</span> sudo apt install build-essential</pre>
     </div>
 
-    <p>On Fedora, use <code>sudo dnf groupinstall "Development Tools"</code> instead. On
-    Arch, use <code>sudo pacman -S base-devel</code>. All three install the same kind of
-    toolchain under a different package name.</p>
+    <p><code>sudo</code> ("superuser do") runs the command with permission to change system
+    files — installing software needs that permission, which is why it asks for your
+    password. <code>apt update</code> refreshes the list of available software versions
+    first, so <code>apt install</code> fetches a current one rather than something outdated.</p>
+
+    <p>On Fedora, the same toolchain comes from a differently named group of packages:</p>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> sudo dnf groupinstall "Development Tools"</pre>
+    </div>
+
+    <p>On Arch Linux and its derivatives (Manjaro, EndeavourOS), it is one package named for
+    exactly what it is — the base tools every piece of software on the system is built with:</p>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> sudo pacman -S base-devel</pre>
+    </div>
+
+    <p>All three commands above install the same kind of toolchain under a different package
+    name, because <code>apt</code>, <code>dnf</code>, and <code>pacman</code> are three
+    different package managers for three different distribution families. Once installed,
+    the compiler itself works identically no matter which one you used to get it.</p>
+
+    <div class="gotcha">
+      <p>If <code>sudo apt install</code> reports "Permission denied" or asks for a password
+      you do not have, you are not logged in as an account allowed to install software on
+      this machine — a shared school or work computer, for example. Ask whoever manages the
+      machine to run the install command, or use a personal computer instead. If your
+      distribution is not Ubuntu, Debian, Fedora, or Arch (or built on one of them), search
+      "&lt;your distribution name&gt; install gcc" — nearly every Linux distribution ships
+      some package named something like <code>gcc</code> or <code>build-essential</code>.</p>
+    </div>
 
     <h3 id="windows">Windows</h3>
-    <p>Windows has no C compiler built in, so you have two options.</p>
+    <p>Windows has no C compiler built in, so you have two options. Both give you a real,
+    working compiler; they differ in what kind of terminal and environment you end up
+    typing your commands into.</p>
+
+    <p>Choose MinGW-w64 if you want to stay inside Windows itself, with no second operating
+    system involved — a lighter install, and the compiled programs it produces are ordinary
+    Windows <code>.exe</code> files you could hand to any other Windows user. Choose WSL if
+    you would rather follow this course's Linux instructions directly, word for word, or if
+    you expect to work with Linux servers or tools later — WSL is a real, complete Linux
+    system, not an imitation of one, running alongside Windows.</p>
 
     <p><strong>Option A — MinGW-w64.</strong> This installs a real Windows compiler,
     <a href="https://www.mingw-w64.org/">MinGW-w64</a>, through a package manager called
@@ -145,12 +325,78 @@
       compiler when it starts up.</p>
     </div>
 
+    <div class="gotcha">
+      <p>Two more Windows-specific traps. <code>wsl --install</code> can fail on older
+      Windows 10 builds with a message about a missing feature — Windows Subsystem for Linux
+      has to be turned on first, under Settings → Apps → Optional features → More Windows
+      features → "Windows Subsystem for Linux." And if MSYS2's <code>pacman</code> command
+      itself says "not recognized," you opened a regular Windows terminal instead of one of
+      the MSYS2-specific terminals MSYS2 added to your Start menu — <code>pacman</code> only
+      exists inside those.</p>
+    </div>
+
+    <h3 id="choosing-a-text-editor">Choosing a text editor</h3>
+    <p>The other tool you need, besides a compiler, is a <span class="vocab">text
+    editor</span> — a program for writing plain text with no hidden formatting. A word
+    processor like Microsoft Word will not work here: it saves hidden styling information
+    alongside your words, and a compiler cannot make sense of any of that. Every option
+    below saves plain text, and every option is free.</p>
+
+    <ul>
+      <li><strong>Visual Studio Code</strong>
+      (<a href="https://code.visualstudio.com/">code.visualstudio.com</a>) — runs on macOS,
+      Linux, and Windows, and is the most common choice for beginners. Its built-in terminal
+      panel means you can edit and run your program without switching windows. Its optional
+      "C/C++" extension adds colored syntax highlighting for C code specifically, which makes
+      typos like a missing quotation mark easier to spot at a glance — install it from the
+      Extensions panel (the icon of four squares in the left sidebar) if you want it, but
+      nothing in this course requires it.</li>
+      <li><strong>Whatever came with your computer.</strong> TextEdit on macOS works once you
+      switch it to plain text (Format → Make Plain Text — its default mode adds hidden
+      formatting). Notepad on Windows is plain text already.</li>
+      <li><strong><code>nano</code></strong>, a small editor that opens directly inside the
+      terminal, already installed on macOS, Linux, and inside WSL. Its own commands are
+      listed at the bottom of the screen — a fine choice if you are already comfortable in a
+      terminal.</li>
+    </ul>
+
+    <p>None of these is required by this course specifically — pick whichever one you find
+    least confusing to open and save a file in. You will use it for every chapter from here
+    on, so it is worth spending five minutes making sure you can open a specific file, change
+    it, and save it, before moving on to compiling anything. Whichever you pick, make sure it
+    saves files with a plain <code>.c</code> ending, not <code>.c.txt</code> or
+    <code>.rtf</code> — some editors quietly add their own extension unless you tell them not
+    to, and a compiler that cannot find <code>hello.c</code> because it is actually named
+    <code>hello.c.txt</code> will report a confusing error that has nothing to do with your
+    actual code.</p>
+
+    <div class="gotcha">
+      <p>On macOS, if you open <code>hello.c</code> in TextEdit and the compiler rejects it
+      with strange errors even though the text looks right, TextEdit likely saved it in its
+      default rich text format instead of plain text. Format → Make Plain Text, then save
+      again, fixes it.</p>
+    </div>
+
     <h3 id="compile-and-run-your-first-program">Compile and run your first program</h3>
     <p>Chapter 0.3 explained why this course writes C17 code. That is why
-    <code>-std=c17</code> appears in every compile command you will see, starting now.
-    <code>-Wall -Wextra</code> tell the compiler to warn you about common mistakes, and
-    <code>-Werror</code> turns those warnings into errors you must fix. Turning on warnings
-    from day one catches mistakes while they are still small.</p>
+    <code>-std=c17</code> appears in every compile command you will see, starting now. Each
+    of these dash-prefixed pieces is called a <span class="vocab">flag</span> — an
+    instruction to the compiler about how to do its job, separate from your actual code. This
+    course always uses the same four:</p>
+
+    <ul>
+      <li><code>-std=c17</code> — use the C17 rulebook (chapter 0.3), nothing newer.</li>
+      <li><code>-Wall</code> — turn on the compiler's most common warnings: code that
+      compiles but is almost always a mistake.</li>
+      <li><code>-Wextra</code> — turn on a second, stricter set of warnings that
+      <code>-Wall</code> does not cover by itself.</li>
+      <li><code>-Werror</code> — treat every warning as an error, so the compiler refuses to
+      finish until you fix it, instead of letting you shrug one off and move on.</li>
+    </ul>
+
+    <p>Turning on warnings from day one catches mistakes while they are still small — a
+    warning your compiler tries to tell you about now is a bug you would otherwise have to
+    hunt down by hand later.</p>
 
     <div class="code" data-file="hello.c">
 <pre><code>#include &lt;stdio.h&gt;
@@ -171,11 +417,52 @@ int main(void) {
 Hello, C!</pre>
     </div>
 
-    <p>The first command compiles: it reads <code>hello.c</code> and writes a new file
-    named <code>hello</code>. The second command runs that file. If you see
-    <code>Hello, C!</code> printed back, your toolchain works. (On Windows with MinGW-w64,
-    the compiled file is named <code>hello.exe</code>, and you run it with
-    <code>hello</code> instead of <code>./hello</code>.)</p>
+    <p>The first command compiles: it reads <code>hello.c</code> and writes a brand new file
+    to the same folder, named <code>hello</code> because of the <code>-o hello</code> flag
+    (<code>-o</code> for "output" — leave it off and the compiler names the file something
+    less useful, like <code>a.out</code>). Run <code>ls</code> in that folder right after
+    compiling and you will see a file that was not there a moment ago. That new file is not
+    source code you can open and read — it is machine code (chapter 0.1), built specifically
+    for the computer you compiled it on.</p>
+
+    <p>The second command, <code>./hello</code>, runs that new file. The <code>./</code> in
+    front means "look for this program in the current directory," rather than in one of the
+    places your computer normally looks for already-installed programs — a habit your
+    terminal expects of you, not something specific to C. If you see <code>Hello, C!</code>
+    printed back, your toolchain works. (On Windows with MinGW-w64, the compiled file is
+    named <code>hello.exe</code>, and you run it with <code>hello</code> instead of
+    <code>./hello</code>.)</p>
+
+    <h3 id="checking-your-install">Checking your install: PATH and version</h3>
+    <p>Every "command not found" gotcha above has the same real cause. When you type
+    <code>cc</code>, your terminal does not search your whole computer for a program with
+    that name — it only checks a specific list of folders called your
+    <span class="vocab">PATH</span>. Installing a compiler normally adds its folder to that
+    list automatically. If it does not — or if you opened a terminal before the install
+    finished updating it — <code>cc</code> is not "broken," it has not been added to any
+    folder your terminal currently knows to look in. That is why closing and reopening your
+    terminal fixes most install problems: a new terminal window reads your PATH fresh.</p>
+
+    <p>Two commands you can run anytime to sanity-check your setup, once install finishes:</p>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc --version
+Apple clang version 17.0.0 (clang-1700.0.13.5)
+Target: x86_64-apple-darwin24.6.0
+<span class="prompt">$</span> which cc
+/usr/bin/cc</pre>
+    </div>
+
+    <p><code>cc --version</code> prints which compiler you actually have and its exact
+    version — the numbers on your own machine will not match the example above, and that is
+    fine; any reasonably recent version compiles this course's C17 code correctly.
+    <code>which cc</code> prints the exact file your terminal runs when you type
+    <code>cc</code>. If either command fails with "not found," the install did not finish, or
+    your PATH does not include it yet — reopen your terminal, and if that does not help,
+    re-read the install steps for your operating system above. Keep both commands in mind for
+    the rest of the course: whenever something that used to work suddenly reports "command
+    not found," this is the first place to look, long before assuming your own code is at
+    fault.</p>
   </section>
 
   <!-- ===== 5. TRY IT ===== -->
@@ -196,9 +483,23 @@ Hello, C!</pre>
     <h2>Zooming out: from a working toolchain to reading your first program</h2>
     <p>You now have a working C toolchain — the one thing every later chapter assumes you
     already have. That is the last setup step in this course; from here on, every chapter
-    is about the language itself. Next chapter you will take the exact program you just
-    compiled and read it token by token: what <code>#include</code>, <code>main</code>,
-    <code>return</code>, and <code>printf</code> each do.</p>
+    is about the language itself. Notice that you actually installed three separate tools,
+    not one: a terminal to type commands into, a text editor to write source code in, and a
+    compiler to turn that source code into something the computer can run. Keeping those
+    three jobs separate, instead of hiding them inside one all-in-one program, is exactly
+    the same C philosophy from chapter 0.1 — nothing is hidden from you that you have not
+    chosen to trust.</p>
+    <p>Next chapter you will take the exact program you already compiled and read it token by
+    token: what <code>#include</code>, <code>main</code>, <code>return</code>, and
+    <code>printf</code> each do, and why every C program needs them in that order. You will
+    keep using the same three tools — terminal, editor, compiler — for the rest of the
+    course; only the code you write in them gets more interesting from here.</p>
+    <p>If anything in this chapter did not work on the first try, that is normal, not a sign
+    you did something wrong. Toolchain setup is one of the few genuinely fiddly parts of
+    learning C, precisely because it depends on your specific computer, and the gotcha boxes
+    above cover the failures learners hit most often. Once <code>exercises/hello.c</code>
+    compiles and runs cleanly for you, this chapter is done for good — you will not have to
+    repeat any of it for the rest of the course.</p>
   </section>
 
   <nav class="chapter-nav">

@@ -20,7 +20,7 @@
     <p>This is the very first chapter, so there is nothing to recap yet. Here is how the
     rest of the course works instead: every chapter has six parts, always in the same
     order, so you always know what is coming. Module 0 has four chapters like this one —
-    no code to write yet, just the ideas you need before you touch a keyboard.</p>
+    no code to write yet — only the ideas you need before you touch a keyboard.</p>
   </section>
 
   <!-- ===== 2. BIG PICTURE ===== -->
@@ -31,6 +31,16 @@
     C, it helps to know what a program actually is and what happens when you run one. C
     sits closer to the machine than most languages you may have heard of, so the ideas in
     this chapter matter more here than they would somewhere else.</p>
+    <p>That closeness is not a trivia fact for later. In many other languages, a lot of
+    what your program actually does is hidden from you on purpose, so you can focus only on
+    your own logic. C hides almost none of it. Learning what a program really is, in this
+    chapter, means learning what your own code turns into once you write it — and that habit
+    of asking "what is actually happening here?" is one you will use in every module ahead,
+    not only this one.</p>
+    <p>By the end of this chapter, you should be able to explain, in your own words, why a
+    program has to become machine code before it can run at all, and why C's particular way
+    of doing that — compiling everything ahead of time, instead of translating it on the fly —
+    is worth understanding before you write a single line of it.</p>
   </section>
 
   <!-- ===== 3. CORE IDEA — exactly one sentence. ===== -->
@@ -43,38 +53,198 @@
   <section class="how">
     <h2>How it works</h2>
 
-    <p>The <span class="vocab">CPU</span> (short for central processing unit) is the chip
-    inside a computer that carries out instructions. It does not understand English, and it
-    does not understand ideas. It only follows one simple instruction after another,
-    extremely fast — millions or billions of them every second.</p>
+    <p class="how-index">
+      <a href="#what-happens-when-you-run-something">What happens when you run something</a> ·
+      <a href="#source-code-vs-machine-code">Source code vs. machine code</a> ·
+      <a href="#compiled-vs-interpreted">Compiled vs. interpreted</a> ·
+      <a href="#what-you-gain-and-give-up">What you gain and give up in C</a> ·
+      <a href="#where-c-is-running-right-now">Where C is running right now</a> ·
+      <a href="#why-c-has-a-reputation">Why C has a reputation for being hard</a> ·
+      <a href="#quick-myths-checked">Quick myths, checked</a>
+    </p>
 
-    <p>You do not write those instructions directly. You write <span class="vocab">source
-    code</span>: the text a programmer types into an editor, using words like <code>if</code>
-    and <code>printf</code>. Source code is readable by a person. The CPU cannot run it as
-    written — the CPU only understands <span class="vocab">machine code</span>, which is
-    streams of numbers that map to specific electrical operations inside the chip.</p>
+    <h3 id="what-happens-when-you-run-something">What happens when you run something</h3>
+    <p>Think about the last time you opened an app — a calculator, a game, anything at all.
+    You tapped or clicked an icon, and a moment later the app was running. Something happens
+    in between that tap and the app appearing on your screen, and it is worth slowing down
+    on, because it is exactly what happens every time a C program runs too.</p>
 
-    <p>Something has to turn your source code into machine code. There are two common ways
-    to do that, and the difference between them is one of the first things that makes C
-    different from languages like Python.</p>
+    <p>Tapping the icon tells your <span class="vocab">operating system</span> — the software
+    that manages everything else on the device, including which app is running and which one
+    is not — to find a file in storage and load it into memory. That file is not made of
+    words or pictures. It is a long list of very small, very specific instructions, stored as
+    numbers. Loading the file means copying that list somewhere the
+    <span class="vocab">CPU</span> (short for central processing unit) can reach it. The CPU
+    is the actual chip that does the work. It does not understand the word "calculator," and
+    it does not understand the idea of adding two numbers the way you do. It only knows how
+    to do one thing, over and over: read the next instruction in the list, do exactly what
+    that instruction says, and move to the next one. It does this millions or billions of
+    times every second, and every single thing the app does — showing a button, adding two
+    numbers, playing a sound — is built out of an enormous number of these tiny steps,
+    happening in exactly the right order.</p>
+
+    <p>To make "tiny step" concrete: one single instruction in that list might mean something
+    as small as "take the number sitting in this exact spot, add it to the number sitting in
+    that exact spot, and put the answer in a third spot." That is genuinely how small one
+    instruction is. There is no instruction anywhere in the chip that means "show a
+    calculator" or "add the two numbers the user typed." Ideas that size only exist once
+    thousands, or millions, of these tiny steps are stacked together by a programmer, in
+    exactly the right order. The CPU never sees the big idea. It only ever sees the next tiny
+    step, forever.</p>
+
+    <p>Zoom into that one tiny step a little further, and almost every instruction a CPU runs
+    falls into one of three jobs: doing arithmetic on numbers (add, subtract, compare two of
+    them), moving a piece of data from one spot to another, or deciding what to run next based
+    on a comparison it made a step earlier — for example, "if this number is zero, skip ahead to a
+    different instruction instead of the very next one." Every C program you will ever write,
+    no matter how advanced, eventually boils down to some combination of those three jobs,
+    repeated an enormous number of times. You will not write instructions in these exact
+    terms — C gives you far friendlier tools for this, starting in Module 1 — but knowing
+    these three jobs sit underneath everything is part of what "a program is a list of exact
+    instructions" really means.</p>
+
+    <p>One more piece worth knowing now: your computer almost certainly runs more than one
+    program "at once" already — music playing while you read this page, for instance. A
+    single CPU core still only truly does one tiny step at a time. What looks like several
+    programs running together is usually the operating system rapidly switching between them,
+    giving each one a tiny slice of time before moving to the next, over and over, far faster
+    than you could notice. You will meet the real version of this idea — several tasks
+    genuinely sharing work on purpose — in Modules 12 and 13, on concurrency.</p>
+
+    <figure>
+      <svg viewBox="0 0 460 130" role="img" aria-label="Four boxes connected by arrows: an
+           app icon being tapped, the operating system loading a file, that file's
+           instructions sitting in memory, and the CPU running those instructions one at a
+           time." xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor">
+        <rect x="10" y="30" width="100" height="48" rx="6" stroke-width="1.5"/>
+        <text x="60" y="52" text-anchor="middle" fill="currentColor" stroke="none"
+              font-size="12" font-family="system-ui">You tap</text>
+        <text x="60" y="69" text-anchor="middle" fill="currentColor" stroke="none"
+              font-size="10" font-family="system-ui" opacity=".65">an app icon</text>
+
+        <path d="M115 54 H160" stroke-width="1.5"/>
+        <path d="M160 54 l-9 -5 v10 z" fill="currentColor" stroke="none"/>
+
+        <rect x="165" y="30" width="110" height="48" rx="6" stroke-width="1.5"/>
+        <text x="220" y="52" text-anchor="middle" fill="currentColor" stroke="none"
+              font-size="12" font-family="system-ui">OS loads</text>
+        <text x="220" y="69" text-anchor="middle" fill="currentColor" stroke="none"
+              font-size="10" font-family="system-ui" opacity=".65">the file into memory</text>
+
+        <path d="M280 54 H325" stroke-width="1.5"/>
+        <path d="M325 54 l-9 -5 v10 z" fill="currentColor" stroke="none"/>
+
+        <rect x="330" y="30" width="120" height="48" rx="6" stroke-width="1.5"/>
+        <text x="390" y="52" text-anchor="middle" fill="currentColor" stroke="none"
+              font-size="12" font-family="system-ui">CPU runs it</text>
+        <text x="390" y="69" text-anchor="middle" fill="currentColor" stroke="none"
+              font-size="10" font-family="system-ui" opacity=".65">one tiny step at a time</text>
+      </svg>
+      <figcaption>Figure 1 — the same three steps happen whether you tap a calculator icon or
+      run a C program you compiled yourself.</figcaption>
+    </figure>
+
+    <div class="gotcha">
+      <p>"The CPU runs my program" makes it sound like the CPU understands what your program
+      is <em>for</em>. It does not, and it never will. A CPU cannot tell the difference
+      between the instructions for a calculator and the instructions for a game — both are
+      only numbers to it. Every bit of "meaning" in a program exists only in the mind of the
+      person reading the code, never inside the chip itself. Keeping that straight will save
+      you from a lot of confused thinking later, especially once you reach pointers and
+      memory in Modules 5 through 8.</p>
+    </div>
+
+    <h3 id="source-code-vs-machine-code">Source code vs. machine code</h3>
+    <p>You do not write the CPU's list of numbers directly. You write
+    <span class="vocab">source code</span>: text typed into an editor, using words like
+    <code>if</code> and <code>printf</code> that are meant to be read by a person. Source
+    code is readable. It has structure a human brain can follow, comments a human can leave
+    for another human, and names you choose yourself. The CPU cannot run any of that as
+    written — the CPU only understands <span class="vocab">machine code</span>: streams of
+    numbers that map to specific electrical operations inside the chip, with no comments, no
+    meaningful names, and no structure a person could read comfortably.</p>
+
+    <p>Those numbers are not decimal numbers like the ones you use every day. Deep down, a
+    CPU only ever deals with two electrical states: on and off. Every number, every
+    instruction, and every piece of data a program touches is eventually some pattern of
+    those two states, usually written out as <span class="vocab">binary</span> — the number
+    system that uses only <code>0</code> and <code>1</code> instead of <code>0</code> through
+    <code>9</code>. You will not need to read or write binary by hand in this course. What
+    matters is the size of the gap it represents: a name like <code>total</code> that you
+    might type in your source code has no meaning at all by the time it reaches the CPU. All
+    that survives the trip is a pattern of ons and offs sitting in a particular spot.</p>
+
+    <p>One way to picture the relationship: source code is like a recipe written in plain
+    English, and machine code is the same recipe translated into a language only the cook
+    understands, instantly, with zero room for interpretation. The analogy breaks down in one
+    important way, though. A human translator can pause, guess at what you probably meant, or
+    ask you a clarifying question. The program that turns source code into machine code
+    cannot. If your source code does not follow C's rules exactly, it does not guess — it
+    refuses to translate anything at all, and tells you where the rules broke down.</p>
+
+    <div class="code" data-file="illustrative-sketch.txt">
+<pre><code>C source:        total = total + 1;
+
+Roughly, underneath (this is a sketch, not real machine code):
+  LOAD   total     move the current value into a working spot
+  ADD    1         add one to it
+  STORE  total     put the new value back where it lives</code></pre>
+    </div>
+    <p>That sketch is not real machine code, and it is not something you will ever type — it
+    exists only to make "translation" concrete. One short line of C expands into several of
+    the tiny steps from the previous section: moving a number, doing arithmetic on it, and
+    moving the result back. A real compiler's actual output looks far less readable than this
+    sketch, but the shape of what happened — more steps, harder to read, exactly specific — is
+    accurate.</p>
+
+    <p>It is fair to ask why anyone bothers with source code at all, if machine code is what
+    actually runs. The honest answer is that people tried writing machine code directly, in
+    the earliest days of computing, and it did not scale. A real program needs thousands or
+    millions of these tiny steps in exactly the right order, and a single misplaced number
+    among that many is nearly impossible for a person to spot by eye. Source code exists so a
+    person can hold the whole idea of a program in their head, check it for mistakes, and
+    change it later — and then hand the tedious, error-prone part of turning it into exact
+    numbers over to a compiler, which never gets tired and never mistypes.</p>
+
+    <h3 id="compiled-vs-interpreted">Compiled vs. interpreted</h3>
+    <p>Something has to turn your source code into machine code. There are two common ways to
+    do that, and the difference between them is one of the first things that makes C feel
+    different from a language like Python.</p>
 
     <p>C is a <span class="vocab">compiled language</span>. A program called a
     <span class="vocab">compiler</span> reads your entire source file and translates it into
     machine code, all at once, before you ever run it. The output is a new file — the
-    <strong>program</strong> — that the CPU can run directly, without the compiler's help.</p>
+    <strong>program</strong> — that the CPU can run directly, without the compiler's help ever
+    again.</p>
 
-    <p>Python and JavaScript are <span class="vocab">interpreted languages</span>. Instead
-    of translating everything up front, another program called an
+    <p>Python and JavaScript are <span class="vocab">interpreted languages</span>. Instead of
+    translating everything up front, another program called an
     <span class="vocab">interpreter</span> reads your source code one line at a time and
-    carries out each line immediately. It does this every single time the program runs.</p>
+    carries out each line immediately. It does this every single time the program runs, from
+    the top, again.</p>
 
     <div class="gotcha">
-      <p>Compiling does not make your code faster on its own — the CPU runs at the same
-      speed either way. What compiling removes is the translation step at run time. A
-      compiled program is already machine code, so it can start immediately. An interpreted
-      program has to be translated line by line, every time, which is why interpreted
-      programs are often slower to run.</p>
+      <p>Compiling does not make your code faster on its own — the CPU runs at the same speed
+      either way, since it only ever sees machine code, never your source code directly. What
+      compiling removes is the translation step at run time. A compiled program is already
+      machine code, so it can start immediately. An interpreted program has to be translated
+      line by line, every single time it runs, which is why interpreted programs are often
+      slower to start and run.</p>
     </div>
+
+    <p>Real toolchains sometimes blur this line — some interpreters compile pieces of a
+    program the moment they notice those pieces running often, a technique called
+    just-in-time compilation. You do not need that nuance yet. What matters for this course is
+    the plain version: C is compiled, once, ahead of time, and that single fact shapes almost
+    everything about how you will work with it.</p>
+
+    <p>Being compiled ahead of time also changes what you hand to someone else once you are
+    done. Give a friend your finished, compiled C program, and it runs on their machine with
+    nothing else installed, as long as their computer's chip and operating system match what
+    you compiled for. Give a friend a Python script, and it will not run at all unless they
+    install Python first — the interpreter has to exist on their machine too, since it does
+    the real work every single time. What you hand someone in C is a finished program, not
+    source code waiting for a translator.</p>
 
     <pre class="mermaid">
 flowchart TD
@@ -84,6 +254,117 @@ flowchart TD
   A -->|interpreted language, like Python| E[Interpreter runs every time]
   E --> D
     </pre>
+
+    <h3 id="what-you-gain-and-give-up">What you gain and give up in C</h3>
+    <p>Every programming language makes a trade. C's trade is one of the most direct: you get
+    to control almost everything the CPU does, and in return, C expects you to manage things
+    that many other languages handle for you without being asked.</p>
+
+    <p>Take memory — the space a running program uses to hold its information while it works.
+    In a language like Python, once your program is done with a piece of information, the
+    language notices on its own, in the background, and cleans it up for you. In C, you are
+    usually the one deciding when that space is claimed and when it is given back. You have
+    not learned how to do that yet — this course reaches memory directly in Modules 5 through
+    8 — but it is worth knowing now that this responsibility exists, because it explains a lot
+    of choices C makes elsewhere, long before you get there.</p>
+
+    <p>Here is a small taste of what that responsibility looks like, without the mechanics —
+    those come in Module 4. Imagine a lunch line with exactly ten trays, numbered one through
+    ten. Many languages will stop you immediately if you ask for tray number eleven, since it
+    plainly does not exist. C often will not. It will let you ask for tray eleven, and
+    whatever happens next — nothing useful, most likely — is treated as your problem to have
+    avoided, not the language's problem to have caught. That is not a flaw hidden from you; it
+    is the other half of the trade this section opened with.</p>
+
+    <p>This same shape — C stays out of your way, and trusts you to know the boundary you are
+    working within — repeats across the whole language, not only with lists of items. Text,
+    numbers that are too big to fit where you put them, and the memory a program uses while it
+    runs all follow the same philosophy: C rarely stops you from doing something risky, and
+    almost never explains after the fact what you did wrong. Learning to recognize that
+    pattern now, in the abstract, makes each specific version of it easier to spot later.</p>
+
+    <p>The payoff for that responsibility is speed and predictability. A C program does close
+    to exactly what you told it to, with very little extra machinery running underneath to
+    slow it down or make decisions on your behalf. That trade is why C still sits underneath
+    so much of the software world: operating systems, databases, and even the interpreters
+    that run languages like Python are themselves written in C or a close relative of it.</p>
+
+    <h3 id="where-c-is-running-right-now">Where C is running right now</h3>
+    <p>"Old" and "still everywhere" are not opposites — C is both, and it is worth seeing a
+    few concrete examples instead of taking that claim on faith:</p>
+    <ul>
+      <li><strong>The Linux kernel</strong> — the core of every Android phone, most of the
+      internet's servers, and a large share of the world's supercomputers — is written almost
+      entirely in C.</li>
+      <li><strong>Git</strong>, the version control tool many programmers use every day
+      (including, likely, whoever built this course's tooling), has a C core underneath its
+      command-line interface.</li>
+      <li><strong>CPython</strong>, the most common way to run Python programs, is itself a C
+      program. Every time a Python script runs, C code is doing the actual work underneath it.</li>
+      <li><strong>SQLite</strong>, a small database used inside web browsers, phones, and
+      countless apps, is written in C and has been for decades.</li>
+    </ul>
+    <p>None of these projects are old for the sake of being old. They are actively maintained,
+    updated, and depended on by billions of devices today. C's age is a track record, not an
+    expiration date.</p>
+
+    <h3 id="why-c-has-a-reputation">Why C has a reputation for being hard — and why that's manageable</h3>
+    <p>You may have already heard that C is "dangerous" or "hard to learn." That reputation
+    is really about responsibility, not difficulty in the way a hard math problem is
+    difficult. Many newer languages catch certain mistakes for you automatically and stop
+    your program safely before anything goes wrong. C generally does not. A mistake that
+    another language would catch immediately can compile in C without a single warning, and
+    only cause trouble once the program is actually running.</p>
+
+    <p>There is a second, friendlier side to this reputation, too. C itself is a genuinely
+    small language — a couple dozen keywords, a handful of core ideas, none of it hidden
+    behind years of accumulated features. "Small vocabulary, real consequences for using it
+    carelessly" is a fairer one-line summary of learning C than "hard." The vocabulary part is
+    the easy part, and this course spends real time on it. The careful part is a habit, and
+    habits are built with practice, not talent you either have or do not.</p>
+
+    <p>This course is also structured to catch mistakes early rather than let them surprise
+    you later. Starting in Module 1, every exercise comes with an automatic check you run
+    yourself before moving on — you will know immediately whether your program does what it
+    is supposed to, instead of guessing. That single habit, checking your work against a clear
+    answer the moment you write it, does more to make C approachable than any amount of
+    talent would.</p>
+
+    <div class="gotcha">
+      <p>"C is unsafe" is often repeated as if it means "C is broken." A more accurate way to
+      say it: C hands you power tools and trusts you to learn how they work before you use
+      them at full speed. That trust is exactly why this course introduces a debugger — a
+      tool for pausing a running program and looking inside it — and a
+      <span class="vocab">sanitizer</span> — a tool that watches your program run and flags
+      certain mistakes the moment they happen — starting in Module 1. They exist specifically
+      to catch the kind of mistakes C itself will not.</p>
+    </div>
+
+    <p>None of this means you need to be careful forever, or that most C code is a minefield.
+    It means the habits this course builds early — reading error messages carefully,
+    compiling with warnings turned all the way up, checking your work with the tools each
+    module introduces — carry real weight here in a way they might not in every language.
+    Building those habits now, on small five-line programs, is a much easier place to build
+    them than on a large one later.</p>
+
+    <h3 id="quick-myths-checked">Quick myths, checked</h3>
+    <p>A few beliefs about C circulate long enough that it is worth checking them against
+    reality before you go any further.</p>
+    <ul>
+      <li><strong>"C is an old, dead language."</strong> C is old — over fifty years old, as
+      the next chapter covers — but it is not dead. See "Where C is running right now" above
+      for four projects billions of people use today, all with C at their core.</li>
+      <li><strong>"You need a computer science degree to learn C."</strong> You need patience
+      and a willingness to read error messages carefully. This course assumes no prior
+      programming language at all, and every term it uses gets defined the first time it
+      shows up.</li>
+      <li><strong>"C is only for experts."</strong> C is used by experts, the same way a
+      good chef's knife is used by expert chefs — but plenty of complete beginners have
+      learned it as a genuine first language, this course included.</li>
+      <li><strong>"C and C++ are basically the same language."</strong> C++ started decades
+      ago as an extension of C, but the two have grown apart since. This course teaches C
+      only; a separate course in this same series covers C++ on its own terms.</li>
+    </ul>
   </section>
 
   <!-- ===== 5. TRY IT — Module 0 has no exercises/ or tests/ (PRD §9 exception). This is
@@ -96,7 +377,7 @@ flowchart TD
       <li>Open any plain text file (a <code>.txt</code> file works) in a text editor. This
       is what source code looks like: readable words and symbols, meant for a person.</li>
       <li>Now try opening an installed application's program file in that same text editor
-      — do not run it, just open it as text. Most editors will either refuse or show you a
+      — do not run it, only open it as text. Most editors will either refuse or show you a
       wall of strange symbols.</li>
       <li>That wall of symbols is close to what machine code looks like when a program
       meant for a person tries to display it: numbers, not words. That is what the CPU
@@ -112,11 +393,21 @@ flowchart TD
     <h2>Zooming out: from what a program is to where C came from</h2>
     <p>You now know what a program is, and why C needs a compiler to turn your source code
     into something the CPU can run. That one fact — C is compiled, not interpreted —
-    explains a lot of what makes C feel different from other languages you may have tried.
-    Next, chapter 0.2 tells the story of C itself: where it came from, what problem it
-    solved, and why Unix made it spread. When you are ready to start typing real C, the free
-    interactive exercises at <a href="https://www.learn-c.org/">learn-c.org</a> are a good
-    place to practice alongside this course.</p>
+    explains a lot of what makes C feel different from other languages you may have tried. You
+    also know the shape of C's core trade: real control over the machine, in exchange for
+    responsibilities other languages quietly take off your plate.</p>
+    <p>Three ideas from this chapter are worth carrying forward on purpose, because every
+    later module leans on them without repeating them: a program is nothing more than exact
+    instructions the CPU follows one at a time; those instructions only exist as machine code,
+    never as your original source; and C's specific choice — compile everything, once, ahead
+    of time — is what gives you both the speed and the responsibility this chapter described.</p>
+    <p>The "old, dead language" myth from this chapter gets its clearest answer not from
+    argument, but from history. Next, chapter 0.2 tells the story of C itself: two
+    programmers at a research lab, a problem with computers unable to share software, and
+    exactly why that fifty-year-old solution is still running underneath so much of the
+    software you use today. When you are ready to start typing real C, the free interactive
+    exercises at <a href="https://www.learn-c.org/">learn-c.org</a> are a good place to
+    practice alongside this course.</p>
   </section>
 
   <nav class="chapter-nav">

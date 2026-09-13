@@ -30,6 +30,13 @@
     things up front, in the same handful of pieces, in the same order. Learn to read those
     pieces once and you can read the first few lines of almost any C program you meet next,
     in this course or anywhere else.</p>
+    <p>Think of a recipe card. Before any cooking step, it lists the tools you need and the
+    ingredients you are borrowing from the pantry. Then it names one clear starting point —
+    "preheat the oven" — so two cooks reading the same card start in the same place. Then come
+    the actual steps, in order. Then a note on what "done" looks like. A C program is shaped
+    the same way: borrow your tools first, name one starting point, do the steps, report how
+    it went. Nothing here is unique to <code>hello.c</code> — this shape is the skeleton every
+    C program you write for the rest of this course will share.</p>
   </section>
 
   <!-- ===== 3. CORE IDEA ===== -->
@@ -61,7 +68,8 @@ int main(void) {
       <a href="#main-line">int main(void)</a> ·
       <a href="#printf-line">printf(...)</a> ·
       <a href="#return-line">return 0;</a> ·
-      <a href="#closing-brace">Closing brace</a>
+      <a href="#closing-brace">Closing brace</a> ·
+      <a href="#compile-command">Reading the compile command</a>
     </p>
 
     <h3 id="include-line"><code>#include &lt;stdio.h&gt;</code></h3>
@@ -71,6 +79,26 @@ int main(void) {
     for <em>standard input/output</em> — it describes functions for reading and printing
     text, including <code>printf</code>. Without this line, the compiler has never heard of
     <code>printf</code> and refuses to compile your program.</p>
+
+    <p><code>stdio.h</code> is one header among many. C ships a whole
+    <span class="vocab">standard library</span> — a large set of ready-made functions every
+    C compiler provides — split into header files by topic, so you only borrow what a given
+    program actually needs. <code>stdlib.h</code> holds general-purpose functions like
+    converting text to numbers. <code>string.h</code> holds functions for working with text.
+    <code>math.h</code> holds functions like square root and rounding. As one concrete taste:
+    <code>stdlib.h</code>'s <code>atoi</code> function turns text like <code>"42"</code> into
+    the actual number <code>42</code> — useful the moment your program needs to read a number
+    a person typed in, since everything typed at a keyboard arrives as text first. You will
+    meet all three headers properly later in this course; for now, recognize the
+    pattern: one line, <code>#include &lt;header_name.h&gt;</code>, borrows one topic's worth
+    of tools.</p>
+
+    <p>Some languages hand every program a large set of built-in tools automatically, whether
+    that program uses them or not. C does the opposite on purpose: you name exactly what you
+    are borrowing, one header at a time. That has a real cost — you have to know which header
+    a function lives in before you can use it — but it also means a C program only carries
+    the weight of what it actually uses. This is the same trade-off you met in Module 0: C
+    hides less from you, and asks more of you, in exchange for control.</p>
 
     <div class="gotcha">
       <p>Delete the <code>#include</code> line and try to compile, and the compiler stops
@@ -90,6 +118,25 @@ hello.c:2:5: note: include the header &lt;stdio.h&gt; or explicitly provide a
       all, so it refuses to compile rather than assume.</p>
     </div>
 
+    <p>Misspell the header name instead of leaving it out, and you get a different error, for
+    a different reason. The compiler needs to physically open and read that file before it
+    can do anything else, so a header name it cannot find fails immediately — before it even
+    looks at the rest of your program:</p>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror hello.c -o hello
+hello.c:1:10: fatal error: 'stdiot.h' file not found
+    1 | #include &lt;stdiot.h&gt;
+      |          ^~~~~~~~~~
+1 error generated.</pre>
+    </div>
+
+    <p><code>fatal error</code> is the compiler's way of saying "I cannot continue at all" —
+    compare that to an ordinary <code>error</code>, which still lets the compiler keep reading
+    the rest of the file to see if it can find more problems worth reporting at once. A
+    missing header stops everything on the spot, because nothing after it can be checked
+    without knowing what that header would have defined.</p>
+
     <h3 id="main-line"><code>int main(void)</code></h3>
     <p>A <span class="vocab">function</span> is a named block of code that runs when
     something calls it. <code>main</code> is special: it is the one function every C program
@@ -97,6 +144,69 @@ hello.c:2:5: note: include the header &lt;stdio.h&gt; or explicitly provide a
     system does. The <code>int</code> in front says <code>main</code> reports back a whole
     number when it finishes. The <code>(void)</code> says <code>main</code> takes no
     information in from whatever starts it.</p>
+
+    <p>"The operating system calls it" is not a figure of speech. When you type
+    <code>./hello</code> and press enter, the <span class="vocab">operating system</span> —
+    Windows, macOS, or Linux — loads your compiled program into memory and jumps straight to
+    the address where <code>main</code> lives. Every other function in a C program is called
+    by name, somewhere in your own code, by something you wrote. <code>main</code> is the one
+    exception: nothing in <code>hello.c</code> calls it, because it is the starting line
+    the operating system was already looking for. A later module covers exactly how the
+    operating system finds that address — for now, remember the rule: a C program needs
+    exactly one <code>main</code>, or the operating system has nowhere to begin.</p>
+
+    <div class="gotcha">
+      <p>"Exactly one" cuts both ways — a file with zero <code>main</code> functions has
+      nowhere to start, and a file with two is equally broken, for a different reason. The
+      compiler cannot pick between two functions with the same name, so it refuses both:</p>
+      <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror hello.c -o hello
+hello.c:8:5: error: redefinition of 'main'
+hello.c:3:5: note: previous definition is here</pre>
+      </div>
+      <p>This is not special to <code>main</code> — no two functions in the same C program
+      can share a name. <code>main</code> happens to be the one you are guaranteed to
+      write in every single program, so it is the one you will see this mistake with first.</p>
+    </div>
+
+    <p><code>(void)</code> is doing real work in that line, not filling empty space. A
+    function's parentheses are where it lists what information it needs to do its job — its
+    <span class="vocab">parameters</span>. A function that adds two numbers might start
+    <code>int add(int a, int b)</code>, naming two whole numbers it needs before it can run.
+    Writing <code>void</code> instead is how you say, on purpose, "this function needs
+    nothing handed to it." You will write functions with real parameters starting in Module
+    3 — for now, recognize the shape: name goes first, then parentheses holding whatever
+    the function needs, empty or not.</p>
+
+    <p>Real C files also carry <span class="vocab">comments</span>: text meant only for a
+    person reading the code, which the compiler skips entirely. <code>//</code> starts a
+    comment that runs to the end of that line. <code>/* ... */</code> starts a comment that
+    can span several lines, ending at the matching <code>*/</code>. Neither shows up in the
+    program's output — they exist only in the source file:</p>
+
+    <div class="code" data-file="commented_hello.c">
+<pre><code>#include &lt;stdio.h&gt;  // borrow printf
+
+/* This is the traditional first program in almost every language.
+   Printing a fixed message proves your toolchain compiles and runs. */
+int main(void) {
+    printf("Hello, World!\n");
+    return 0;
+}</code></pre>
+    </div>
+
+    <p>This compiles to the exact same program as the version without comments — the
+    compiler deletes every comment before it does anything else. Comments exist for you and
+    for anyone else who reads your code later, including you in six months, after you have
+    forgotten why a line was written the way it was.</p>
+
+    <div class="gotcha">
+      <p>A <code>/*</code> with no matching <code>*/</code> does not stop at the end of the
+      line the way <code>//</code> does — it swallows everything after it, including real
+      code, until it finds a closing <code>*/</code> somewhere later in the file. A missing
+      closing marker can turn working code into one giant comment, and the errors the
+      compiler reports will point at the wrong lines entirely.</p>
+    </div>
 
     <h3 id="printf-line"><code>printf("Hello, World!\n");</code></h3>
     <p>This line calls the <code>printf</code> function — the parentheses are what "calling"
@@ -114,13 +224,34 @@ hello.c:2:5: note: include the header &lt;stdio.h&gt; or explicitly provide a
     one. <code>\t</code> prints a tab — useful for lining up columns of text. <code>\\</code>
     prints a single literal backslash, for the same reason <code>\"</code> exists: a
     backslash normally starts an escape sequence, so printing a real one needs its own
-    escape. You will meet the rest of the list as you need them.</p>
+    escape. <code>\r</code>, a carriage return, moves back to the start of the current line
+    without starting a new one — rare in your own code, but worth recognizing, since older
+    Windows text files end every line with <code>\r\n</code> instead of the plain
+    <code>\n</code> this course uses. You will meet the rest of the list as you need them.</p>
 
     <div class="gotcha">
       <p>Forget the semicolon and the compiler cannot tell where one statement ends and the
       next begins. It will report an error, usually pointing at the line <em>after</em> the
       one you actually forgot it on — that confuses almost everyone the first time.</p>
     </div>
+
+    <p>The parentheses matter as much as the name. Misspell <code>printf</code> — say,
+    <code>prntf</code> — and the compiler does not guess what you meant. It refuses to
+    compile, the same way it refused when <code>#include &lt;stdio.h&gt;</code> was missing:</p>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror hello.c -o hello
+hello.c:4:5: error: call to undeclared function 'prntf'; ISO C99 and later
+    do not support implicit function declarations
+    [-Wimplicit-function-declaration]
+    prntf("Hello, World!\n");
+    ^
+hello.c:4:5: note: did you mean 'printf'?</pre>
+    </div>
+
+    <p>Notice the compiler's own guess at the end: <code>did you mean 'printf'?</code>. Many
+    compilers try to spot a typo of a name they do recognize and suggest it. That note is a
+    hint, not a fix — you still have to correct the spelling yourself and compile again.</p>
 
     <p>A program can call <code>printf</code> more than once. Each call is its own statement,
     and statements run in the order they are written, top to bottom. Two calls, each ending
@@ -151,6 +282,26 @@ Hello, World!</pre>
       error somewhere that looks unrelated to the real mistake.</p>
     </div>
 
+    <p>This is also why <code>\n</code> exists instead of pressing enter directly inside your
+    quotes. A string literal in C cannot contain a real line break — only the two characters
+    <code>\</code> and <code>n</code>, standing in for one. Press enter for real, and the
+    string never finds its closing quote on the same line, which confuses everything that
+    follows it, one error stacking on the next:</p>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror hello.c -o hello
+hello.c:4:12: error: missing terminating '"' character
+hello.c:5:9: error: missing terminating '"' character
+hello.c:7:2: error: expected '}'
+4 errors generated.</pre>
+    </div>
+
+    <p>One real mistake — a stray line break — produced four reported errors. This is common
+    enough to name: a single early mistake confuses the compiler about everything that comes
+    after it, so it reports several errors that all trace back to one root cause. When you see
+    a wall of errors, always fix the <em>first</em> one and recompile before reading the rest
+    — the others often disappear on their own.</p>
+
     <h3 id="return-line"><code>return 0;</code></h3>
     <p>This is the last statement <code>main</code> runs. <code>return</code> ends the
     function and hands back the number that follows it — this is the whole number
@@ -176,6 +327,22 @@ Hello, World!
     number it returns are two completely separate things: one is for a person reading the
     screen, the other is for whatever program ran yours next.</p>
 
+    <p>This is not a hello-world curiosity — real command-line tools use exit status
+    constantly, and you have probably relied on it without noticing. Ask a file manager for a
+    file that does not exist, and it complains loudly and returns a nonzero status:</p>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> ls /a/path/that/does/not/exist
+ls: /a/path/that/does/not/exist: No such file or directory
+<span class="prompt">$</span> echo $?
+1</pre>
+    </div>
+
+    <p>Scripts that run one command after another often check <code>$?</code> before running
+    the next one, so they can stop instead of continuing on top of a failure. Your hello-world
+    program returning <code>0</code> is the same signal, in miniature: "I finished, and
+    nothing went wrong."</p>
+
     <div class="gotcha">
       <p>Leaving off <code>return 0;</code> entirely is not the same mistake as forgetting a
       semicolon elsewhere — modern compilers assume a missing return at the very end of
@@ -188,6 +355,93 @@ Hello, World!
     <p>The <code>{</code> after <code>int main(void)</code> opens the block of statements
     that belong to <code>main</code>; the matching <code>}</code> at the end closes it. Every
     opening brace in C needs exactly one matching closing brace.</p>
+
+    <p>The compiler does not care how you arrange whitespace around that brace, or how far
+    you indent the lines between it and its match. All three programs below compile to the
+    exact same output:</p>
+
+    <div class="code" data-file="style_a.c">
+<pre><code>int main(void) { printf("Hi\n"); return 0; }</code></pre>
+    </div>
+
+    <div class="code" data-file="style_b.c">
+<pre><code>int main(void)
+{
+        printf("Hi\n");
+        return 0;
+}</code></pre>
+    </div>
+
+    <p>This course writes every example the way you saw at the top of this chapter: the
+    opening brace on the same line as <code>main</code>, and each statement inside indented
+    four spaces. That is one style among several real ones used in professional C code, not
+    a rule the compiler enforces. What indentation buys you is not correctness — it is a
+    reader's ability to see, at a glance, which lines belong inside which block, without
+    counting braces by hand. Pick a style, including this course's, and hold it steady across
+    a whole file; the value is in the consistency, not in which style you picked.</p>
+
+    <p>The brace itself is not optional the way its position on the line is. Delete the
+    closing <code>}</code> and the compiler notices immediately — it reads to the end of the
+    file still waiting for a block to close, and tells you exactly where the unmatched
+    opening brace was:</p>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror hello.c -o hello
+hello.c:6:1: error: expected '}'
+hello.c:3:16: note: to match this '{'</pre>
+    </div>
+
+    <p>That second line, starting with <code>note:</code>, is the compiler pointing back at
+    the specific opening brace it thinks is missing its match — worth reading before you go
+    hunting through the whole file yourself.</p>
+
+    <h3 id="compile-command">Reading the compile command</h3>
+    <p>You have typed this command since chapter 0.4 without a full explanation of each
+    piece. Now that you can read the file itself, it is worth reading the command that turns
+    it into a program, too:</p>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror hello.c -o hello</pre>
+    </div>
+
+    <p><code>cc</code> is the name of the compiler you are running. <code>-std=c17</code>
+    tells it which rulebook to follow (chapter 0.3). <code>-Wall -Wextra -Werror</code> turn
+    on extra warnings and treat every one as an error (chapter 0.4) — both of the compiler
+    errors earlier in this chapter appeared because of these flags. <code>hello.c</code> is
+    the input: the source file to read. <code>-o hello</code> names the output: the runnable
+    program to create, called <code>hello</code>.</p>
+
+    <p>Leave off <code>-o hello</code> entirely, and the compiler still works — it falls
+    back to a default output name, <code>a.out</code>, instead of asking you what to call it.
+    <code>a.out</code> stands for "assembler output," a name left over from decades-old Unix
+    tools; it survives purely as a default, not because it means anything useful today. This
+    course always names the output explicitly with <code>-o</code> so it is easy to know what
+    to run next.</p>
+
+    <div class="gotcha">
+      <p>The <code>.c</code> at the end of <code>hello.c</code> is not decoration — it tells
+      the compiler this file holds C source code to translate. Rename the exact same file to
+      <code>hello.txt</code> and hand it to the compiler, and it no longer recognizes the file
+      as something to compile at all:</p>
+      <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror hello.txt -o hello
+ld: unknown file type in 'hello.txt'
+clang: error: linker command failed with exit code 1</pre>
+      </div>
+      <p>The error comes from the <em>linker</em>, a later stage you will meet next chapter —
+      the compiler skipped straight past "translate this" and tried to treat the file as
+      something already translated, because the name did not end in <code>.c</code>. Header
+      files carry their own matching convention, <code>.h</code>, for the same reason: the
+      extension is how every tool in the toolchain agrees on what kind of file it is looking
+      at, without opening and guessing from its contents.</p>
+    </div>
+
+    <p>Put the six pieces back together and check yourself: could you point to the line that
+    borrows a tool, the line that names the starting point, the line that does the actual
+    work, and the line that reports back? Could you say, from memory, what happens if any one
+    of them is missing or misspelled? If any of those feel shaky, scroll back to that
+    subsection before moving on — every later chapter in this course assumes you can read
+    this exact shape without stopping to think about it.</p>
 
     <figure>
       <svg viewBox="0 0 460 150" role="img" aria-label="Five lines of hello.c labeled with
@@ -257,10 +511,23 @@ int main(void) {
     <h2>Zooming out: from reading tokens to watching the compiler work</h2>
     <p>You can now read every token of a hello-world program: what <code>#include</code>
     borrows, what <code>main</code> starts, what <code>printf</code> prints, and what
-    <code>return</code> reports back. What you have not seen yet is what the compiler does
-    with that text between the moment you save <code>hello.c</code> and the moment
-    <code>./hello</code> runs. The next chapter opens that up: preprocess, compile, assemble,
-    link — four steps, and what the compiler is actually doing at each one.</p>
+    <code>return</code> reports back. You also know the recipe-card shape behind all of it —
+    borrow your tools, name a starting point, do the work, report how it went — and you have
+    seen the compiler enforce every piece of it: refusing a missing header, refusing a
+    misspelled function name, filling in a default only for <code>main</code> and nowhere
+    else. None of that was the compiler being strict for its own sake. Each refusal traced
+    back to the same idea from this chapter's big picture: C does not guess.</p>
+    <p>What you have not seen yet is what the compiler does with that text between the moment
+    you save <code>hello.c</code> and the moment <code>./hello</code> runs. Right now that
+    process is a black box: text goes in, a runnable program comes out. The next chapter opens
+    that box: preprocess, compile, assemble, link — four steps, and what the compiler is
+    actually doing at each one.</p>
+    <p>Scale matters here too. A real program you might install tomorrow can be hundreds of
+    thousands of lines across many files, written by hundreds of people over many years. It
+    still borrows its tools, still has exactly one starting point, still does its work, and
+    still reports back when it finishes — the same shape as <code>hello.c</code>, only much
+    larger. You will not write anything that big in this course, but every program you do
+    write, all the way through the capstone project, is built from this same skeleton.</p>
   </section>
 
   <p>Go deeper: learn-c.org's

@@ -36,6 +36,27 @@
     operating system over. C was built to end that. Knowing why explains a lot of what C
     still looks like today: a language close enough to the hardware to be fast, but written
     in a way that could move to a new machine without a full rewrite.</p>
+    <p>Picture two computers built by two different companies in 1970. Each used its own
+    kind of processor chip, and each chip understood its own private list of instructions.
+    An assembly program written for one chip was a list of instructions in that chip's own
+    language — it made no more sense to the other computer than a page of Japanese makes to
+    someone who has only ever read English. Moving the program to the second computer meant
+    a person sitting down and rewriting every single instruction by hand, for a completely
+    different private language. That is the wall C was built to knock down.</p>
+    <p>This was not a small inconvenience. For a company running its business on a computer,
+    replacing that computer with a newer, faster model could mean months — sometimes longer
+    — of programmers rewriting software that already worked, one instruction at a time, only
+    to say the same thing in the new machine's private language. None of that time added a
+    single new feature. It only bought back what the company already had before the upgrade.
+    Any language that could remove that tax, without giving up real speed, was worth
+    building.</p>
+    <p>The exact shape of the problem has changed since the 1970s, but a version of it is
+    still around you today. A phone app has to be built differently depending on whether it
+    runs on an iPhone or an Android phone. A desktop program often needs separate work to run
+    on Windows, macOS, and Linux. Programmers still spend real time and money bridging
+    differences between machines — it is a smaller gap than "completely different
+    private language" now, in large part because languages like C proved that gap could be
+    narrowed at all.</p>
   </section>
 
   <!-- ===== 3. CORE IDEA ===== -->
@@ -48,21 +69,144 @@
   <section class="how">
     <h2>How it works</h2>
 
+    <p class="how-index">
+      <a href="#before-c">Before C: one machine, one language</a> ·
+      <a href="#from-b-to-c">From B to C (1971–1973)</a> ·
+      <a href="#the-1973-unix-rewrite">The 1973 Unix rewrite</a> ·
+      <a href="#why-c-and-unix-spread">Why C and Unix spread together</a> ·
+      <a href="#the-1978-book">The book that taught everyone (1978)</a> ·
+      <a href="#the-people-behind-the-language">The people behind the language</a> ·
+      <a href="#where-c-is-used-today">Where C is used today</a>
+    </p>
+
+    <h3 id="before-c">Before C: one machine, one language</h3>
+    <p>Bell Labs, where this story starts, was the research arm of AT&amp;T, the American
+    telephone company. It was not primarily a software company — it is better known for
+    inventing the transistor, the tiny electronic switch that every computer chip since has
+    been built from. A research lab full of engineers focused on hardware, given time and
+    freedom to explore, is exactly the kind of place a project like Unix could start as a
+    side effort rather than an official assignment.</p>
+
     <p>In the early 1970s, Ken Thompson and Dennis Ritchie worked at Bell Labs, a research
     company in the United States. They were building an operating system called
     <span class="vocab">Unix</span>. The first version of Unix was written in assembly
     language for one specific computer, a PDP-7. It worked, but it was stuck on that one
-    machine.</p>
+    machine, for exactly the reason the big picture above described: its instructions were
+    written in that one chip's own private language.</p>
 
     <p>Thompson first tried a simpler language called B, based on an older language named
-    BCPL. B was easier to move between computers than assembly language, but it was too
-    limited for the job — it had no real way to work with different kinds of data, like
-    whole numbers versus single characters. Between 1971 and 1973, Ritchie extended B with
-    those missing features. The result was a new language: C.</p>
+    BCPL, to escape that trap. B was easier to move between computers than assembly
+    language, because a B compiler could be written for a new machine once, instead of
+    rewriting a whole program by hand every time. But B was too limited for the job it
+    needed to do next. It had no real way to work with different kinds of data — B treated a
+    whole number, a single character, and a fraction all the same way, as one generic kind
+    of value. Writing an operating system means talking directly to a computer's hardware,
+    and hardware cares a great deal about exactly how big a piece of data is and what kind it
+    is. B could not say that precisely enough.</p>
 
+    <p>Before any of this, Bell Labs had been part of a much bigger, more ambitious project
+    called Multics, built together with MIT and General Electric, aiming to build an
+    operating system many people could share at once. Bell Labs pulled out of Multics in
+    1969 — the project had grown too large and too slow to finish. Thompson and Ritchie
+    carried some of Multics's ideas about how an operating system should be organized into a
+    small, much simpler system they built themselves, on a spare PDP-7 nobody else at Bell
+    Labs was using at the time. They picked a name that poked fun at the project they had
+    recently left behind: Unix.</p>
+
+    <p>The push to actually get that PDP-7 working came from something almost beside the
+    point: Thompson had written a space-flight game, and he wanted to keep playing it once
+    Bell Labs' access to the Multics computer it ran on disappeared. Getting the game running
+    on the idle PDP-7 meant first building enough of an operating system underneath it to
+    load and run any program at all. The game motivated the work; the small operating system
+    that came out of it, refined and rewritten over the next few years, is the Unix this
+    chapter is about.</p>
+
+    <div class="gotcha">
+      <p>BCPL, B, and C sound like a tidy chain of upgrades, but each one was closer to a
+      fresh rewrite than an update. An old B program does not compile as C without changes —
+      C's rules about data types are stricter, on purpose, than anything B ever checked.</p>
+    </div>
+
+    <h3 id="from-b-to-c">From B to C (1971–1973)</h3>
+    <p>Between 1971 and 1973, Ritchie extended B with the missing pieces: a real way to say
+    "this is a whole number," "this is a single character," or "this is a decimal number,"
+    and have the compiler hold you to it. Those became C's basic
+    <span class="vocab">types</span> — <code>int</code> for whole numbers and
+    <code>char</code> for single characters are two you will use in the very next chapter.
+    The result of Ritchie's work was different enough from B that it needed its own name:
+    C — the letter after B, in the BCPL-to-B-to-C lineage.</p>
+
+    <p>Ritchie's changes went further than types alone. He also gave C a way to talk about a
+    variable's memory address directly, instead of only its value — the beginning of what
+    this course calls <em>pointers</em> much later, in Module 5. And he gave C a way to
+    bundle several related pieces of data together under one name — the beginning of what
+    this course later calls a <em>struct</em>, in Module 6. Neither term needs to mean
+    anything to you yet; both get their own chapter and their own real definition when the
+    time comes. What matters now is that both were built into C from nearly the start,
+    because an operating system needs to describe raw memory and grouped hardware data
+    precisely — exactly the two things B could not do.</p>
+
+    <figure>
+      <svg viewBox="0 0 460 130" role="img" aria-label="A timeline of four languages: BCPL,
+           then B (a simplified version of BCPL), then C (B with real data types added by
+           Dennis Ritchie between 1971 and 1973), each box connected by an arrow to the
+           next." xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor">
+        <rect x="10" y="20" width="90" height="44" rx="6" stroke-width="1.5"/>
+        <text x="55" y="46" text-anchor="middle" fill="currentColor" stroke="none"
+              font-size="13" font-family="system-ui">BCPL</text>
+
+        <path d="M105 42 H140" stroke-width="1.5"/>
+        <path d="M140 42 l-9 -5 v10 z" fill="currentColor" stroke="none"/>
+
+        <rect x="145" y="20" width="90" height="44" rx="6" stroke-width="1.5"/>
+        <text x="190" y="46" text-anchor="middle" fill="currentColor" stroke="none"
+              font-size="13" font-family="system-ui">B</text>
+
+        <path d="M240 42 H275" stroke-width="1.5"/>
+        <path d="M275 42 l-9 -5 v10 z" fill="currentColor" stroke="none"/>
+
+        <rect x="280" y="20" width="90" height="44" rx="6" stroke-width="1.5"/>
+        <text x="325" y="46" text-anchor="middle" fill="currentColor" stroke="none"
+              font-size="13" font-family="system-ui">C</text>
+
+        <text x="55" y="90" text-anchor="middle" fill="currentColor" stroke="none"
+              font-size="10" font-family="system-ui" opacity=".7">older language</text>
+        <text x="190" y="90" text-anchor="middle" fill="currentColor" stroke="none"
+              font-size="10" font-family="system-ui" opacity=".7">simpler,</text>
+        <text x="190" y="104" text-anchor="middle" fill="currentColor" stroke="none"
+              font-size="10" font-family="system-ui" opacity=".7">no real data types</text>
+        <text x="325" y="90" text-anchor="middle" fill="currentColor" stroke="none"
+              font-size="10" font-family="system-ui" opacity=".7">Ritchie adds</text>
+        <text x="325" y="104" text-anchor="middle" fill="currentColor" stroke="none"
+              font-size="10" font-family="system-ui" opacity=".7">int, char, and more</text>
+      </svg>
+      <figcaption>Figure 1 — C did not appear from nothing. Each step fixed a specific
+      limit in the one before it.</figcaption>
+    </figure>
+
+    <h3 id="the-1973-unix-rewrite">The 1973 Unix rewrite</h3>
     <p>The turning point came when Thompson and Ritchie rewrote most of the Unix operating
-    system itself in C, finishing by 1973. This made Unix one of the first operating
-    systems in history whose core was not written in assembly language.</p>
+    system itself in C, finishing by 1973. At the time, this was close to unheard of. The
+    common wisdom was that an operating system's core had to be written in assembly language,
+    because only assembly was considered fast and direct enough to manage a computer's
+    hardware. Rewriting Unix in C was a bet that a language with real data types and a
+    compiler standing between the programmer and the machine could still do that job. The bet
+    paid off, and it made Unix one of the first operating systems in history whose core was
+    not written in assembly language.</p>
+
+    <p>To see how unusual that was, look at what large companies were shipping at the same
+    time. IBM's mainframe operating systems of that era, running on the machines many
+    banks and airlines depended on, were written almost entirely in assembly language for
+    IBM's own hardware — the standard approach everywhere else. Unix, built by a small team
+    at a research lab rather than a large company's product division, took the opposite bet
+    and won it.</p>
+
+    <p>The rewrite did not remove assembly completely. A small amount stayed — mainly the
+    handful of places where the operating system starts up for the first time, or reacts to a
+    hardware signal in a way too specific to one exact chip's wiring for even C to describe.
+    That same split still holds in modern operating system kernels today: the vast majority
+    is written in a higher-level language like C, with a thin, deliberately small layer of
+    hand-written assembly underneath it for the handful of jobs that need it.</p>
 
     <div class="gotcha">
       <p>Rewriting an operating system in C did not make it slow. C was designed to compile
@@ -70,19 +214,79 @@
       made was giving up assembly's dependence on one exact computer, not giving up speed.</p>
     </div>
 
+    <h3 id="why-c-and-unix-spread">Why C and Unix spread together</h3>
     <p>That rewrite is why C and Unix spread together. A computer maker who wanted to run
     Unix on new hardware no longer needed to rewrite an entire operating system by hand.
     Someone had to write a new C <span class="vocab">compiler</span> — a program that turns
     C source code into instructions a specific computer can run — for that hardware, and
     most of Unix's own code could then move over with little or no change. Software that
-    can move to a new computer like this is called <span class="vocab">portable</span>.
-    Universities and companies picked up Unix because it could follow them onto new
-    machines. C rode along, since Unix and the tools that came with it were written in it.</p>
+    can move to a new computer like this is called <span class="vocab">portable</span>.</p>
 
+    <p>Portability like this tends to feed on itself. Every new computer that got a C
+    compiler was one more machine where existing C programs — Unix included — could run with
+    little extra work. That made C a safer bet for the next hardware maker deciding which
+    language to support, since a growing pool of software already existed for it. Each new
+    compiler made the next one more worthwhile to write. None of that required a company or a
+    committee to plan it that way — it fell out naturally from the fact that a program
+    written once could now be useful on more than one machine.</p>
+
+    <p>Word of the rewrite spread beyond Bell Labs largely through one paper: Ritchie and
+    Thompson published "The UNIX Time-Sharing System" in 1974, describing what they had built
+    and, notably, that most of it was written in a language other researchers could get a
+    compiler for. Universities and labs that read it wrote to Bell Labs asking for a copy of
+    the actual system, not only the description of it.</p>
+
+    <p>Unix had another push behind it, too. Bell Labs' parent company, AT&amp;T, was bound
+    by an old legal restriction that kept it from selling Unix as a commercial product. So
+    instead of selling it, AT&amp;T licensed Unix's source code to universities for barely
+    more than the cost of the tape it shipped on. Computer science departments across the
+    United States got a real, working operating system to study, teach with, and improve —
+    and because it was portable, each university's own hardware could run it. Students who
+    learned Unix and C in school carried both languages into the companies they joined next.</p>
+
+    <p>The University of California, Berkeley, is the clearest example of what that
+    "improve" meant in practice. Researchers there did not only run the Unix source code AT&amp;T
+    licensed them — they modified it, added their own features, and eventually distributed
+    their own version, known as BSD (Berkeley Software Distribution). BSD and AT&amp;T's own
+    Unix grew into separate, related family trees, both still written in C, both descended
+    from the same 1973 rewrite. Versions of that Berkeley lineage are still running today,
+    inside Apple's macOS among other systems.</p>
+
+    <div class="gotcha">
+      <p>Portable does not mean "runs unmodified on absolutely
+      anything." Some code — the parts that talk directly to one machine's specific hardware
+      — still has to change for each new computer. Portable means the vast majority of a
+      program does not have to change, which is a very different, much better place to start
+      from than rewriting everything.</p>
+    </div>
+
+    <p>By the 1980s, C had become useful enough on its own that it no longer needed Unix to
+    spread. Compiler makers wrote C compilers for computers that had nothing to do with Unix
+    at all, including the IBM PC and the home computers many people had recently started
+    buying.
+    A company called Borland sold a C compiler named Turbo C that a huge number of 1980s
+    programmers learned from, on machines running Microsoft's MS-DOS, not Unix. By this
+    point, C had grown from "the language Unix happens to be written in" into a language
+    people reached for on its own merits.</p>
+
+    <h3 id="the-1978-book">The book that taught everyone (1978)</h3>
     <p>By 1978, Kernighan and Ritchie's book <em>The C Programming Language</em> gave the
-    growing number of C programmers a shared, informal description of the language. Its
-    first example program, a few lines that print the words "hello, world," became the
-    traditional first program every C learner writes — including you, in a later chapter.</p>
+    growing number of C programmers a shared, informal description of the language. It is
+    still nicknamed "K&amp;R" today, after its authors' initials. Its first example program,
+    a few lines that print the words "hello, world," became the traditional first program
+    every C learner writes — including you, in a later chapter.</p>
+
+    <p>The book's influence still shows up in code today in a way you will notice without
+    anyone pointing it out: the exact way it lines up opening and closing braces
+    (<code>{</code> and <code>}</code>) around a block of code became known as "K&amp;R
+    style," and it is still one of the most common brace styles C programmers use. You will
+    see it throughout this course's own example code.</p>
+
+    <p>K&amp;R is still worth reading later in your C career, but it was written for
+    programmers who already knew another language, and it explains ideas in a few dense
+    sentences where this course spends a whole chapter. That is a deliberate difference, not
+    an accident: K&amp;R assumed its reader had already climbed the hill you are climbing
+    right now. This course is written for the climb itself.</p>
 
     <div class="code" data-file="hello.c">
 <pre><code>#include &lt;stdio.h&gt;
@@ -96,6 +300,93 @@ int main(void) {
     <p>You are not compiling this yet — that starts in chapter 0.4, once your machine is
     set up. For now, notice how old this exact greeting is. People have been typing some
     version of it since the early 1970s.</p>
+
+    <div class="gotcha">
+      <p>K&amp;R's original prints <code>hello, world</code> in lowercase, with a comma. Many
+      tutorials since have printed <code>Hello, World!</code> instead, capitalized, with an
+      exclamation point. Neither is more correct — the words carry no special meaning to the
+      compiler, so the capitalization is only ever a matter of style.</p>
+    </div>
+
+    <h3 id="the-people-behind-the-language">The people behind the language</h3>
+    <p>Ken Thompson and Dennis Ritchie did not stop with C and Unix. In 1983, they jointly
+    received the Turing Award — computing's highest honor, often described as the field's
+    equivalent of a Nobel Prize — for their work on operating system theory and for building
+    Unix itself. Ritchie stayed at Bell Labs for most of his career, later working on
+    successor research operating systems built on what Unix and C had started. Thompson went
+    on, decades later, to co-create another programming language, Go, at Google — a language
+    with its own answer to some of the same problems C first ran into in the 1970s. Neither
+    man set out to build something that would still be running the world's phones and
+    servers fifty years on. They were solving one specific, immediate problem: getting an
+    operating system to run on a computer it was not written for.</p>
+
+    <h3 id="where-c-is-used-today">Where C is used today</h3>
+    <p>C spreading through universities and companies in the 1970s and 1980s is not only old
+    history — it is the reason C is still everywhere more than fifty years later. Newer
+    languages have replaced C for a great deal of everyday software, especially the kind of
+    program that mainly waits on a person clicking things and does not need every last bit of
+    speed. C did not lose ground there because it stopped working. It lost ground because
+    those newer languages trade away some of C's speed and control for guardrails that make
+    common mistakes harder to make — a fair trade for a lot of software, but not for
+    everything. Three places where that trade still is not worth making are worth naming,
+    since you likely touch all three without noticing.</p>
+
+    <p>First, <span class="vocab">kernel</span>s — the core part of an operating system that
+    talks directly to a computer's hardware, the same job Unix's core did in 1973 — are still
+    commonly written in C. The Linux kernel, which runs most of the world's web servers and
+    is the base of Android phones, is written mostly in C, in the same tradition Unix
+    started. Second, <span class="vocab">embedded system</span>s — small computers built into
+    another device, like a car, a thermostat, or a coffee maker, rather than sold as a
+    computer on their own — very often run C, because C can run fast on hardware too small
+    and low-power for a heavier language. Some of these devices are safety-critical — a
+    car's engine control unit or a hospital ventilator, for example — and the C code inside
+    them often follows an extra, stricter rulebook on top of the standard, called
+    <span class="vocab">MISRA C</span>, that bans a number of otherwise-legal C patterns
+    known to cause hard-to-find bugs. Third, many programming languages you might learn
+    after this one are not implemented in themselves — their own interpreter or compiler, the
+    program that actually runs your code in that language, is written in C. Python's most
+    widely used implementation, CPython, is one well-known example.</p>
+
+    <p>That last point connects directly to this course. <em>Foundations of Programming: C</em>
+    is the first in a small series — the same course also covers C++, once you finish here,
+    and Rust after that. C++ was built as an extension of C itself, adding features on top
+    of everything you are about to learn without taking any of it away. Rust is much newer,
+    designed partly to keep C's speed and closeness to the hardware while catching a category
+    of mistakes at compile time that C leaves entirely up to the programmer — mistakes you
+    will meet firsthand once this course reaches Modules 7 and 8, on dynamic memory. Learning
+    C first, the way this course does, is not an old-fashioned detour before the "real"
+    languages. It is the shared foundation both of those languages were built on top of.</p>
+
+    <figure>
+      <svg viewBox="0 0 460 160" role="img" aria-label="Three boxes showing where C is used
+           today: operating system kernels like Linux, embedded systems like a car or a
+           thermostat, and other languages' own interpreters, such as CPython for Python."
+           xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor">
+        <rect x="10" y="15" width="130" height="60" rx="6" stroke-width="1.5"/>
+        <text x="75" y="42" text-anchor="middle" fill="currentColor" stroke="none"
+              font-size="12" font-family="system-ui">OS kernels</text>
+        <text x="75" y="59" text-anchor="middle" fill="currentColor" stroke="none"
+              font-size="10" font-family="system-ui" opacity=".7">e.g. Linux</text>
+
+        <rect x="165" y="15" width="130" height="60" rx="6" stroke-width="1.5"/>
+        <text x="230" y="42" text-anchor="middle" fill="currentColor" stroke="none"
+              font-size="12" font-family="system-ui">Embedded systems</text>
+        <text x="230" y="59" text-anchor="middle" fill="currentColor" stroke="none"
+              font-size="10" font-family="system-ui" opacity=".7">cars, thermostats</text>
+
+        <rect x="320" y="15" width="130" height="60" rx="6" stroke-width="1.5"/>
+        <text x="385" y="42" text-anchor="middle" fill="currentColor" stroke="none"
+              font-size="12" font-family="system-ui">Other languages</text>
+        <text x="385" y="59" text-anchor="middle" fill="currentColor" stroke="none"
+              font-size="10" font-family="system-ui" opacity=".7">e.g. CPython</text>
+
+        <text x="230" y="105" text-anchor="middle" fill="currentColor" stroke="none"
+              font-size="11" font-family="system-ui" opacity=".85">All three need code that
+              is fast and close to the hardware — the same bargain C made in 1973.</text>
+      </svg>
+      <figcaption>Figure 2 — the 1973 Unix rewrite proved C could do serious low-level work.
+      That reputation is still why C gets picked for jobs like these today.</figcaption>
+    </figure>
   </section>
 
   <!-- ===== 5. TRY IT ===== -->
@@ -105,12 +396,16 @@ int main(void) {
   <section class="try-it">
     <p>Module 0 has no code exercises yet — those start in Module 1. Instead, try this:</p>
     <ul>
-      <li>Name three pieces of software you use every day. Then guess: could any of them
-      be written in C? (A good bet: anything that runs on Linux, most phone operating
-      systems, and many programming languages themselves are built on C.)</li>
+      <li>Name three pieces of software you use every day. Then guess: could any of them be
+      written in C? (A good bet: anything that runs on Linux, most phone operating systems,
+      and many programming languages themselves are built on C.)</li>
       <li>Read Dennis Ritchie's own short account of building C, linked below. Look for the
       part where he describes B's limits — it is the same problem this chapter already
       described, in the words of the person who solved it.</li>
+      <li>Pick one device in your house that is not a computer, phone, or tablet — a
+      microwave, a car, a thermostat. Guess whether it has a small computer inside it, and
+      what kind of code might run there. (Most modern versions of these do, and C is one of
+      the most common languages for exactly this kind of small, low-power device.)</li>
     </ul>
   </section>
 
@@ -120,11 +415,23 @@ int main(void) {
     <p>C spread because it solved a real problem: it let an operating system move between
     computers without a full rewrite. That same trade-off — close to the hardware, but not
     glued to one machine — is why C is still under so much of the software you use every
-    day, more than fifty years later.</p>
-    <p>C did not stay frozen once it spread, though. The next chapter walks through how C
-    changed over time — the versions named C89, C99, C11, C17, and C23 — and explains why
-    this course teaches you C17, the second-newest version, instead of C23, the newest
-    one.</p>
+    day, more than fifty years later: the kernel your phone or laptop runs on, the small
+    computer inside a car or a thermostat, and often the very language you might reach for
+    after this one, if that language's own interpreter happens to be written in C.</p>
+    <p>Notice the shape of this whole story: a real, specific limit (assembly could not move
+    between machines) forced a real, specific fix (a language with real data types, close
+    enough to the hardware to replace assembly without giving up speed). Almost everything
+    else in C's history follows from that one design goal. The book that documented it in
+    1978, the universities that taught it, the companies that shipped C compilers on their
+    own hardware in the 1980s, even the safety rulebook that now governs C in cars and
+    medical devices — all of it traces back to two programmers who wanted their operating
+    system to run on more than one machine.</p>
+    <p>C did not stay frozen once it spread, though. The 1978 book that taught a generation
+    of programmers described the language as Kernighan and Ritchie's one compiler understood
+    it — not as a rulebook every compiler maker had agreed to. That gap eventually caused
+    real problems of its own. The next chapter walks through how C changed over time — the
+    versions named C89, C99, C11, C17, and C23 — and explains why this course teaches you
+    C17, the second-newest version, instead of C23, the newest one.</p>
     <p>Sources: Dennis Ritchie,
     <a href="https://www.bell-labs.com/usr/dmr/www/chist.html">"The Development of the C
     Language"</a>, Bell Labs — and

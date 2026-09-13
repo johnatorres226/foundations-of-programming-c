@@ -32,6 +32,13 @@
     rulebook is called a <span class="vocab">standard</span>, and C has had five of them.
     Knowing which one you are writing against tells you which features you can use and
     which ones will break on someone else's machine.</p>
+    <p>You will not spend this course debating standards — this chapter exists so that when
+    you see a <code>-std=</code> flag, a warning that mentions "C99" or "C11", or an old
+    tutorial that looks slightly different from what this course teaches, none of it is
+    mysterious. A program is not "C" in some vague, single sense; it is written against one
+    specific, named rulebook, the same way a form is filled out according to one specific
+    year's tax rules. Which rulebook is in play changes what is and is not allowed —
+    everything else about the language stays exactly as familiar as it already is.</p>
   </section>
 
   <!-- ===== 3. CORE IDEA — one sentence ===== -->
@@ -48,7 +55,8 @@
     <p>A standard is a written document, agreed on by a committee, that says exactly what
     a correct C compiler must do. It is not software — it is a set of rules that software
     follows. When people say "C99" or "C17", they mean "the version of the rulebook
-    published in that year."</p>
+    published in that year." Here is the quick version, then each rulebook gets its own
+    closer look below.</p>
 
     <div class="scroll-x">
       <table>
@@ -96,6 +104,297 @@
       </table>
     </div>
 
+    <p class="how-index">
+      <a href="#c89">C89</a> · <a href="#c99">C99</a> · <a href="#c11">C11</a> ·
+      <a href="#c17">C17</a> · <a href="#c23">C23</a> ·
+      <a href="#the-number-in-the-name">The number in the name</a> ·
+      <a href="#who-writes-a-standard">Who writes a standard</a> ·
+      <a href="#why-not-one-perfect-version">Why not one perfect version</a> ·
+      <a href="#telling-standards-apart">Telling standards apart by their features</a> ·
+      <a href="#does-this-matter-yet">Does this matter for you yet?</a>
+    </p>
+
+    <h3 id="c89">C89: taming a thousand private dialects</h3>
+    <p>Before 1989, the closest thing C had to a rulebook was <em>The C Programming
+    Language</em>, the book by Kernighan and Ritchie you met last chapter. It was clear and
+    well written, but it was a description of one implementation, not a legal contract every
+    compiler maker had to follow. It also left real gaps on purpose, trusting compiler makers
+    to fill them in sensibly. They did not always fill them in the same way.</p>
+
+    <p>Two different compilers could disagree on small, sharp-edged questions: how large is
+    an <code>int</code> on this machine? What happens if a number is too big to fit in the
+    space given to it? Can a function be called before its full definition appears in the
+    file? A program that leaned on one compiler's answer to any of these could fail to
+    compile, or worse, compile and behave differently, on another compiler entirely.</p>
+
+    <p>In 1983, the American National Standards Institute (ANSI) formed a committee to write
+    an official answer to every one of those questions. It published its rulebook in 1989 —
+    hence "C89." The International Organization for Standardization (ISO) adopted an almost
+    identical version the following year, sometimes called C90. In everyday conversation,
+    "ANSI C," "C89," and "C90" all point at the same rulebook.</p>
+
+    <div class="gotcha">
+      <p>"ANSI C" sounds like it should mean "old, out-of-date C." It does not. It means
+      specifically the 1989 standard — the first one. Every standard since, including C23,
+      is still "ANSI C" in the sense that ANSI and ISO keep co-publishing each revision. When
+      someone says "ANSI C" today, they almost always mean C89 by contrast with something
+      newer, not "C in general."</p>
+    </div>
+
+    <h3 id="c99">C99: what actually changed for a working programmer</h3>
+    <p>Ten years is a long time for a language to sit still, and by 1999 programmers had a
+    long list of small frustrations. C99 is the rulebook that answered them. Three changes
+    from that list are still the ones you will notice first.</p>
+
+    <p>First, C89 required every variable in a block to be declared at the very top, before
+    any other statement — even if you would not use that variable until fifty lines later.
+    C99 dropped that rule. You can now declare a variable exactly where you first need it,
+    including inside the parentheses of a <code>for</code> loop:</p>
+
+    <div class="code" data-file="declare_anywhere.c">
+<pre><code>/* legal in C89 — declaration must come first */
+int i;
+for (i = 0; i &lt; 10; i++) { /* ... */ }
+
+/* legal only from C99 onward — declared right where it's used */
+for (int i = 0; i &lt; 10; i++) { /* ... */ }</code></pre>
+    </div>
+
+    <p>Second, C99 added <code>//</code> for a comment that runs to the end of the line.
+    C89 only had <code>/* ... */</code>, which needs an opening and a closing mark and reads
+    awkwardly for a quick one-line note. Both styles work in every standard this course
+    covers, but you will see <code>//</code> far more often in code written after 1999.</p>
+
+    <p>Third, C99 added <span class="vocab">fixed-width integer types</span> — whole-number
+    types, declared in <code>&lt;stdint.h&gt;</code>, that name their exact size instead of
+    leaving it up to the compiler. Plain <code>int</code> is at least 16 bits, but a compiler
+    is free to make it bigger, and different machines have made different choices over the
+    decades. <code>int32_t</code> is always exactly 32 bits, everywhere, on every machine
+    that supports it. When a number's size genuinely matters — reading a file format that
+    another program wrote, for instance — a fixed-width type removes the guesswork.</p>
+
+    <div class="gotcha">
+      <p>None of this is retroactive. A compiler that only understands C89 will refuse to
+      compile a <code>for (int i = 0; ...)</code> loop or a <code>//</code> comment — not
+      because the code is wrong, but because that compiler's rulebook has no entry for it
+      yet. This is exactly why the <code>-std=</code> flag you will meet later in this
+      chapter exists: it tells the compiler which rulebook's entries to look up.</p>
+    </div>
+
+    <h3 id="c11">C11: features a compiler is allowed to skip</h3>
+    <p>C11 introduced something the earlier standards had not needed: an
+    <span class="vocab">optional feature</span>, a piece of the standard a compiler is
+    allowed to leave out entirely and still legitimately claim "I support C11." Threads
+    (<code>&lt;threads.h&gt;</code>, for running more than one task at once) and atomics
+    (<code>&lt;stdatomic.h&gt;</code>, for letting those tasks share data safely) were both
+    made optional this way.</p>
+
+    <p>Why would a standard allow a compiler to skip part of itself? Because by 2011, C
+    already ran on operating systems with wildly different native ways of handling threads,
+    and forcing every compiler maker to build a matching one from scratch would have kept
+    many of them from ever reaching C11 conformance at all. Making threads optional let
+    compiler makers catch up to the rest of C11 immediately and add thread support on their
+    own timeline — or never, if their platform already had a preferred way to do it.</p>
+
+    <div class="gotcha">
+      <p>This is not a hypothetical corner case for this course. Apple's Clang compiler,
+      which this course's setup chapter has many of you installing, does not ship
+      <code>&lt;threads.h&gt;</code> at all — trying to <code>#include</code> it fails with
+      <code>file not found</code>. That is a legal, standard-conforming choice by Apple, not
+      a bug. It is also exactly why this course teaches thread programming with the older,
+      universally available <code>pthreads</code> library in Module 12, and covers
+      <code>&lt;threads.h&gt;</code> afterward, in Module 13, as a comparison — you will
+      have a working, portable skill before you meet the one that might not even compile on
+      your machine.</p>
+    </div>
+
+    <h3 id="c17">C17: a rulebook with no new rules</h3>
+    <p>C17 is the odd one out in this table: it added nothing. Between 2011 and 2017, people
+    actually using C11 in real projects found spots where the wording was ambiguous, or
+    where two parts of the document quietly contradicted each other. C17's entire job was to
+    fix those spots — a pass of corrections and clearer wording, with zero new features.
+    Programmers sometimes call this kind of release a <em>technical corrigendum</em>, which
+    is a formal way of saying "we fixed typos and contradictions, we did not change what the
+    language does."</p>
+
+    <p>A rulebook with no new features can still matter. Ambiguous wording is not a cosmetic
+    problem — two compiler makers reading the same unclear sentence in C11 could each build
+    a "correct" compiler that disagreed with the other on some edge case, and a program that
+    happened to depend on one compiler's interpretation could compile differently, or not at
+    all, on the other. C17 closed exactly those gaps, which is part of why it is a dependable
+    target for a course that has to
+    behave the same way on Windows, macOS, and Linux at once.</p>
+
+    <h3 id="c23">C23: the newest rulebook, not yet the safest bet</h3>
+    <p>C23, officially ISO/IEC 9899:2024, is the current standard as of this writing. It adds
+    real conveniences: <code>true</code>, <code>false</code>, and <code>bool</code> are now
+    built-in <span class="vocab">keywords</span> — words the language reserves for its own
+    use — instead of macros you had to <code>#include &lt;stdbool.h&gt;</code> to get.
+    <code>nullptr</code> gives pointers a dedicated "points at nothing" value, distinct from
+    the number <code>0</code>. C23 even added a way to write whole numbers in binary directly
+    in your source code, like <code>0b101</code> for the number five, without any library
+    trick to make it work.</p>
+
+    <p>None of that makes C23 the right target for this course yet, for the same reason C17
+    is: a standard is only as useful as the compilers that fully implement it, and as of this
+    writing, Apple's Clang supports C23 only partially. A beginner has no reliable way to
+    tell, feature by feature, which parts of C23 will compile on their own machine and which
+    will not — and a course that breaks on some learners' laptops and not others is a broken
+    course. C17 is completely and predictably supported everywhere this course runs.</p>
+
+    <div class="gotcha">
+      <p>"Newest" and "best choice for right now" are not the same question. A standard can
+      be finished, official, and still not be the one you should compile against today —
+      that depends on whether the tools you actually have catch up to it. This is worth
+      remembering well past this course: professional C teams often stay one or two
+      standards behind the newest release, for exactly this reason.</p>
+    </div>
+
+    <h3 id="the-number-in-the-name">The number in the name</h3>
+    <p>The formal name for a C standard is not "C17" — it is something like
+    <strong>ISO/IEC 9899:2018</strong>. <code>9899</code> is a fixed document number ISO
+    assigned to the C standard once, permanently; it never changes between revisions. The
+    number after the colon is the year ISO officially published that revision. So "C17"
+    (informal, based on when the committee finished its work) and "ISO/IEC 9899:2018"
+    (formal, based on when ISO's publishing process completed) name the exact same
+    document — you will see both "C17" and "C18" used for it in the wild for precisely this
+    reason, and neither is wrong.</p>
+
+    <p>You do not need to memorize any of these formal names. This course will only ever
+    say "C17." But if you ever go looking at cppreference or an official standards page and
+    see "9899:2018" where you expected "C17," you now know why: same rulebook, two
+    different ways of dating it.</p>
+
+    <div class="gotcha">
+      <p>If a search for "C18" turns up nothing useful, try "C17" instead, and the other way
+      around — many pages, tools, and even compiler flags pick one name and stick with it.
+      GCC and Clang's own <code>-std=c17</code> and <code>-std=c18</code> flags are accepted
+      as exact synonyms for this reason, and either one compiles your code identically.</p>
+    </div>
+
+    <h3 id="who-writes-a-standard">Who actually writes a standard?</h3>
+    <p>No single company owns C, which is part of why a rulebook is necessary in the first
+    place. The actual writing is done by a group called
+    <span class="vocab">WG14</span> — short for "Working Group 14" — a committee under ISO,
+    the same international body that standardizes things like paper sizes and shipping
+    container dimensions. WG14's members are not one company's employees; they come from
+    compiler makers, hardware companies, universities, and independent C experts around the
+    world, each representing their own country's national standards body.</p>
+
+    <p>Turning an idea into part of the standard takes years, not weeks. Someone writes a
+    formal proposal explaining exactly what should change and why. WG14 discusses it,
+    revises the wording, and eventually folds accepted proposals into a public draft. That
+    draft goes out for review — genuinely public, published for anyone to read and comment
+    on — before a final vote. A brand-new feature proposed today realistically will not
+    appear in a shipping compiler for several years, which is one more reason this course
+    does not chase the newest standard the moment it is announced.</p>
+
+    <div class="gotcha">
+      <p>Nobody can single-handedly add a feature to C, not even a huge company. A compiler
+      maker can add its own private extension — a feature that only works on that one
+      compiler — but that is not the same as it becoming part of the standard, and code that
+      relies on it will not compile anywhere else. This course never teaches
+      compiler-specific extensions, only what every C17 compiler is guaranteed to support.</p>
+    </div>
+
+    <h3 id="why-not-one-perfect-version">Why not one perfect version?</h3>
+    <p>A reasonable question: if C89 had problems, why not fix them completely and be done,
+    instead of publishing four more rulebooks over the following decades? The answer is a
+    tension every long-lived standard has to manage: millions of lines of C code already
+    existed by the time each new standard was being written, and almost none of it could be
+    rewritten only because the rulebook changed underneath it.</p>
+
+    <p>Think of it like a city adding new traffic laws. A city can require every new
+    intersection to have a left-turn signal. What it cannot reasonably do is make every
+    existing intersection illegal overnight and force every driver to relearn the road from
+    scratch. New rules layer on top of old ones; the old ones keep working. That is
+    exactly the promise the Zoom Out section below names: every C standard since C89 has
+    been <em>additive</em>. C99 did not remove anything C89 allowed. C23 does not remove
+    anything C17 allowed. A feature can be added; a working feature is essentially never
+    taken away, because doing so would break code nobody at WG14 has even seen.</p>
+
+    <p>The analogy is not perfect — a city's roads are physical and a codebase is text, so a
+    codebase actually could be rewritten given enough time and money. The real-world reason
+    it usually is not comes down to cost and risk: rewriting millions of working, tested
+    lines on the hope of a cleaner rulebook risks introducing new bugs to fix an inconvenience,
+    not a defect. Staying additive is what makes upgrading a compiler a safe, boring event
+    instead of a project of its own.</p>
+
+    <h3 id="telling-standards-apart">Telling standards apart by their features</h3>
+    <p>You do not need to memorize five dates. In practice, you can often tell which standard
+    a piece of code was written against by which features show up in it — a kind of
+    fingerprint left behind by the rulebook the author was using.</p>
+
+    <div class="scroll-x">
+      <table>
+        <thead>
+          <tr><th>You see this in the code…</th><th>…it needs at least</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>A variable declared inside a <code>for (...)</code></td><td>C99</td></tr>
+          <tr><td>A <code>//</code> comment</td><td>C99</td></tr>
+          <tr><td><code>int32_t</code>, <code>uint8_t</code>, or another
+              <code>&lt;stdint.h&gt;</code> type</td><td>C99</td></tr>
+          <tr><td><code>_Atomic</code> or <code>&lt;stdatomic.h&gt;</code></td><td>C11</td></tr>
+          <tr><td><code>&lt;threads.h&gt;</code></td><td>C11 (and only where a compiler
+              chose to implement it)</td></tr>
+          <tr><td><code>true</code>/<code>false</code> with no
+              <code>#include &lt;stdbool.h&gt;</code> anywhere</td><td>C23</td></tr>
+          <tr><td><code>nullptr</code></td><td>C23</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Try it on a real snippet. Here is a small function with no comments telling you
+    anything about which standard it targets:</p>
+
+    <div class="code" data-file="snippet.c">
+<pre><code>int32_t sum_first_n(int32_t n) {
+    int32_t total = 0;
+    for (int32_t i = 0; i &lt; n; i++) {
+        total += i;
+    }
+    return total;
+}</code></pre>
+    </div>
+
+    <p>Two clues place this squarely in C99 or later. <code>int32_t</code> is a
+    fixed-width type from <code>&lt;stdint.h&gt;</code> — not available before C99. And
+    <code>i</code> is declared inside the <code>for (...)</code> parentheses, the
+    declare-anywhere feature from earlier in this chapter. Neither clue on its own would be
+    certain proof — a project could define its own type also named <code>int32_t</code>,
+    for instance — but together, two independent fingerprints pointing the same direction is
+    good evidence. Nothing here needs C11 or C23 at all, so on the evidence alone this
+    snippet could target anything from C99 up through C23.</p>
+
+    <p>The most direct source of truth is not a feature at all — it is the exact
+    <code>-std=</code> flag a project's own build instructions use, when they say. A
+    project's <code>README</code>, <code>Makefile</code>, or build script will often name it
+    outright, which is more reliable than guessing from features alone: a codebase can compile
+    against C17 while never happening to use any feature newer than C89.</p>
+
+    <h3 id="does-this-matter-yet">Does this matter for you yet?</h3>
+    <p>Not much, and that is by design. Every program you compile in this course uses the
+    exact same <code>-std=c17</code> flag, so you will never hit a mismatch between what you
+    wrote and what your compiler expects — that entire category of problem is handled for
+    you before you start typing. Where this chapter's knowledge pays off is later, outside
+    this course: the day you open somebody else's project, or a library's documentation, and
+    see a feature you do not recognize. Instead of being stuck, you will know to ask one
+    question — which standard is this written against? — and the table above will usually
+    answer it.</p>
+
+    <p>Here is what that moment actually looks like. Say you download an open-source C
+    project to see how it works, and its <code>README</code> says nothing about which
+    standard it targets. You open its <code>Makefile</code> and find a line like
+    <code>CFLAGS = -std=gnu11 -Wall</code>. Two things to notice: <code>-std=gnu11</code>
+    is not one of the five standards in this chapter's table — it is GCC's own "C11 plus a
+    handful of GCC-specific extras" flavor, which is why compiler-specific flags exist
+    alongside the plain <code>-std=c11</code> this chapter has been teaching. And now you
+    know something useful before reading a single line of that project's code: it expects
+    at least C11, so a fixed-width type or an <code>_Atomic</code> variable appearing later
+    will not be a surprise. That is the entire payoff of this chapter — not memorizing five
+    years, but knowing where to look and what the answer tells you.</p>
+
     <p>You tell a compiler which rulebook to use with a flag on the command line. This
     course always compiles with:</p>
 
@@ -136,9 +435,10 @@
     <p>Every standard after C89 has been additive: newer rulebooks add or clarify, they
     do not take away. That is why code written for C17 still makes sense once you know
     C23 exists, and it is why this course can teach you real, useful C on the C17
-    rulebook without shortchanging you. Next chapter you install a compiler, use it to
-    enforce that <code>-std=c17</code> flag yourself, and compile and run your first
-    program.</p>
+    rulebook without shortchanging you. Everything you practice against C17 keeps working
+    the day you eventually move to a newer standard — nothing here is a detour you will
+    later have to unlearn. Next chapter you install a compiler, use it to enforce that
+    <code>-std=c17</code> flag yourself, and compile and run your first program.</p>
   </section>
 
   <nav class="chapter-nav">
