@@ -126,7 +126,8 @@ Rules:
 - **A fifth entry, "Homework →", links to `exercises/HOMEWORK.html`** for any chapter that
   has one (every chapter with real exercises — see the new Homework section below). It is a
   real page link, not an anchor, and it is fine for it to be the only non-anchor entry in the
-  list. Chapters with no exercises (Module 0) omit this entry.
+  list. Chapters with no real exercises (Module 0, plus the rare reading-and-quiz-only
+  chapter elsewhere, like M14.5) omit this entry.
 - This is not decoration — it lets a learner see the chapter's shape (how many parts, what
   each covers, and that homework is waiting at the end) before committing to read it start
   to end, and lets them jump back to one part later.
@@ -396,8 +397,9 @@ command — not the per-exercise breakdown or the solution reveal, both of which
 Homework. Point to it plainly: `<a href="exercises/HOMEWORK.html">Open your homework →</a>`.
 The chapter table of contents (above) also links it as a final "Homework →" entry.
 
-Module 0 chapters have no `exercises/HOMEWORK.html` and no Homework link anywhere — they
-have no exercises to bridge to, per the existing Module 0 exception.
+Any chapter with no real exercises has no `exercises/HOMEWORK.html` and no Homework link
+anywhere — there is nothing to bridge to. That's every Module 0 chapter (PRD §9's exception)
+plus the rare reading-and-quiz-only chapter elsewhere (M14.5, for example).
 
 ### Checking your work
 
@@ -552,7 +554,7 @@ SemVer, recorded in `CHANGELOG.md`:
 - [ ] `tests/*.c` written first, `assert`-based, and failing before the solution exists (not in Module 0)
 - [ ] Reference solution in `back-of-the-book/` passes `make check`
 - [ ] `exercises/*.c` stubs present, compile, and fail the tests until completed
-- [ ] `exercises/HOMEWORK.html` present (not in Module 0), copied from the template, one part per exercise, each linking back to its `.how` subsection (§9)
+- [ ] `exercises/HOMEWORK.html` present (chapters with real exercises only), copied from the template, one part per exercise, each linking back to its `.how` subsection (§9)
 - [ ] `CONTENT.html` has all six sections in order
 - [ ] Core Idea is one sentence
 - [ ] Recap is 2–3 sentences, written against `SYLLABUS.md` outcomes
