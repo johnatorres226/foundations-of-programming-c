@@ -19,3 +19,4 @@ bin/
 
 # Internal orchestration — generated locally, never part of the public build
 CRITICAL-PATH.md
+.claude/worktrees/
