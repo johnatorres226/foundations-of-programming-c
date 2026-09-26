@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M2.3 Homework — Repeating Work · Foundations of Programming: C</title>
+<link rel="stylesheet" href="../../../../../assets/style.css">
+</head>
+<body>
+<article class="chapter">
+
+  <header class="chapter-head">
+    <p class="crumb">Module 2 · Chapter 3 · Homework</p>
+    <h1>Homework: Repeating Work</h1>
+  </header>
+
+  <section class="homework-intro">
+    <p>You've read how <code>while</code>, <code>do</code>/<code>while</code>, and
+    <code>for</code> each decide when to check their condition, plus the off-by-one
+    boundary and the infinite loop that catch nearly every beginner at some point. Now put
+    it into practice: five small functions, written from scratch in
+    <code>exercises/</code> and checked with <code>make check-mine</code> — not by reading
+    this page.</p>
+  </section>
+
+  <section>
+    <h2 id="sum-of-digits"><code>exercises/01_sum_of_digits.c</code></h2>
+    <p>Write a function <code>int sum_of_digits(int n)</code> that adds up the decimal
+    digits of a non-negative <code>int</code> and returns the total.
+    <code>sum_of_digits(123)</code> should return <code>6</code> (<code>1 + 2 + 3</code>),
+    and <code>sum_of_digits(0)</code> should return <code>0</code>.</p>
+    <p>The chapter's <a href="../CONTENT.html#while-loop">"The while loop"</a> section
+    showed a <code>while</code> loop that checks its condition before every iteration, and
+    can run zero times. Work out what <code>n % 10</code> and <code>n / 10</code> do to a
+    number one digit at a time, and why a <code>while</code> loop — not a
+    <code>do</code>/<code>while</code> — is the right fit for the case <code>n</code> is
+    already <code>0</code>.</p>
+
+    <div class="gotcha">
+      <p><code>n</code> has to actually shrink somewhere inside your loop body, or the
+      condition never turns false — this is precisely the termination reasoning the
+      chapter's <a href="../CONTENT.html#loop-termination">"Loops that don't stop"</a>
+      section walked through.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2 id="count-digits"><code>exercises/02_count_digits.c</code></h2>
+    <p>Write a function <code>int count_digits(int n)</code> that returns how many decimal
+    digits a non-negative <code>int</code> has. <code>count_digits(123)</code> should
+    return <code>3</code>. <code>count_digits(0)</code> should return <code>1</code> — zero
+    is one digit long, not zero digits long.</p>
+    <p>The chapter's <a href="../CONTENT.html#do-while-loop">"The do/while loop"</a>
+    section showed exactly this shape of problem: something that must happen at least once
+    no matter what, checked only afterward. Prove to yourself why a plain
+    <code>while</code> loop gets <code>count_digits(0)</code> wrong, and
+    <code>do</code>/<code>while</code> gets it right.</p>
+
+    <div class="gotcha">
+      <p>Don't forget the semicolon after <code>while (...)</code> at the bottom of a
+      <code>do</code>/<code>while</code> loop — it is the one loop form that needs one
+      there, and a missing one often produces a compiler error pointing somewhere else
+      entirely.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2 id="sum-range"><code>exercises/03_sum_range.c</code></h2>
+    <p>Write a function <code>int sum_range(int lo, int hi)</code> that returns the sum of
+    every whole number from <code>lo</code> to <code>hi</code>, inclusive. Tests only ever
+    call it with <code>lo <= hi</code>. <code>sum_range(1, 5)</code> should return
+    <code>15</code>; <code>sum_range(5, 5)</code>, a range of exactly one number, should
+    return <code>5</code>.</p>
+    <p>The chapter's <a href="../CONTENT.html#for-loop">"The for loop"</a> section built a
+    times table with a known, bounded count. Work out how to start a <code>for</code> loop
+    at <code>lo</code> instead of a fixed number like <code>1</code>, and stop it at
+    <code>hi</code> instead of a fixed number like <code>5</code>.</p>
+
+    <div class="gotcha">
+      <p><code>sum_range(5, 5)</code> is the case worth checking by hand before you run the
+      tests: does your loop condition let it run exactly once, or does it accidentally
+      skip the single number entirely?</p>
+    </div>
+  </section>
+
+  <section>
+    <h2 id="count-multiples"><code>exercises/04_count_multiples.c</code></h2>
+    <p>Write a function <code>int count_multiples(int limit, int step)</code> that returns
+    how many multiples of <code>step</code> — <code>step</code>, <code>2 * step</code>,
+    <code>3 * step</code>, and so on — are less than or equal to <code>limit</code>. Tests
+    only ever call it with <code>limit >= 0</code> and <code>step >= 1</code>.
+    <code>count_multiples(10, 3)</code> should return <code>3</code> (<code>3, 6,
+    9</code>).</p>
+    <p>The chapter's <a href="../CONTENT.html#off-by-one">"Off-by-one: getting the
+    boundary right"</a> section is built entirely around this exercise's trap. Figure out
+    what <code>count_multiples(9, 3)</code> has to return, and check your loop condition
+    actually agrees with you.</p>
+
+    <div class="gotcha">
+      <p>When <code>limit</code> itself is a multiple of <code>step</code> — like
+      <code>9</code> and <code>3</code> — it has to be counted. A condition that stops one
+      iteration early will quietly undercount by exactly one, the classic off-by-one
+      shape.</p>
+    </div>
+
+    <details class="solution">
+      <summary>Stuck? Show one approach</summary>
+      <div class="code" data-file="04_count_multiples.c">
+<pre><code>int count_multiples(int limit, int step) {
+    int count = 0;
+    for (int i = step; i &lt;= limit; i += step) {
+        count++;
+    }
+    return count;
+}</code></pre>
+      </div>
+      <p class="note">This is one approach, not the answer. Notice the loop starts
+      <code>i</code> at <code>step</code>, not <code>0</code> or <code>1</code> — the
+      first multiple of <code>step</code> is <code>step</code> itself.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2 id="first-power-of-two-at-least"><code>exercises/05_first_power_of_two_at_least.c</code></h2>
+    <p>Write a function <code>int first_power_of_two_at_least(int target)</code> that
+    returns the smallest power of two (<code>1, 2, 4, 8, 16, ...</code>) that is greater
+    than or equal to <code>target</code>. <code>first_power_of_two_at_least(5)</code>
+    should return <code>8</code>; <code>first_power_of_two_at_least(8)</code>, where
+    <code>target</code> already is a power of two, should return <code>8</code> again, not
+    <code>16</code>.</p>
+    <p>The chapter's <a href="../CONTENT.html#loop-termination">"Loops that don't stop"</a>
+    section asked you to find the quantity that moves toward a loop's stopping condition
+    every iteration. Work out what that quantity is here, and why doubling it is equally
+    guaranteed to reach <code>target</code> as counting up by ones — only faster.</p>
+
+    <div class="gotcha">
+      <p>Start your answer at <code>1</code>, not <code>0</code> — doubling <code>0</code>
+      forever never produces anything but <code>0</code>, which is exactly the "quantity
+      that never moves" trap the chapter's termination section warned about.</p>
+    </div>
+  </section>
+
+  <section class="try-it">
+    <p>Check your work with <code>make check-mine</code>. To check only this chapter, run
+    <code>make check-mine CHAPTER=2-module-control-flow/3-chapter-repeating-work</code>.</p>
+  </section>
+
+  <nav class="chapter-nav">
+    <a href="../CONTENT.html">← Back to the chapter</a>
+  </nav>
+
+  <footer class="chapter-foot">
+    <a href="https://github.com/johnatorres226/foundations-of-programming-c/issues/new?template=chapter-feedback.yml&title=%5BM2C3-HW%5D+">
+      Something wrong with this homework?</a>
+  </footer>
+
+</article>
+</body>
+</html>
