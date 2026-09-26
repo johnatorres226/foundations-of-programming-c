@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M1.3 — Variables and Types · Foundations of Programming: C</title>
+<link rel="stylesheet" href="../../../../assets/style.css">
+</head>
+<body>
+<article class="chapter">
+
+  <header class="chapter-head">
+    <p class="crumb">Module 1 · Chapter 3</p>
+    <h1>Variables and Types</h1>
+    <nav class="chapter-toc" aria-label="Chapter contents">
+      <p>In this chapter</p>
+      <ol>
+        <li><a href="#big-picture">Big picture: why C makes you pick an exact size for every value</a></li>
+        <li><a href="#how">How it works</a>
+          <ol>
+            <li><a href="#declaring-a-variable">Declaring a variable</a></li>
+            <li><a href="#whole-numbers-int">Whole numbers: <code>int</code></a></li>
+            <li><a href="#single-characters-char">Single characters: <code>char</code></a></li>
+            <li><a href="#fractional-numbers">Fractional numbers: <code>float</code> and <code>double</code></a></li>
+            <li><a href="#asking-sizeof">Asking <code>sizeof</code></a></li>
+            <li><a href="#why-fixed-sizes-matter">Why fixed sizes matter</a></li>
+          </ol>
+        </li>
+        <li><a href="#try-it">Try it</a></li>
+        <li><a href="#zoom-out">Zooming out: from what a value looks like to printing it and reading it back</a></li>
+        <li><a href="exercises/HOMEWORK.html">Homework →</a></li>
+      </ol>
+    </nav>
+  </header>
+
+  <!-- ===== 1. RECAP ===== -->
+  <section class="recap">
+    <p>Last chapter followed one line of C through the compiler's four stages —
+    preprocess, compile, assemble, link — and showed what the compiler does at each one,
+    all before that line ever runs. This chapter looks at what a line like that is
+    actually describing: the values a C program holds, and the fixed size and shape C
+    gives every one of them before it can be used.</p>
+  </section>
+
+  <!-- ===== 2. BIG PICTURE ===== -->
+  <section class="big-picture" id="big-picture">
+    <h2>Big picture: why C makes you pick an exact size for every value</h2>
+    <p>Every value a running program holds — a person's age, a temperature, a single
+    letter — has to live somewhere in memory. Memory is a fixed, finite resource: a
+    computer has a specific number of bytes, not an endless supply. Some languages hide
+    this from you. They let a number grow as large as it needs to, quietly reserving more
+    memory behind the scenes whenever a value gets bigger. That convenience has a cost:
+    the language has to check, every time, whether the current amount of memory is still
+    enough, and grow it if not.</p>
+    <p>C does not do this. When you declare a variable in C, you state its
+    <span class="vocab">type</span> — a label like <code>int</code> or <code>char</code>
+    that tells the compiler two things at once: what <em>kind</em> of value this is
+    (a whole number, a single character, a number with a fraction) and exactly how many
+    <span class="vocab">bytes</span> of memory to set aside for it. A byte is the
+    smallest unit of memory a computer addresses on its own — eight
+    <span class="vocab">bits</span>, each bit a single 0 or 1. Once the compiler knows a
+    variable's type, it knows its size before your program ever runs, and it reserves
+    exactly that much memory and not one byte more.</p>
+    <p>This is the same trade-off you have met twice already in this course: C hides
+    less, and asks more of you, in exchange for control. Fixed sizes are not a limitation
+    the language forgot to remove — they are what let C run predictably on everything
+    from a smartwatch to a server, and what let you, later in this course, reason
+    exactly about how much memory your own programs use.</p>
+    <p>Picture packing boxes for a move. One approach is to grab a box whenever you need
+    one and tape more together mid-carry if a box turns out too small — flexible, but you
+    never know how many boxes you have until moving day arrives. C's approach is closer
+    to measuring every item first and choosing an exact box size for it in advance: more
+    work up front, but you know precisely how many boxes the truck needs before you load
+    a single one. A type declaration is that upfront measurement — you are telling the
+    compiler, before your program runs a single line, exactly how much room this value
+    will ever need.</p>
+    <p>This chapter is about what that bargain actually looks like: the four basic types
+    every C program reaches for first, what <code>sizeof</code> can and cannot promise
+    you about them, and what happens when a value tries to outgrow the size it was
+    given.</p>
+  </section>
+
+  <!-- ===== 3. CORE IDEA ===== -->
+  <section class="core-idea">
+    Every value in C has a type, and that type fixes both what kind of data it holds and
+    exactly how many bytes of memory it takes up.
+  </section>
+
+  <!-- ===== 4. HOW IT WORKS ===== -->
+  <section class="how" id="how">
+    <h2>How it works</h2>
+
+    <h3 id="declaring-a-variable">Declaring a variable</h3>
+    <p>A <span class="vocab">variable</span> is a named piece of memory that holds a
+    value your program can read and change while it runs. Before you can use one in C,
+    you must <span class="vocab">declare</span> it: state its type, then its name, then
+    a semicolon.</p>
+
+    <div class="code" data-file="declare_example.c">
+<pre><code>int age;
+age = 30;</code></pre>
+    </div>
+
+    <p>The first line reserves enough memory for one whole number and names that memory
+    <code>age</code>. The second line stores <code>30</code> into it. You can also
+    combine both steps into one line — this is called
+    <span class="vocab">initialization</span>, and it is the more common style, since it
+    never leaves a variable holding an unknown value even for one line:</p>
+
+    <div class="code" data-file="init_example.c">
+<pre><code>int age = 30;</code></pre>
+    </div>
+
+    <p>A variable's name follows the same rules as any other name in C: letters, digits,
+    and underscores only, and it cannot start with a digit. <code>age</code>,
+    <code>total_score</code>, and <code>_count</code> are all valid names;
+    <code>1st_place</code> is not. Names are case-sensitive, so <code>age</code> and
+    <code>Age</code> are two different variables. You can declare several variables of
+    the same type on one line, separated by commas:</p>
+
+    <div class="code" data-file="multi_declare.c">
+<pre><code>int width = 10, height = 20, area;
+area = width * height;</code></pre>
+    </div>
+
+    <div class="gotcha">
+      <p>A variable declared without a value — <code>int age;</code> on its own — does
+      not start at <code>0</code>. It holds whatever bits were already sitting in that
+      memory from whatever ran before your program, an
+      <span class="vocab">indeterminate value</span>. Reading it before you assign
+      something real is a common source of bugs that seem to work by accident on one
+      run and print nonsense on the next. Always initialize a variable before you read
+      it.</p>
+    </div>
+
+    <p>Once declared, a variable can be reassigned as many times as your program needs.
+    Assigning a new value does not change its type or its size — only what is stored in
+    the same fixed slot of memory:</p>
+
+    <div class="code" data-file="reassign_example.c">
+<pre><code>int score = 0;
+score = 10;
+score = score + 5;   /* score is now 15 */</code></pre>
+    </div>
+
+    <p>Where you declare a variable also decides how long it lives and where it can be
+    seen. A variable declared inside a function's <code>{ }</code> block — the only kind
+    you have written so far — only exists while that block is running, and only code
+    inside that same block can refer to it by name. Two different functions can each
+    declare a variable named <code>total</code> without conflict, because each one lives
+    inside its own separate block and neither can see the other's. Module 3 covers this
+    properly, under the name <span class="vocab">scope</span>; for now, the rule you need
+    is simpler: a variable you declare inside <code>main</code>'s braces belongs to
+    <code>main</code>, and disappears the moment <code>main</code> finishes.</p>
+
+    <h3 id="whole-numbers-int"><code>int</code> — whole numbers</h3>
+    <p><code>int</code> holds a whole number — no fraction, positive or negative. It is
+    the type you will reach for most often in this course. C guarantees an
+    <code>int</code> can hold at least the range <code>-32767</code> to <code>32767</code>,
+    though on every platform this course targets, the real range is far larger — you will
+    measure it yourself in the "Asking <code>sizeof</code>" section below.</p>
+
+    <p><code>int</code> supports the arithmetic you would expect: <code>+</code>,
+    <code>-</code>, <code>*</code> for addition, subtraction, and multiplication. Division,
+    written <code>/</code>, has a trap worth learning now rather than the hard way later:</p>
+
+    <div class="code" data-file="int_division.c">
+<pre><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int total = 7;
+    int people = 2;
+    int share = total / people;
+
+    /* %d tells printf to print a whole number here — next chapter
+       covers every format specifier printf understands. */
+    printf("%d\n", share);
+    return 0;
+}</code></pre>
+    </div>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror int_division.c -o int_division
+<span class="prompt">$</span> ./int_division
+3</pre>
+    </div>
+
+    <div class="gotcha">
+      <p><code>7 / 2</code> is mathematically <code>3.5</code>, but
+      <code>int</code> division in C throws away the fraction instead of rounding —
+      <code>7 / 2</code> is <code>3</code>, not <code>4</code> and not <code>3.5</code>.
+      This is called <span class="vocab">truncation</span>: the result is always cut
+      toward zero, never rounded. If you need the leftover, C gives you a separate
+      operator for it, <code>%</code> — the <span class="vocab">modulo</span> operator,
+      which reports the remainder: <code>7 % 2</code> is <code>1</code>. Dividing two
+      <code>int</code>s always throws away the fraction, no matter how the result is used
+      afterward — this is exactly why the "Fractional numbers" section below exists.</p>
+    </div>
+
+    <p>Modulo has one more sharp edge worth knowing before you rely on it: what happens
+    when one side is negative. C guarantees that <code>a / b</code> truncates toward
+    zero — rounds toward <code>0</code>, not down toward the smaller number — and that
+    <code>a % b</code> always satisfies <code>(a / b) * b + (a % b) == a</code>. Put those
+    two guarantees together and <code>-7 % 2</code> works out to <code>-1</code>, not
+    <code>1</code>: the sign of the remainder follows the sign of the number being
+    divided, not the divisor. This trips people up the first time they use modulo to
+    "wrap" a count into a fixed range, since a negative input produces a negative result
+    instead of the positive one they expected.</p>
+
+    <h3 id="single-characters-char"><code>char</code> — single characters</h3>
+    <p><code>char</code> holds one character — a letter, digit, punctuation mark, or
+    space. A <span class="vocab">character literal</span> is written in single quotes,
+    <code>'A'</code>, which is different from a
+    <span class="vocab">string literal</span> in double quotes, <code>"A"</code>, which
+    you met in chapter 1.1. <code>'A'</code> is one character; <code>"A"</code> is text —
+    a whole different kind of value you will study properly in Module 4.</p>
+
+    <p>Underneath, a <code>char</code> is really a small whole number. Every character
+    your keyboard can produce is assigned a number by a standard called
+    <span class="vocab">ASCII</span> (American Standard Code for Information
+    Interchange) — <code>'A'</code> is <code>65</code>, <code>'a'</code> is
+    <code>97</code>, <code>'0'</code> is <code>48</code>, and so on through the rest of
+    the keyboard. A <code>char</code> variable stores that number; printing it with the
+    right format specifier decides whether you see the character or the number:</p>
+
+    <div class="code" data-file="char_as_number.c">
+<pre><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    char letter = 'A';
+
+    /* %c prints the character; %d prints the number underneath it —
+       same variable, same bits, two different ways to read them. */
+    printf("%c\n", letter);
+    printf("%d\n", letter);
+    return 0;
+}</code></pre>
+    </div>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror char_as_number.c -o char_as_number
+<span class="prompt">$</span> ./char_as_number
+A
+65</pre>
+    </div>
+
+    <p>Because a <code>char</code> is a number underneath, you can do arithmetic on it.
+    The digit characters <code>'0'</code> through <code>'9'</code> are assigned
+    consecutive numbers in ASCII, so subtracting <code>'0'</code> from any digit
+    character converts it to the whole number it represents:</p>
+
+    <div class="code" data-file="digit_trick.c">
+<pre><code>char digit = '7';
+int value = digit - '0';   /* value is now the int 7, not the char '7' */</code></pre>
+    </div>
+
+    <p>This is the exact idea behind this chapter's first exercise. It works because
+    ASCII assigns <code>'0'</code> through <code>'9'</code> consecutive numbers in order,
+    so the <em>distance</em> between any digit character and <code>'0'</code> always
+    equals the digit it represents.</p>
+
+    <div class="gotcha">
+      <p>Whether a plain <code>char</code> can hold negative numbers depends on the
+      compiler and platform — some treat it as always non-negative (an
+      <span class="vocab">unsigned</span> type), others allow negatives (a
+      <span class="vocab">signed</span> type). This rarely matters for ordinary letters
+      and digits, since their ASCII numbers are always positive and small. It becomes a
+      real trap only if you use a plain <code>char</code> to store raw byte values above
+      127 and then compare or arithmetic on it — code that silently behaves differently
+      on two machines. When that distinction matters, C gives you
+      <code>signed char</code> and <code>unsigned char</code> to say exactly which one
+      you mean.</p>
+    </div>
+
+    <h3 id="fractional-numbers">Fractional numbers: <code>float</code> and <code>double</code></h3>
+    <p>When a value needs a fraction — a price, a temperature, an average — <code>int</code>
+    cannot hold it. C gives you two <span class="vocab">floating-point</span> types for
+    this: <code>float</code> and <code>double</code>. Both store a number with a decimal
+    point; the difference between them is precision and size, covered in the next
+    section. Use <code>double</code> unless you have a specific reason to reach for
+    <code>float</code> — it is this course's default, and the more common choice in real
+    C code.</p>
+
+    <div class="code" data-file="float_division.c">
+<pre><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    double total = 7.0;
+    double people = 2.0;
+    double share = total / people;
+
+    /* %f prints a floating-point number. */
+    printf("%f\n", share);
+    return 0;
+}</code></pre>
+    </div>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror float_division.c -o float_division
+<span class="prompt">$</span> ./float_division
+3.500000</pre>
+    </div>
+
+    <p>Notice the <code>.0</code> on both literals. <code>7 / 2</code> is
+    <code>int</code> division and truncates to <code>3</code>, as the last section
+    showed — even if the result is later stored in a <code>double</code>. Only
+    <code>7.0 / 2.0</code>, where at least one side is already a floating-point value,
+    performs floating-point division and keeps the fraction. This is precisely the trap
+    this chapter's second exercise is built around: averaging whole numbers correctly
+    means making sure the division itself happens as floating-point, not after the
+    fact.</p>
+
+    <div class="gotcha">
+      <p>A floating-point number is stored in binary, and most decimal fractions —
+      including something as ordinary as <code>0.1</code> — cannot be represented
+      exactly in binary, the same way <code>1/3</code> cannot be written exactly as a
+      finite decimal. The value stored is the closest one that fits, off by a tiny
+      amount. That tiny amount is usually invisible, but it means two floating-point
+      values that "should" be equal mathematically can differ in their last few digits.
+      <strong>Never compare floating-point numbers with <code>==</code>.</strong> Instead,
+      check that the difference between them is smaller than some tiny tolerance you
+      choose — this is exactly what this chapter's <code>average</code> test does,
+      instead of comparing an exact number.</p>
+    </div>
+
+    <p>That imprecision is not a rumor — you can print it yourself. Ask <code>printf</code>
+    for more digits than <code>0.1</code> actually needs, and the ones after where a
+    person would stop reveal the real, imperfect value sitting in memory:</p>
+
+    <div class="code" data-file="float_imprecision.c">
+<pre><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    double value = 0.1;
+
+    printf("%.20f\n", value);
+    return 0;
+}</code></pre>
+    </div>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror float_imprecision.c -o float_imprecision
+<span class="prompt">$</span> ./float_imprecision
+0.10000000000000000555</pre>
+    </div>
+
+    <p><code>0.1</code> printed with 20 digits after the point is not <code>0.1</code> at
+    all — it is the closest binary fraction to <code>0.1</code>, and the two are not the
+    same number. <code>printf</code> normally rounds this away before showing it to you,
+    which is exactly why the gap stays invisible until you go looking for it, or until you
+    add up enough of these tiny errors that they stop being invisible.</p>
+
+    <p><code>float</code> exists for the same reason fixed sizes exist at all: it uses
+    less memory than <code>double</code>, at the cost of less precision — roughly 7
+    accurate decimal digits, against <code>double</code>'s roughly 15. A <code>float</code>
+    literal needs an <code>f</code> suffix to tell the compiler which type you mean,
+    since a plain decimal literal like <code>3.5</code> is a <code>double</code> by
+    default:</p>
+
+    <div class="code" data-file="float_suffix.c">
+<pre><code>float price = 3.5f;
+double precise_price = 3.5;</code></pre>
+    </div>
+
+    <h3 id="asking-sizeof">Asking <code>sizeof</code></h3>
+    <p>You do not have to guess how many bytes a type uses — C has an operator that
+    reports it directly: <code>sizeof</code>. It takes a type or a variable and reports
+    its size in bytes, as a special unsigned whole-number type called
+    <span class="vocab">size_t</span>, printed with the format specifier
+    <code>%zu</code>:</p>
+
+    <div class="code" data-file="sizeof_demo.c">
+<pre><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    printf("char:   %zu\n", sizeof(char));
+    printf("int:    %zu\n", sizeof(int));
+    printf("float:  %zu\n", sizeof(float));
+    printf("double: %zu\n", sizeof(double));
+    return 0;
+}</code></pre>
+    </div>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror sizeof_demo.c -o sizeof_demo
+<span class="prompt">$</span> ./sizeof_demo
+char:   1
+int:    4
+float:  4
+double: 8</pre>
+    </div>
+
+    <p>Those exact numbers — <code>4</code> for <code>int</code>, <code>8</code> for
+    <code>double</code> — are what every common desktop and laptop platform reports
+    today, and what this course's reference solutions rely on. But "predict
+    <code>sizeof</code>" does not mean "memorize one universal number." The C standard
+    only <em>guarantees</em> a smaller set of facts, and the difference matters:</p>
+
+    <ul>
+      <li><code>sizeof(char)</code> is always exactly <code>1</code>, by definition — the
+      standard defines a byte as the size of a <code>char</code>, so this one never
+      varies.</li>
+      <li><code>sizeof(char) &lt;= sizeof(short) &lt;= sizeof(int) &lt;= sizeof(long) &lt;=
+      sizeof(long long)</code> — each integer type is guaranteed to be at least as large
+      as the one before it, never smaller, but the standard does not guarantee they are
+      all <em>different</em> sizes.</li>
+      <li><code>double</code> is guaranteed to have at least as much range and precision
+      as <code>float</code>, which in practice means it is at least as large. It does not
+      have to be exactly twice the size — that is what today's hardware happens to
+      give you.</li>
+    </ul>
+
+    <p>Older or more unusual hardware really has shipped C compilers where
+    <code>int</code> was 2 bytes, not 4. This course's tests reflect that honesty: they
+    check relationships like "<code>int</code> is at least 2 bytes" and "<code>double</code>
+    is at least as wide as <code>float</code>," never a single hardcoded byte count for
+    anything except <code>char</code>, the one type the standard actually pins down.</p>
+
+    <figure>
+      <svg viewBox="0 0 460 130" role="img" aria-label="Four boxes of different widths,
+           each labeled with a type and its byte count on this platform: char is 1 byte,
+           float is 4 bytes, int is 4 bytes, and double is 8 bytes — the widest box."
+           xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor">
+        <rect x="10" y="20" width="20" height="36" rx="4" stroke-width="1.5"/>
+        <text x="20" y="72" text-anchor="middle" font-size="11" font-family="system-ui"
+              fill="currentColor" stroke="none">char</text>
+        <text x="20" y="86" text-anchor="middle" font-size="10" font-family="system-ui"
+              fill="currentColor" stroke="none" opacity=".65">1 byte</text>
+
+        <rect x="60" y="20" width="70" height="36" rx="4" stroke-width="1.5"/>
+        <text x="95" y="72" text-anchor="middle" font-size="11" font-family="system-ui"
+              fill="currentColor" stroke="none">int</text>
+        <text x="95" y="86" text-anchor="middle" font-size="10" font-family="system-ui"
+              fill="currentColor" stroke="none" opacity=".65">4 bytes</text>
+
+        <rect x="160" y="20" width="70" height="36" rx="4" stroke-width="1.5"/>
+        <text x="195" y="72" text-anchor="middle" font-size="11" font-family="system-ui"
+              fill="currentColor" stroke="none">float</text>
+        <text x="195" y="86" text-anchor="middle" font-size="10" font-family="system-ui"
+              fill="currentColor" stroke="none" opacity=".65">4 bytes</text>
+
+        <rect x="260" y="20" width="140" height="36" rx="4" stroke-width="1.5"/>
+        <text x="330" y="72" text-anchor="middle" font-size="11" font-family="system-ui"
+              fill="currentColor" stroke="none">double</text>
+        <text x="330" y="86" text-anchor="middle" font-size="10" font-family="system-ui"
+              fill="currentColor" stroke="none" opacity=".65">8 bytes</text>
+      </svg>
+      <figcaption>Figure 1 — relative widths of the four types on the platforms this
+      course targets. Only <code>char</code>'s size is guaranteed by the standard; the
+      rest is what today's common hardware happens to give you.</figcaption>
+    </figure>
+
+    <div class="gotcha">
+      <p><code>size_t</code>, the type <code>sizeof</code> reports in, is unsigned — it
+      can never hold a negative number, because a size in bytes can never be negative.
+      That sounds harmless until you compare one to an ordinary, signed <code>int</code>
+      that happens to be negative. C's rules quietly convert the signed value to unsigned
+      before comparing, and a negative number converted to unsigned does not become
+      small — it wraps into a huge positive number instead, the same wraparound rule this
+      chapter's next section covers. A check like <code>some_int &lt; sizeof(x)</code>
+      can silently do the opposite of what it looks like it does if <code>some_int</code>
+      is ever negative. You will not need to worry about this yet, but recognize the
+      shape of the mistake now — it resurfaces the moment <code>sizeof</code> starts
+      appearing in real conditions, in Module 4 and beyond.</p>
+    </div>
+
+    <h3 id="why-fixed-sizes-matter">Why fixed sizes matter</h3>
+    <p>A fixed size is not only bookkeeping for the compiler. It is a hard ceiling on
+    what a value can hold — and hitting that ceiling has real, visible consequences.
+    <code>unsigned char</code>, one byte, can hold whole numbers from <code>0</code> to
+    <code>255</code> and nothing outside that range. Add <code>1</code> to
+    <code>255</code>, and there is no room left to carry the result up to
+    <code>256</code> — so it wraps back around to <code>0</code> instead:</p>
+
+    <div class="code" data-file="wraparound.c">
+<pre><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    unsigned char count = 255;
+    count = count + 1;
+
+    printf("%d\n", count);
+    return 0;
+}</code></pre>
+    </div>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror wraparound.c -o wraparound
+<span class="prompt">$</span> ./wraparound
+0</pre>
+    </div>
+
+    <p>This is not a bug in the compiler — it is a rule the C standard actually
+    guarantees for every <em>unsigned</em> type: the result wraps around, predictably,
+    as if the compiler kept only the remainder after dividing by the total number of
+    values the type can hold (256, for one byte). <code>300 % 256</code> is
+    <code>44</code>, and that is exactly what <code>200 + 100</code> stored in an
+    <code>unsigned char</code> produces — this chapter's fourth exercise asks you to
+    write that wraparound arithmetic yourself.</p>
+
+    <p>A car's odometer is the same idea in a machine you can hold. It has a fixed
+    number of wheels, so it can only display so many digits — once it reaches its
+    highest number, the next mile does not stop the car or crash the dashboard, it rolls
+    every wheel back to zero and starts counting again. Nobody designed the odometer to
+    lie about the car's real mileage past that point; they designed it with a fixed
+    number of wheels because an odometer with infinitely many wheels would be
+    infinitely large. A one-byte unsigned counter is the same trade, in software: fixed
+    room, predictable rollover, and a hard limit on how high it can count before it
+    starts over.</p>
+
+    <div class="gotcha">
+      <p>Ordinary <code>int</code> is <em>signed</em>, and overflowing a signed type — the
+      largest possible number, plus one — is not a guaranteed wraparound at all. The C
+      standard calls it <span class="vocab">undefined behavior</span>: the compiler is
+      allowed to do anything, including produce a value that looks nothing like a
+      wraparound, or optimize your code in a way that assumes it never happens in the
+      first place. Module 14 covers undefined behavior in depth. For now, the rule that
+      matters is narrower and worth remembering on its own: unsigned wraparound is
+      predictable and guaranteed; signed overflow is not, and code that relies on it is
+      already broken even if it happens to print something reasonable today.</p>
+    </div>
+
+    <p>Zoom out from the one-byte example and the same idea holds at every size C gives
+    you. A fixed size means a program never has to guess how much memory a value needs,
+    and the computer's own arithmetic hardware — built to work in fixed widths like 8,
+    16, 32, and 64 bits — can operate on it directly, with no extra bookkeeping. That
+    speed and predictability is the other half of the bargain this chapter's big picture
+    opened with: C trusts you to pick a type big enough for what you actually need, and
+    in return, every value in your program uses exactly the memory you asked for, no
+    more.</p>
+  </section>
+
+  <!-- ===== 5. TRY IT ===== -->
+  <section class="try-it" id="try-it">
+    <p>You read how <code>int</code>, <code>char</code>, <code>float</code>, and
+    <code>double</code> each behave, what <code>sizeof</code> can and cannot promise
+    about them, and what happens at a fixed type's edge. Now write four small functions
+    that put each idea to work: <code>exercises/01_digit_value.c</code>,
+    <code>02_average.c</code>, <code>03_sizeof_facts.c</code>, and
+    <code>04_wrap_add.c</code>.</p>
+    <p><a href="exercises/HOMEWORK.html">Open your homework →</a> for what each one asks,
+    why, and a hint if you get stuck.</p>
+    <p>Check your work with <code>make check-mine</code>. To check only this chapter, run
+    <code>make check-mine CHAPTER=1-module-basics/3-chapter-variables-and-types</code>.
+    Each exercise is a small function; the test file compiled alongside it calls that
+    function and checks its return value with <code>assert</code>.</p>
+  </section>
+
+  <!-- ===== 6. ZOOM OUT ===== -->
+  <section class="zoom-out" id="zoom-out">
+    <h2>Zooming out: from what a value looks like to printing it and reading it back</h2>
+    <p>You can now declare and use <code>int</code>, <code>char</code>, <code>float</code>,
+    and <code>double</code>, predict what <code>sizeof</code> actually guarantees about
+    each of them versus what today's hardware happens to give you, and explain why a
+    fixed size is not a limitation — it is what makes memory use predictable and
+    arithmetic fast. You have also seen the first real cost of that bargain: a value that
+    outgrows its type either wraps around in a well-defined way, if it is unsigned, or
+    invites undefined behavior, if it is signed.</p>
+    <p>Every code example in this chapter leaned on <code>printf</code> and a handful of
+    format specifiers — <code>%d</code>, <code>%c</code>, <code>%f</code>, <code>%zu</code>
+    — without slowing down to explain each one fully. That was deliberate. Next chapter
+    covers every format specifier <code>printf</code> understands, and introduces
+    <code>scanf</code>, which reads a value the person at the keyboard typed into a
+    variable of your choosing. <code>scanf</code>'s biggest trap turns out to be exactly
+    this chapter's subject: telling it the wrong type for the variable you are reading
+    into is a mistake the compiler often cannot catch for you, and it is undefined
+    behavior at runtime — the same danger this chapter's "Why fixed sizes matter" section
+    already showed you, aimed at a new target.</p>
+    <p>Every later chapter in this course assumes you can look at a declaration —
+    <code>int</code>, <code>char</code>, <code>float</code>, or <code>double</code> — and
+    know immediately what kind of value it holds and roughly how much room it takes up.
+    Arrays of these types (Module 4), pointers to them (Module 5), and structs that group
+    several of them together (Module 6) are all built directly on the four types you have
+    now learned — nothing about them changes once you start combining types into bigger
+    ones.</p>
+    <p>The four exercises you are about to write already point in that direction, even
+    though the next chapter has not arrived yet. <code>digit_value</code> turns typed
+    input, one character at a time, into a real number — exactly the conversion a
+    program reading someone's age or a menu choice needs. <code>average</code> needs a
+    correctly typed result before it can ever be printed with the right format specifier.
+    Both problems only get more useful once the next chapter lets your program ask a
+    person a question and read back whatever they type.</p>
+  </section>
+
+  <p>Go deeper: learn-c.org's
+  <a href="https://www.learn-c.org/en/Variables_and_Types">Variables and Types lesson</a>
+  lets you try all four types in your browser, no install needed. cppreference's
+  <a href="https://en.cppreference.com/w/c/language/arithmetic_types">Arithmetic types</a>
+  page is the canonical reference for exactly what <code>sizeof</code> guarantees on any
+  platform — use it as a lookup when you need the precise rule, not as a first read.
+  Harvard's <a href="https://cs50.harvard.edu/x/">CS50x, Week 1</a> covers the same ground
+  on video, free.</p>
+
+  <nav class="chapter-nav">
+    <a href="../2-chapter-how-c-becomes-a-program/CONTENT.html">← Previous chapter</a>
+    <a href="QUIZ.html">Take the quiz →</a>
+  </nav>
+
+  <footer class="chapter-foot">
+    <a href="https://github.com/johnatorres226/foundations-of-programming-c/issues/new?template=chapter-feedback.yml&title=%5BM1C3%5D+">
+      Something wrong with this chapter?</a>
+  </footer>
+
+</article>
+</body>
+</html>
