@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M1.5 Quiz — When Things Break · Foundations of Programming: C</title>
+<link rel="stylesheet" href="../../../../assets/style.css">
+</head>
+<body>
+<article class="chapter">
+  <header class="chapter-head">
+    <p class="crumb">Module 1 · Chapter 5 · Quiz</p>
+    <h1>Check your understanding</h1>
+  </header>
+
+  <p>Pick one answer for each question, then check. Every answer — right or wrong — comes
+  with an explanation. The wrong ones are where most of the learning is.</p>
+
+  <div id="quiz"></div>
+
+  <nav class="chapter-nav">
+    <a href="CONTENT.html">← Back to the chapter</a>
+    <a href="../../2-module-control-flow/1-chapter-making-decisions/CONTENT.html">Next chapter →</a>
+  </nav>
+
+  <footer class="chapter-foot">
+    <a href="https://github.com/johnatorres226/foundations-of-programming-c/issues/new?template=chapter-feedback.yml&title=%5BM1C5+Quiz%5D+">
+      Something wrong with this quiz?</a>
+  </footer>
+</article>
+
+<script type="application/json" id="quiz-data">
+{
+  "questions": [
+    {
+      "q": "A compiler error reads `rectangle.c:6:17`. What does the `17` mean?",
+      "options": [
+        { "text": "There are 17 errors left to fix",
+          "correct": false,
+          "why": "That number is not an error count. The three numbers after the filename are line and column — this is a single location, not a tally." },
+        { "text": "The problem is at column 17 of line 6 — count characters from the start of that line",
+          "correct": true,
+          "why": "Right. `file:line:column` is the compiler's location format. Column 17 tells you exactly where on that line to look, instead of scanning the whole line yourself." },
+        { "text": "The program will take 17 seconds to compile",
+          "correct": false,
+          "why": "Compile time has nothing to do with this. Every number in a compiler error location describes where in the file the problem is, not how long anything takes." }
+      ]
+    },
+    {
+      "q": "A wall of ten compiler errors appears after one small edit. What should you do first?",
+      "options": [
+        { "text": "Fix all ten, then recompile once",
+          "correct": false,
+          "why": "One real mistake often confuses the compiler about everything after it, so most of those ten errors may not be real. Fixing all ten wastes time chasing errors that were never there." },
+        { "text": "Fix only the first error, then recompile before reading the rest",
+          "correct": true,
+          "why": "Right. An early mistake — a missing semicolon, an unclosed brace — throws off everything the compiler reads afterward. Fix the first one and recompile; many of the rest often disappear on their own." },
+        { "text": "Delete the file and start over",
+          "correct": false,
+          "why": "Ten errors almost never means ten real mistakes. Starting over throws away working code to avoid reading one error message carefully." }
+      ]
+    },
+    {
+      "q": "What does `-Werror` actually do?",
+      "options": [
+        { "text": "It turns every warning the compiler would otherwise print into a hard error that stops the build",
+          "correct": true,
+          "why": "Right. `-Wall -Wextra` turn on the warnings worth seeing; `-Werror` makes sure you cannot ignore them and get a program anyway." },
+        { "text": "It finds warnings the compiler would otherwise miss entirely",
+          "correct": false,
+          "why": "`-Wall` and `-Wextra` are what turn on more warnings. `-Werror` does not detect anything new — it changes what happens to warnings that were already going to be reported." },
+        { "text": "It only affects error messages, not warnings",
+          "correct": false,
+          "why": "The opposite is true — `-Werror` specifically targets warnings, converting them into errors. Genuine errors already stop the build with or without this flag." }
+      ]
+    },
+    {
+      "q": "You set a breakpoint on a line inside a loop and run the program under a debugger. What happens?",
+      "options": [
+        { "text": "The debugger stops the program once, the first time that line runs, and never again",
+          "correct": false,
+          "why": "A breakpoint fires every time execution reaches that line, not only once. Inside a loop, that usually means once per trip around." },
+        { "text": "The program pauses each time it reaches that line, and `continue` resumes it until the next time it gets there",
+          "correct": true,
+          "why": "Right. Inside a loop, this means one pause per iteration — exactly how the chapter's example watched a loop variable change, iteration by iteration." },
+        { "text": "The debugger skips the loop entirely and runs straight to the end of the program",
+          "correct": false,
+          "why": "A breakpoint does the opposite of skipping — it is specifically there to stop execution at that exact line so you can look around." }
+      ]
+    },
+    {
+      "q": "Why does a debugging session need the program compiled with `-g`?",
+      "options": [
+        { "text": "`-g` makes the compiled program run faster under a debugger",
+          "correct": false,
+          "why": "`-g` has no effect on speed. It only adds information to the compiled file — it does not change what the program does or how fast it runs." },
+        { "text": "`-g` embeds line numbers and variable names so the debugger can connect what is happening back to your source file",
+          "correct": true,
+          "why": "Right. Without `-g`, a debugger can still run the program, but it only sees raw instructions — no file, no line, no variable names to show you." },
+        { "text": "`-g` is required before the compiler will accept any breakpoints at all",
+          "correct": false,
+          "why": "Breakpoints are a debugger feature, not a compiler one — the compiler does not know about them. `-g` only supplies the information the debugger needs to display them meaningfully." }
+      ]
+    },
+    {
+      "q": "A program writes one slot past the end of a 5-slot heap array, then runs and prints five correct-looking numbers with no crash. What does this show?",
+      "options": [
+        { "text": "The program has no bug, since it printed the right output",
+          "correct": false,
+          "why": "The overflow already happened, even though the output looked fine. Undefined behavior is exactly this: it makes no promise about what happens, including sometimes looking like it worked." },
+        { "text": "Writing one slot past the end is undefined behavior — the program may look fine and still have written to memory it never should have touched",
+          "correct": true,
+          "why": "Right. A buffer overflow does not have to crash to be a real bug. This is precisely why a tool that watches every memory access, like AddressSanitizer, exists — the output alone cannot tell you." },
+        { "text": "C automatically resizes the array to fit the extra slot",
+          "correct": false,
+          "why": "C never resizes memory for you. A `malloc`'d block is a fixed size for its whole lifetime; writing past it reaches into memory that belongs to something else." }
+      ]
+    },
+    {
+      "q": "AddressSanitizer reports no errors on a particular run of your program. What can you conclude?",
+      "options": [
+        { "text": "The program is completely free of memory bugs",
+          "correct": false,
+          "why": "AddressSanitizer only catches a bad access that actually happens during that run. A bug hiding in a path the program did not take this time will not show up." },
+        { "text": "No bad memory access happened during that particular run — but a path that was not exercised could still hide a bug",
+          "correct": true,
+          "why": "Right. A clean report means nothing wrong happened this time, not that nothing could ever go wrong. This is why the course checker runs a chapter's whole set of tests, more than one." },
+        { "text": "The program does not need `-fsanitize=address` anymore going forward",
+          "correct": false,
+          "why": "One clean run proves nothing about future runs, especially once the code changes. AddressSanitizer stays useful for as long as the program keeps changing." }
+      ]
+    }
+  ]
+}
+</script>
+<script src="../../../../assets/quiz.js"></script>
+</body>
+</html>

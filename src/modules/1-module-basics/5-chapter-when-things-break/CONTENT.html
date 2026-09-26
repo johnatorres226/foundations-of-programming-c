@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M1.5 — When Things Break · Foundations of Programming: C</title>
+<link rel="stylesheet" href="../../../../assets/style.css">
+</head>
+<body>
+<article class="chapter">
+
+  <header class="chapter-head">
+    <p class="crumb">Module 1 · Chapter 5</p>
+    <h1>When Things Break</h1>
+    <nav class="chapter-toc" aria-label="Chapter contents">
+      <p>In this chapter</p>
+      <ol>
+        <li><a href="#big-picture">Big picture: why C hands you three separate tools instead of one safety net</a></li>
+        <li><a href="#how">How it works</a>
+          <ol>
+            <li><a href="#compiler-errors">Reading a compiler error</a></li>
+            <li><a href="#breakpoint">Setting a breakpoint in a debugger</a></li>
+            <li><a href="#address-sanitizer">Running under <code>-fsanitize=address</code></a></li>
+          </ol>
+        </li>
+        <li><a href="#try-it">Try it</a></li>
+        <li><a href="#zoom-out">Zooming out: from finding what's wrong to teaching your program to decide</a></li>
+        <li><a href="exercises/HOMEWORK.html">Homework →</a></li>
+      </ol>
+    </nav>
+  </header>
+
+  <!-- ===== 1. RECAP ===== -->
+  <section class="recap">
+    <p>Last chapter you learned to print exact formats with <code>printf</code> and read
+    typed input with <code>scanf</code>, along with a few of <code>scanf</code>'s traps. Every
+    program you have written so far worked the moment it compiled, on the first run. This
+    chapter is about the two other ways a C program can go wrong: refusing to compile at all,
+    and compiling fine while quietly doing the wrong thing.</p>
+  </section>
+
+  <!-- ===== 2. BIG PICTURE ===== -->
+  <section class="big-picture" id="big-picture">
+    <h2>Big picture: why C hands you three separate tools instead of one safety net</h2>
+    <p>Some languages catch a mistake and hand you back a friendly message the moment it
+    happens, wherever it happens, with one built-in system that watches everything. C does not
+    work that way, and by now you know why: C does not guess, and it hides less from you in
+    exchange for control (Module 0). That bargain has a cost here. Nothing built into the
+    language stops you from writing past the end of an array, or looping one time too many.
+    Finding out that something is wrong is not a feature C gives you for free — it is a skill
+    you build, using tools built for exactly that job.</p>
+    <p>Those tools split along one line: <em>when</em> the problem shows itself. A C program
+    can break in three different places, and each one needs a different tool to see it. Some
+    mistakes stop the compiler before your program ever runs at all — it refuses to build, and
+    tells you why. Other mistakes let the program run perfectly fine, but it computes the wrong
+    answer, and the only way to catch that is to pause the program mid-run and look at its
+    variables with your own eyes. A third kind is the sneakiest: the program runs, prints
+    something that looks plausible, and exits normally — while quietly touching memory it had
+    no right to touch. Nothing about the output tells you this happened. That third kind needs
+    a tool built specifically to watch every single memory access while the program runs, and
+    say something the instant one of them is wrong.</p>
+    <p>Think back to the recipe-card shape from chapter 1.1: borrow your tools, name a
+    starting point, do the steps, report how it went. Each of the three failures in this
+    chapter breaks that shape at a different point. A compiler error means the recipe card
+    itself does not parse — a step refers to an ingredient that was never listed, and the
+    kitchen refuses to start before that is fixed. A logic bug means the card parses fine and
+    every step runs, but a step was written wrong, so the dish comes out wrong even though
+    nothing looked broken along the way. A memory bug is the strangest of the three: a step
+    quietly reaches into the pantry shelf next to the one it was given, takes something that
+    was never handed to it, and the dish somehow still comes out looking fine on the plate.
+    Three different failures, three different moments, three different tools to catch them.</p>
+
+    <p>This chapter gives you one small, working tool for each of those three moments: reading
+    a compiler error, pausing a running program with a debugger's breakpoint, and catching an
+    invisible memory bug with AddressSanitizer. None of the three is covered deeply here — this
+    is the seed. Module 11 comes back to all three and goes much further. The goal right now is
+    narrower: recognize each kind of failure, and know which tool answers it.</p>
+  </section>
+
+  <!-- ===== 3. CORE IDEA ===== -->
+  <section class="core-idea">
+    A C program that misbehaves is broken in one of three places — before it runs, while you
+    watch it run, or silently in memory — and each place needs its own tool to see it.
+  </section>
+
+  <!-- ===== 4. HOW IT WORKS ===== -->
+  <section class="how" id="how">
+    <h2>How it works</h2>
+
+    <h3 id="compiler-errors">Reading a compiler error</h3>
+    <p>A <span class="vocab">compiler error</span> is the compiler telling you it cannot turn
+    your file into a program, and why. You have already met a few of these in earlier
+    chapters — a missing <code>#include</code>, a misspelled <code>printf</code>. This chapter
+    is not about a new kind of error. It is about reading the message itself well enough that
+    the next unfamiliar one does not stop you cold.</p>
+
+    <p>Every error the compiler prints has the same shape, no matter which mistake caused it:
+    a location, a word telling you how serious it is, a message, and often a caret pointing at
+    the exact spot. Take a small program meant to print the area of a rectangle, with one typo
+    in it:</p>
+
+    <div class="code" data-file="rectangle.c">
+<pre><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int width = 4;
+    int height = 5;
+    int area = wdith * height;
+    printf("Area: %d\n", area);
+    return 0;
+}</code></pre>
+    </div>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror rectangle.c -o rectangle
+rectangle.c:6:16: error: use of undeclared identifier 'wdith'; did you mean 'width'?
+    int area = wdith * height;
+               ^~~~~
+               width
+rectangle.c:4:9: note: 'width' declared here
+    int width = 4;
+        ^
+1 error generated.</pre>
+    </div>
+
+    <p>Read it left to right. <code>rectangle.c:6:16</code> is the
+    <span class="vocab">location</span>: file <code>rectangle.c</code>, line 6, column 16 —
+    count characters from the start of that line, and you land right on <code>wdith</code>.
+    <code>error</code> tells you this is not a suggestion; the compiler stopped here and will
+    not produce a program until it is fixed. The message, <code>use of undeclared identifier
+    'wdith'</code>, means the compiler read a name it has never seen declared anywhere —
+    exactly what happens when a variable name is misspelled. The caret line under the code,
+    <code>^~~~~</code>, points at the exact characters the compiler is complaining about. And
+    the last part, <code>did you mean 'width'?</code>, is the compiler's own best guess — it
+    noticed <code>wdith</code> is one swap away from a name you actually declared, <code>
+    width</code>, and is offering that as a hint. The line below it, starting with
+    <code>note:</code>, is not a second error — it is the compiler pointing at the real
+    <code>width</code> it found, so you can compare the two spellings yourself. It is still a
+    hint, not a fix; you have to open the file and change it yourself.</p>
+
+    <p>Not every error's caret sits under a wrong word the way <code>wdith</code> did. A
+    different mistake — leaving off a semicolon entirely — makes the caret point at a
+    <em>gap</em>, a spot where a character is missing rather than wrong:</p>
+
+    <div class="code" data-file="rectangle2.c">
+<pre><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int width = 4;
+    int height = 5;
+    int area = width * height
+    printf("Area: %d\n", area);
+    return 0;
+}</code></pre>
+    </div>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror rectangle2.c -o rectangle2
+rectangle2.c:6:30: error: expected ';' at end of declaration
+    int area = width * height
+                              ^
+                              ;
+1 error generated.</pre>
+    </div>
+
+    <p>Line 6, column 30, is the end of that line — one character past the last
+    <code>t</code> in <code>height</code>, where a semicolon needed to be and was not. The
+    compiler is not guessing where the mistake happened; it read as far as it could make sense
+    of a statement, then stopped at the exact character it needed next. Note also that the
+    caret here does not sit under a token that is already there — it sits under empty space,
+    with the missing character printed on the line right below it. That is a second habit worth
+    having: check whether the caret is pointing at something wrong, or at a gap where
+    something is missing.</p>
+
+    <p>This is a small, contained mistake — the compiler caught it on the exact line, with
+    nothing left to confuse. That is not guaranteed.</p>
+
+    <div class="gotcha">
+      <p>Chapter 1.1 showed a stray, un-escaped quote inside a string literal producing four
+      separate reported errors from one real mistake, because everything the compiler read
+      afterward was thrown off by the first problem. The habit from that chapter still applies
+      here: when several errors appear at once, fix only the first one and recompile before
+      reading the rest. Most of the others often disappear on their own.</p>
+    </div>
+
+    <p>One more distinction matters here: <code>error</code> versus <code>warning</code>. A
+    warning is the compiler noticing something that is legal C but is likely to be a mistake —
+    comparing a signed number to an unsigned one, for instance, or a function that promises to
+    return a value on every path but does not. By itself, a warning does not stop the build; the
+    compiler finishes and hands you a program anyway. <code>-Wall -Wextra</code>, the flags this
+    course always compiles with, turn on the warnings worth seeing. <code>-Werror</code>, the
+    third flag, changes every one of those warnings into a hard error that does stop the build.
+    You have been compiling with all three since chapter 0.4 for exactly this reason: a warning
+    you never see is a bug you find later, somewhere far less convenient than the moment you
+    wrote it.</p>
+
+    <p>One more example of a warning worth seeing: comparing a signed number to an unsigned
+    one. C has both kinds of whole number — you will study the difference properly in chapter
+    1.3 — and comparing them directly can quietly produce a wrong answer, because C converts
+    the signed value to unsigned before comparing, which turns a negative number into a huge
+    positive one:</p>
+
+    <div class="code" data-file="signed_compare.c">
+<pre><code>int total = -1;
+unsigned int limit = 5;
+if (total &lt; limit) {
+    /* you might expect this to run, since -1 is less than 5 */
+}</code></pre>
+    </div>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror signed_compare.c -o signed_compare
+signed_compare.c:3:12: error: comparison of integers of different signs:
+    'int' and 'unsigned int' [-Werror,-Wsign-compare]
+if (total &lt; limit) {
+    ~~~~~ ^ ~~~~~
+1 error generated.</pre>
+    </div>
+
+    <p><code>-Wsign-compare</code>, named right there in brackets at the end of the message, is
+    the specific warning that fired. Every warning the compiler can raise has a name like this,
+    and <code>-Wall</code> and <code>-Wextra</code> are really shorthand for "turn on this
+    whole list of named warnings at once." Seeing the name in brackets is useful later, once
+    you start reading about compiler flags on your own — it tells you exactly which switch to
+    look up.</p>
+
+    <h3 id="breakpoint">Setting a breakpoint in a debugger</h3>
+    <p>A compiler error only catches mistakes the compiler can see by reading your text —
+    a misspelled name, a missing semicolon, a type that does not fit. It cannot catch a program
+    that compiles perfectly, runs to completion, and computes the wrong number anyway. For
+    that kind of mistake, staring at the source code is often not enough; you need to watch the
+    program think, one step at a time. That is what a <span class="vocab">debugger</span> is
+    for: a tool that runs your program under its control, so you can pause it wherever you
+    like and look at the value of every variable at that exact instant.</p>
+
+    <p>Take a program meant to add up the numbers 1 through 5 and print the total:</p>
+
+    <div class="code" data-file="sum.c">
+<pre><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int total = 0;
+    for (int i = 1; i &lt; 5; i++) {
+        total += i;
+    }
+    printf("Sum: %d\n", total);
+    return 0;
+}</code></pre>
+    </div>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror -g sum.c -o sum
+<span class="prompt">$</span> ./sum
+Sum: 10</pre>
+    </div>
+
+    <p>This compiles cleanly and runs without complaint. It is also wrong: 1 + 2 + 3 + 4 + 5
+    is 15, not 10. Nothing here is a compiler error — the loop, the addition, and the
+    <code>printf</code> are all perfectly legal C. The bug is in the <em>logic</em>: the
+    condition <code>i &lt; 5</code> stops the loop as soon as <code>i</code> reaches 5, so the
+    body never runs with <code>i</code> equal to 5. This exact shape of mistake — a loop that
+    runs one time too few, or one time too many — is common enough to have its own name:
+    an <span class="vocab">off-by-one error</span>. You will meet it again, in different
+    disguises, for the rest of this course.</p>
+
+    <p>Notice the new flag in that compile command: <code>-g</code>. It tells the compiler to
+    bury extra information inside the compiled program — which line of source code produced
+    which instruction, and what each variable is named — information a debugger reads to show
+    you your own source lines and variable names instead of raw memory addresses. Without
+    <code>-g</code>, a debugger still runs the program, but it cannot connect what is happening
+    back to your file; the whole point of a debugger depends on this flag being there.</p>
+
+    <div class="gotcha">
+      <p>Forget <code>-g</code> and a debugger will still start your program, but it has no
+      line numbers or variable names to show you — it can only point at raw instructions.
+      Always compile with <code>-g</code> before you reach for a debugger. It changes nothing
+      about how the program runs; it only adds information for tools that read the file
+      afterward.</p>
+    </div>
+
+    <p>Now find the bug by watching the loop run. <code>lldb</code> is the debugger that ships
+    with Apple's compiler, the default on macOS; <code>gdb</code> does the same job on most
+    Linux systems and in WSL. The commands below are <code>lldb</code>'s; the table after them
+    gives the <code>gdb</code> equivalents, since the ideas are identical on both:</p>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> lldb ./sum
+(lldb) breakpoint set --file sum.c --line 6
+Breakpoint 1: where = sum.c:6
+(lldb) run
+Process launched
+ -> 6    	total += i;
+(lldb) print i
+(int) 1
+(lldb) print total
+(int) 0
+(lldb) continue
+ -> 6    	total += i;
+(lldb) print i
+(int) 2
+(lldb) continue
+ -> 6    	total += i;
+(lldb) print i
+(int) 3
+(lldb) continue
+ -> 6    	total += i;
+(lldb) print i
+(int) 4
+(lldb) continue
+Process exited with status 0
+Sum: 10</pre>
+    </div>
+
+    <p>A <span class="vocab">breakpoint</span> is a marked line where the debugger pauses the
+    program the moment it reaches that line, before running it, and hands control back to you.
+    <code>breakpoint set --file sum.c --line 6</code> marks line 6 — the
+    <code>total += i;</code> inside the loop. <code>run</code> starts the program for real; it
+    executes normally until it hits that line, then stops and waits. <code>print i</code> and
+    <code>print total</code> show the current value of each variable, right where the program
+    is frozen. <code>continue</code> lets the program keep running until it hits the same
+    breakpoint again — which, inside a loop, means "one more trip around."</p>
+
+    <p>Watch what the transcript shows: <code>i</code> reaches 1, 2, 3, 4 — and then the
+    program finishes, printing its wrong answer, without the breakpoint ever firing a fifth
+    time. The loop body never ran with <code>i</code> equal to 5. That is the bug, seen
+    directly, not guessed at: the loop's stopping condition, <code>i &lt; 5</code>, is one
+    number too strict. Changing it to <code>i &lt;= 5</code> lets the body run one more time,
+    with <code>i</code> equal to 5, and the total comes out to 15.</p>
+
+    <div class="gotcha">
+      <p>A breakpoint only fires on a line that actually runs. Setting one after a
+      <code>return</code> statement, or inside a branch of an <code>if</code> that never gets
+      taken, will sit there silently — the debugger is not broken, that line genuinely never
+      executes. If a breakpoint never fires, that alone is a clue: check whether the line you
+      picked really runs during this program.</p>
+    </div>
+
+    <table>
+      <caption>The same four commands, in <code>lldb</code> and <code>gdb</code></caption>
+      <thead>
+        <tr><th>What it does</th><th><code>lldb</code> (macOS default)</th><th><code>gdb</code> (Linux, WSL)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Mark a line to pause at</td><td><code>breakpoint set --file F --line N</code></td><td><code>break F:N</code></td></tr>
+        <tr><td>Start the program</td><td><code>run</code></td><td><code>run</code></td></tr>
+        <tr><td>Show a variable's value</td><td><code>print name</code></td><td><code>print name</code></td></tr>
+        <tr><td>Resume until the next breakpoint</td><td><code>continue</code></td><td><code>continue</code></td></tr>
+      </tbody>
+    </table>
+
+    <p>That is the whole seed: mark a line, run, look, resume. Module 11 comes back for
+    stepping one line at a time instead of jumping between breakpoints, watching the call
+    stack, and inspecting memory directly — none of that is needed yet.</p>
+
+    <h3 id="address-sanitizer">Running under <code>-fsanitize=address</code></h3>
+    <p>A compiler error is caught before the program runs. A logic bug like the one above is
+    caught by watching the program run and noticing the answer is wrong. The third kind of
+    problem is the hardest to notice by either method: the program compiles cleanly, runs to
+    the end, and prints something that looks entirely reasonable — while it was quietly reading
+    or writing memory it never should have touched. Nothing about the visible output tells you
+    this happened. C's rulebook has a name for this territory: <span class="vocab">undefined
+    behavior</span>, meaning the language standard makes no promise at all about what happens
+    next. A program with undefined behavior in it might crash immediately, might print garbage,
+    or might appear to work perfectly today and fail three weeks from now on a different
+    machine, for no visible reason.</p>
+
+    <p>Take a program meant to fill five slots of memory with the values 0, 10, 20, 30, and
+    40, allocated on the <span class="vocab">heap</span> — a pool of memory your program
+    requests from the operating system while it runs, using <code>malloc</code>, rather than
+    memory tied to one function call. You will study the heap properly starting in Module 7;
+    for now, know only that <code>malloc(n)</code> hands back <code>n</code> bytes your program
+    now owns, and <code>free</code> hands them back when you are done:</p>
+
+    <div class="code" data-file="scores.c">
+<pre><code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+int main(void) {
+    int count = 5;
+    int *scores = malloc((size_t) count * sizeof(int));
+
+    for (int i = 0; i &lt;= count; i++) {
+        scores[i] = i * 10;
+    }
+
+    for (int i = 0; i &lt; count; i++) {
+        printf("%d\n", scores[i]);
+    }
+
+    free(scores);
+    return 0;
+}</code></pre>
+    </div>
+
+    <p>Five slots were requested, numbered 0 through 4. The first loop's condition,
+    <code>i &lt;= count</code>, is the same off-by-one shape from the last section — it lets
+    <code>i</code> reach 5, and <code>scores[5]</code> writes one slot past the memory that was
+    actually allocated. That is a <span class="vocab">buffer overflow</span>: writing (or
+    reading) past the boundary of a block of memory. On many machines, this particular overflow
+    will not crash. It writes into memory the operating system happens to have left available
+    right after the block — the program may print all five correct numbers and exit as if
+    nothing went wrong, hiding a real bug behind output that looks completely fine.</p>
+
+    <p><span class="vocab">AddressSanitizer</span> (often shortened to ASan) is a compiler
+    feature that inserts extra checks around every memory access at compile time, so the
+    program checks its own bounds as it runs and reports the exact moment something goes
+    wrong — instead of silently corrupting memory and possibly crashing somewhere else
+    entirely, much later, for a reason that looks unrelated. Turn it on with one flag:</p>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror -fsanitize=address -g scores.c -o scores
+<span class="prompt">$</span> ./scores
+==31402==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x...
+WRITE of size 4 at 0x... thread T0
+    #0 in main scores.c:9
+0x... is located 0 bytes after 20-byte region
+allocated by thread T0 here:
+    #0 in main scores.c:6
+SUMMARY: AddressSanitizer: heap-buffer-overflow scores.c:9 in main</pre>
+    </div>
+
+    <p>(Real ASan reports are longer than this — this is trimmed to the lines that matter for
+    a first read.) Read it the same way you read a compiler error: find the line number and
+    the plain-English summary first. <code>WRITE of size 4 at ... scores.c:9</code> says the
+    bad access was a write, four bytes (one <code>int</code>), on line 9 — the exact line
+    <code>scores[i] = i * 10;</code> lives on. <code>0 bytes after 20-byte region</code> tells
+    you precisely how far out of bounds it was: zero bytes past a region of twenty bytes, which
+    is five <code>int</code>s of four bytes each — in other words, the very next slot after the
+    block you allocated. The second stack trace shows where that block was allocated in the
+    first place, line 6, which confirms it: five slots were requested, and the write on line 9
+    reached for a sixth.</p>
+
+    <p>Fixing it is the same fix as the loop above: change <code>i &lt;= count</code> to
+    <code>i &lt; count</code>, so the loop only ever touches the five slots that were actually
+    allocated.</p>
+
+    <div class="gotcha">
+      <p>AddressSanitizer only catches a bad access that actually happens while the program
+      runs — it cannot see a bug sitting in a branch or loop path that never executes on this
+      particular run. A clean ASan report means no bad access happened <em>this time</em>, not
+      that the code has no bugs at all. This is exactly why this course's checker runs every
+      exercise's tests, more than one — more paths through the code get a chance to run, and a
+      chance to be caught.</p>
+    </div>
+
+    <p>You do not need to remember to add <code>-fsanitize=address</code> yourself for the
+    exercises in this course. <code>make check</code> and <code>make check-mine</code> already
+    compile every exercise with it turned on, by default, alongside a companion sanitizer for
+    other kinds of undefined behavior. Running it by hand, the way this section showed, is for
+    the moments outside the checker — while you are still writing a program and want to know
+    sooner, rather than waiting for the checker to tell you.</p>
+  </section>
+
+  <!-- ===== 5. TRY IT ===== -->
+  <section class="try-it" id="try-it">
+    <p>You have read a compiler error, watched a breakpoint catch an off-by-one loop, and read
+    an AddressSanitizer report catch a buffer overflow. Now practice all three yourself in
+    <code>exercises/01_read_the_error.c</code>, <code>02_off_by_one.c</code>, and
+    <code>03_out_of_bounds.c</code>.</p>
+    <p><a href="exercises/HOMEWORK.html">Open your homework →</a> for what each exercise asks,
+    why, and a hint if you get stuck.</p>
+    <p>Check your work with <code>make check-mine</code>. To check only this chapter, run
+    <code>make check-mine CHAPTER=1-module-basics/5-chapter-when-things-break</code>.</p>
+  </section>
+
+  <!-- ===== 6. ZOOM OUT ===== -->
+  <section class="zoom-out" id="zoom-out">
+    <h2>Zooming out: from finding what's wrong to teaching your program to decide</h2>
+    <p>You can now find a problem in all three places it can hide in a C program: a compiler
+    error stops you before anything runs at all, a breakpoint lets you watch a running program
+    and catch a wrong answer as it happens, and AddressSanitizer catches a memory bug that would
+    otherwise hide behind output that looks completely fine. None of these three tools fixes
+    anything by itself — every fix in this chapter was still a one-line change you made by
+    hand, once you knew where to look. That is the actual seed being planted here: not
+    expertise with any one tool, but the habit of asking "which of the three places is this
+    bug hiding in?" before you start guessing. Module 11 will hand you far more power in all
+    three tools, once you have more programs worth debugging.</p>
+    <p>Notice something else about both bugs you chased down in this chapter: the off-by-one loop and the
+    buffer overflow were both, underneath, a program that did not check anything before it
+    acted. The loop never asked "have I already reached the last slot?" before writing to the
+    next one. Every program you have written in this course so far has run the same steps in
+    the same order, every single time, with no way to check a condition and respond differently.
+    That changes starting next chapter. You will learn <code>if</code>, <code>else if</code>,
+    and <code>else</code> — the tools that let a program ask a question about its own state and
+    act on the answer. You will also meet one of C's odder inherited quirks: C has no built-in
+    true-or-false type the way many newer languages do. Instead, the number <code>0</code>
+    means false, and every other number means true — a rule that will matter the moment you
+    start writing conditions that check whether something went wrong, including the kinds of
+    problems this chapter taught you to find.</p>
+    <p>Scale matters here, too. The three tiny programs in this chapter each had one obvious
+    bug, planted on purpose, a few lines away from where it showed up. A real program you
+    might work on later can be tens of thousands of lines, written by people you have never
+    met, and the bug you are chasing might be nowhere near the line where it finally shows
+    itself. The three questions from this chapter do not change size for size — "did it
+    compile," "did it compute the right thing," and "did it touch memory it should not have"
+    are the same three questions whether the program is five lines or five hundred thousand.
+    What changes is how much you lean on the tools instead of your own eyes. A five-line bug
+    you can often spot by reading. A bug buried in a program you did not write mostly all of
+    yourself, you find by setting a breakpoint and asking the program to show you, exactly the
+    way you did here.</p>
+  </section>
+
+  <p>Go deeper: learn-c.org's
+  <a href="https://www.learn-c.org/en/">interactive C tutorial</a> is free and runs in your
+  browser. Harvard's <a href="https://cs50.harvard.edu/x/">CS50x, Week 1</a> walks through
+  reading a compiler error on video. cppreference's
+  <a href="https://en.cppreference.com/w/c/language/behavior">Undefined behavior</a>
+  page is the reference for exactly what C's standard does and does not promise.</p>
+
+  <nav class="chapter-nav">
+    <a href="../4-chapter-input-and-output/CONTENT.html">← Previous chapter</a>
+    <a href="QUIZ.html">Take the quiz →</a>
+  </nav>
+
+  <footer class="chapter-foot">
+    <a href="https://github.com/johnatorres226/foundations-of-programming-c/issues/new?template=chapter-feedback.yml&title=%5BM1C5%5D+">
+      Something wrong with this chapter?</a>
+  </footer>
+
+</article>
+</body>
+</html>
