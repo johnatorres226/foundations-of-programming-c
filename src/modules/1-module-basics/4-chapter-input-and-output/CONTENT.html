@@ -1,0 +1,618 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M1.4 — Getting Input and Showing Output · Foundations of Programming: C</title>
+<link rel="stylesheet" href="../../../../assets/style.css">
+</head>
+<body>
+<article class="chapter">
+
+  <header class="chapter-head">
+    <p class="crumb">Module 1 · Chapter 4</p>
+    <h1>Getting Input and Showing Output</h1>
+    <nav class="chapter-toc" aria-label="Chapter contents">
+      <p>In this chapter</p>
+      <ol>
+        <li><a href="#big-picture">Big picture: why C makes you name the type at every input and output</a></li>
+        <li><a href="#how">How it works</a>
+          <ol>
+            <li><a href="#printf-specifiers">The core <code>printf</code> specifiers: <code>%d</code>, <code>%f</code>, <code>%c</code>, <code>%s</code></a></li>
+            <li><a href="#width-and-precision">Field width and precision: lining things up</a></li>
+            <li><a href="#reading-with-scanf">Reading input with <code>scanf</code>, and the <code>&amp;</code> it needs</a></li>
+            <li><a href="#scanf-whitespace">Why <code>scanf</code> skips blanks — and why <code>%c</code> doesn't</a></li>
+            <li><a href="#scanf-leftover-newline">The trap: a leftover newline breaks the next read</a></li>
+          </ol>
+        </li>
+        <li><a href="#try-it">Try it</a></li>
+        <li><a href="#zoom-out">Zooming out: from typos the compiler catches to bugs it can't</a></li>
+        <li><a href="exercises/HOMEWORK.html">Homework →</a></li>
+      </ol>
+    </nav>
+  </header>
+
+  <!-- ===== 1. RECAP ===== -->
+  <section class="recap">
+    <p>Last chapter you learned to declare <code>int</code>, <code>char</code>,
+    <code>float</code>, and <code>double</code> variables, and to predict each type's size
+    with <code>sizeof</code>. Declaring a variable only gets a value <em>into</em> memory —
+    this chapter is about getting values into that memory from outside the program, and
+    printing what's in memory back out in a shape a person can actually read.</p>
+  </section>
+
+  <!-- ===== 2. BIG PICTURE ===== -->
+  <section class="big-picture" id="big-picture">
+    <h2>Big picture: why C makes you name the type at every input and output</h2>
+    <p>A running program does not live alone. It prints results a person reads, and it
+    reads values a person (or another program) types in. But everything crossing that
+    boundary — everything typed at a keyboard, everything printed to a screen — is only
+    text. A person types the characters <code>4</code> and <code>2</code>, one after
+    another; your program has to decide whether that text means the whole number 42, the
+    two separate characters <code>'4'</code> and <code>'2'</code>, or something else
+    entirely. C never makes that decision for you. It never looks at a value and guesses
+    what type it "probably" is.</p>
+    <p>Instead, C hands you two functions that act like a two-way translator at that
+    boundary. <code>printf</code> takes a value already sitting in memory and turns it into
+    readable text. <code>scanf</code> takes text a person typed and turns it into a value
+    sitting in memory. Both work from the same idea: a <span class="vocab">format
+    specifier</span> is a short code, starting with <code>%</code>, that names the type of
+    exactly one value — <code>%d</code> for a whole number, <code>%f</code> for a decimal
+    number, and so on. You already met one specifier without being told its name:
+    <code>printf("Hello, World!\n")</code> had no <code>%</code> in it at all, because
+    every character in that string was meant to print exactly as written, with no value
+    to fill in. The moment you want to print or read an actual variable, you have to say,
+    out loud, what type it is — because nothing else in the program will say it for you.
+    Get it wrong, and C does not stop you the way it stopped a missing header in chapter
+    1.1. It trusts you, and if you lied about the type, the result is undefined — anything
+    from a wrong number on the screen to a program that crashes.</p>
+    <p>Think of a shipping label. The label does more than say "here is a box" — it states,
+    up front, exactly what is inside and how much it weighs, so whoever opens it on the
+    other end knows what to expect before they even cut the tape. A format specifier is that
+    same idea, shrunk down to one value: <code>%d</code> is the label that says "a whole
+    number is coming," <code>%s</code> says "text is coming." Nobody inspects the box's
+    actual contents to double-check the label matches — the receiving end trusts what
+    the label says and unpacks accordingly. That is exactly what <code>printf</code> and
+    <code>scanf</code> do with your format string: they trust the label, every time, whether
+    or not it happens to be true.</p>
+  </section>
+
+  <!-- ===== 3. CORE IDEA ===== -->
+  <section class="core-idea">
+    <code>printf</code> and <code>scanf</code> both work from a format string that names,
+    one specifier at a time, exactly what type of value goes in each spot — and nothing
+    checks that you told the truth.
+  </section>
+
+  <!-- ===== 4. HOW IT WORKS ===== -->
+  <section class="how" id="how">
+    <h2>How it works</h2>
+
+    <h3 id="printf-specifiers">The core <code>printf</code> specifiers: <code>%d</code>, <code>%f</code>, <code>%c</code>, <code>%s</code></h3>
+    <p>A <span class="vocab">format specifier</span> is a placeholder inside a
+    <code>printf</code> string. Everything else in the string prints exactly as written;
+    each specifier is swapped out for one value, in order, from the list you give
+    <code>printf</code> after the string. Four specifiers cover almost everything you will
+    print in this course so far:</p>
+
+    <div class="code" data-file="specifiers.c">
+<pre><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int count = 3;
+    double price = 2.5;
+    char grade = 'B';
+    char name[] = "Sam";
+
+    printf("%d apples cost $%f each. %s got a %c.\n", count, price, name, grade);
+    return 0;
+}</code></pre>
+    </div>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror specifiers.c -o specifiers
+<span class="prompt">$</span> ./specifiers
+3 apples cost $2.500000 each. Sam got a B.</pre>
+    </div>
+
+    <p><code>%d</code> prints an <code>int</code> as a whole number. <code>%f</code> prints
+    a <code>float</code> or <code>double</code> as a decimal number — notice it printed six
+    digits after the decimal point by default, even though <code>price</code> only had one;
+    the next subsection shows you how to control that. <code>%c</code> prints a single
+    <code>char</code>. <code>%s</code> prints a C string — text stored as a run of
+    characters ending in a hidden null character, which you will study properly in Module
+    4. For now, treat <code>char name[] = "Sam";</code> the way you already treat string
+    literals: a fixed-size piece of text, sized for you by the compiler from what you wrote
+    between the quotes.</p>
+
+    <p>Order matters, and count matters. <code>printf</code> fills specifiers left to right
+    with the values you gave it, left to right, in the same order. Give it too few values
+    for the specifiers in the string, or the wrong type for one of them, and nothing stops
+    you at compile time by default the way a misspelled function name does — the mismatch
+    is undefined behavior, meaning the program's next move is not something you can predict
+    or rely on.</p>
+
+    <div class="gotcha">
+      <p>Modern compilers do try to help here: <code>-Wall</code> turns on
+      <code>-Wformat</code>, which checks a <code>printf</code> call against its format
+      string whenever the string is a literal written right there in your code. Swap
+      <code>%d</code> for <code>%s</code> above and <code>-Werror</code> turns that warning
+      into a hard compile error:</p>
+      <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror specifiers.c -o specifiers
+specifiers.c:8:13: error: format specifies type 'char *' but the argument
+    has type 'int' [-Werror,-Wformat]
+    printf("%d apples cost $%f each. %s got a %c.\n", count, price, name, grade);
+            ~~                                         ^~~~~
+            %s</pre>
+      </div>
+      <p>This check only works when the format string is written directly in your code, so
+      the compiler can read it at compile time. It cannot help you if the format string is
+      built or chosen while the program runs — a case you will not meet until much later in
+      this course.</p>
+    </div>
+
+    <p>Why does the type in a specifier matter this much? Because <code>printf</code> does
+    not actually know the type of anything you hand it beyond what the format string tells
+    it. Last chapter's <code>sizeof</code> showed that an <code>int</code> and a
+    <code>double</code> do not even take up the same number of bytes in memory — typically
+    4 versus 8. Writing <code>%d</code> is not only picking a display style; it is telling
+    <code>printf</code> exactly how many bytes to read starting at that spot, and how to
+    interpret them: as a plain whole number, or as the very different bit pattern a
+    floating-point number uses. Tell it <code>%d</code> for a value that is really a
+    <code>double</code>, and <code>printf</code> reads the wrong number of bytes, from the
+    wrong place, using the wrong recipe. That is the real reason the result is not only "a
+    wrong-looking number" — it is undefined behavior: <code>printf</code> confidently
+    misreading raw memory because you told it the wrong shape to expect.</p>
+
+    <p>One more specifier is worth knowing early: <code>%%</code> prints one literal percent
+    sign. Since <code>%</code> starts every specifier, a lone <code>%</code> in a format
+    string is ambiguous — <code>%%</code> is how you tell <code>printf</code> "I mean the
+    character itself, not the start of a specifier."</p>
+
+    <h3 id="width-and-precision">Field width and precision: lining things up</h3>
+    <p>A specifier can carry more than a single letter. A number right after the
+    <code>%</code> sets a <span class="vocab">field width</span> — the minimum number of
+    characters that value takes up on screen, padded with spaces if it is shorter. A
+    <code>-</code> right after the <code>%</code> switches the padding to the other side,
+    left-aligning the value instead of the default right-alignment. A <code>.</code>
+    followed by a number sets <span class="vocab">precision</span> — for <code>%f</code>,
+    exactly how many digits print after the decimal point.</p>
+
+    <div class="code" data-file="width_demo.c">
+<pre><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    printf("[%5d]\n", 42);    /* width 5, right-aligned  */
+    printf("[%-5d]\n", 42);   /* width 5, left-aligned   */
+    printf("[%05d]\n", 42);   /* width 5, zero-padded    */
+    printf("[%.2f]\n", 2.5);  /* 2 digits after the dot  */
+    return 0;
+}</code></pre>
+    </div>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror width_demo.c -o width_demo
+<span class="prompt">$</span> ./width_demo
+[   42]
+[42   ]
+[00042]
+[2.50]</pre>
+    </div>
+
+    <p>This is exactly what <code>exercises/01_format_price.c</code> and
+    <code>02_format_row.c</code> ask you to use: <code>%02d</code> to always show two digits
+    of cents, even when the real value is <code>5</code> instead of <code>50</code>, and
+    <code>%-10s</code> together with <code>%5d</code> to line up a name and a score into
+    neat columns, the way a receipt or a scoreboard would.</p>
+
+    <div class="gotcha">
+      <p>Width is a <em>minimum</em>, not a limit. <code>%5d</code> printing the number
+      <code>140</code> does not cut it down to fit — three digits already meet the minimum
+      of five once you count the two padding spaces, so nothing gets dropped. The same is
+      true for <code>%-10s</code> with a name longer than ten characters: it prints the
+      whole name, with no padding at all, because there was never room to add any. Field
+      width only ever adds space; it never removes it.</p>
+    </div>
+
+    <p>Combine a few specifiers on one line and you get something that looks like a real
+    receipt, not only an isolated number:</p>
+
+    <div class="code" data-file="receipt.c">
+<pre><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    printf("%-10s%5d  $%6.2f\n", "apples", 3, 1.50);
+    printf("%-10s%5d  $%6.2f\n", "bread", 12, 3.75);
+    printf("%-10s%5d  $%6.2f\n", "milk", 1, 2.89);
+    return 0;
+}</code></pre>
+    </div>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror receipt.c -o receipt
+<span class="prompt">$</span> ./receipt
+apples        3  $  1.50
+bread        12  $  3.75
+milk          1  $  2.89</pre>
+    </div>
+
+    <p>Every line uses the exact same format string, <code>"%-10s%5d  $%6.2f\n"</code>, with
+    different values slotted in. That is the whole point of a format string: write the
+    shape once, and every line that follows it lines up automatically, no matter how long
+    the item's name is or how many digits its price has.</p>
+
+    <h3 id="reading-with-scanf"><code>scanf</code>, and the <code>&amp;</code> it needs</h3>
+    <p><code>scanf</code> is <code>printf</code>'s mirror image: instead of printing a value
+    already in memory, it reads text and stores a value into memory. That difference in
+    direction is exactly why <code>scanf</code> needs one thing <code>printf</code> never
+    did — the <span class="vocab">address-of operator</span>, <code>&amp;</code>, written
+    right before a variable's name.</p>
+
+    <div class="code" data-file="read_age.c">
+<pre><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int age = 0;
+
+    printf("How old are you? ");
+    scanf("%d", &amp;age);
+    printf("You are %d.\n", age);
+    return 0;
+}</code></pre>
+    </div>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror read_age.c -o read_age
+<span class="prompt">$</span> ./read_age
+How old are you? 9
+You are 9.</pre>
+    </div>
+
+    <p>Think about what <code>printf("%d", age)</code> needs versus what
+    <code>scanf("%d", &amp;age)</code> needs. <code>printf</code> only needs to read
+    <code>age</code>'s current value — handing it the value itself is enough.
+    <code>scanf</code> needs to change <code>age</code>, and changing a variable from
+    inside a function it did not create means telling that function
+    <em>where in memory</em> <code>age</code> lives, not only what it currently holds.
+    <code>&amp;age</code> means "the address of <code>age</code>" — the location, not the
+    content. You will get the full story on addresses and the variables that hold them,
+    called <span class="vocab">pointers</span>, starting in Module 5. For now, remember the
+    rule as written: put <code>&amp;</code> before the variable name for <code>%d</code>,
+    <code>%f</code>, and <code>%c</code>. The one exception is <code>%s</code> into a
+    <code>char</code> array — you will see why once you reach Module 4, but for this
+    chapter's exercises, <code>%d</code>, <code>%f</code>, and <code>%c</code> are the ones
+    you need, and all three need the <code>&amp;</code>.</p>
+
+    <div class="gotcha">
+      <p>Forget the <code>&amp;</code> and pass <code>age</code> instead of
+      <code>&amp;age</code>, and <code>-Wformat</code> (on by default with <code>-Wall</code>)
+      usually catches it, the same way it caught a mismatched <code>printf</code> specifier
+      earlier — <code>scanf</code>'s <code>%d</code> expects an address
+      (<code>int *</code>), and a bare <code>int</code> is not one:</p>
+      <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror read_age.c -o read_age
+read_age.c:6:12: error: format specifies type 'int *' but the argument has
+    type 'int' [-Werror,-Wformat]
+    scanf("%d", age);
+           ~~   ^~~</pre>
+      </div>
+      <p>Treat this error as a gift, not an annoyance. Without <code>-Wall -Werror</code>,
+      a missing <code>&amp;</code> can compile silently and corrupt memory instead — a much
+      harder bug to track down than a compile error with a line number attached.</p>
+    </div>
+
+    <p><code>scanf</code> also reports back how many values it actually managed to read,
+    as its own return value — an <code>int</code> counting successful conversions, left to
+    right, stopping at the first one that fails. Checking it is how a program tells the
+    difference between "the person typed a number" and "the person typed something that was
+    not a number at all," instead of silently carrying on with whatever
+    <code>age</code> happened to hold before the call:</p>
+
+    <div class="code" data-file="checked_read.c">
+<pre><code>int age = 0;
+if (scanf("%d", &amp;age) != 1) {
+    fprintf(stderr, "That wasn't a whole number.\n");
+    return 1;
+}</code></pre>
+    </div>
+
+    <p>Both reference solutions for this chapter's <code>scanf</code> exercises check this
+    return value before trusting what they read — a habit worth starting now, long before
+    Module 9 covers error handling in depth.</p>
+
+    <p>Notice both examples above set <code>age</code> to <code>0</code> the moment it is
+    declared, before <code>scanf</code> ever runs. That is not decoration. If
+    <code>scanf</code> fails to read anything — the person typed letters instead of digits,
+    say — it leaves <code>age</code> completely untouched. An uninitialized <code>int</code>
+    holds whatever bits were already sitting in that memory, which is not predictable.
+    Giving it a starting value first means a failed read leaves you with a known, sane
+    number instead of whatever garbage happened to be there — the same reason chapter 1.3
+    had you initialize variables at all.</p>
+
+    <p>Reading more than one value works the same way <code>printf</code> did: list a
+    specifier for each value you want, and a matching address for each one, in the same
+    left-to-right order:</p>
+
+    <div class="code" data-file="read_two.c">
+<pre><code>int quantity = 0;
+double price = 0.0;
+
+scanf("%d %lf", &amp;quantity, &amp;price);</code></pre>
+    </div>
+
+    <div class="gotcha">
+      <p><code>%f</code> and <code>%lf</code> look almost the same, and beginners mix them
+      up constantly, in the wrong direction each time. In a <code>printf</code> call,
+      <code>%f</code> alone is correct for a <code>double</code> — C automatically widens a
+      <code>float</code> argument to <code>double</code> before <code>printf</code> ever
+      sees it. In a <code>scanf</code> call, the rule flips: <code>%f</code> reads into a
+      <code>float</code>, and you need <code>%lf</code> ("long <code>f</code>") to read into
+      a <code>double</code>. <code>scanf</code> is writing directly into memory of a
+      specific size through the address you gave it, so it has no automatic widening to
+      lean on the way <code>printf</code> does. Mix them up and you get the same kind of
+      silent memory misread as any other specifier/type mismatch.</p>
+    </div>
+
+    <p><code>scanf</code>'s <code>%s</code> has its own sharp edge, worth knowing about even
+    though this chapter's exercises avoid it: written bare, with no width limit,
+    <code>%s</code> keeps reading and writing characters into your buffer for as long as
+    non-whitespace characters keep coming — with no idea how big that buffer actually is.
+    Type more characters than the buffer can hold, and <code>scanf</code> happily writes
+    past its end anyway.</p>
+
+    <div class="gotcha">
+      <p><code>char name[8]; scanf("%s", name);</code> looks harmless, but typing a name
+      longer than 7 characters (the 8th slot is reserved for the string's hidden
+      terminator) overflows <code>name</code> and starts overwriting whatever memory sits
+      right after it — a real bug class, not a theoretical one, and one you will meet again
+      in Module 4. The fix is a width limit inside the specifier itself, matched to the
+      buffer's real size: <code>scanf("%7s", name)</code> for that same 8-byte buffer stops
+      itself one character early, on purpose, to leave room for the terminator.</p>
+    </div>
+
+    <h3 id="scanf-whitespace">Why <code>scanf</code> skips blanks — and why <code>%c</code> doesn't</h3>
+    <p>Typed input is full of characters a person never thinks about: the space between two
+    numbers, the newline left behind by pressing enter. <code>%d</code>, <code>%f</code>,
+    and <code>%s</code> all skip any amount of leading
+    <span class="vocab">whitespace</span> — spaces, tabs, and newlines — before they start
+    reading the value you asked for. That is why two numbers typed on the same line,
+    separated by a space, and the same two numbers typed on two separate lines, both work
+    with the exact same <code>scanf("%d %d", &amp;a, &amp;b)</code> call:</p>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> ./sum_two_numbers
+3 4
+Sum: 7
+<span class="prompt">$</span> ./sum_two_numbers
+3
+4
+Sum: 7</pre>
+    </div>
+
+    <p><code>%c</code> is the one specifier that breaks this pattern on purpose. It reads
+    the very next character sitting in the input, whatever it is — including a leftover
+    space or newline from something typed earlier. It never skips whitespace, because for
+    <code>%c</code>, whitespace is a perfectly valid answer.</p>
+
+    <p>See it happen with a small menu prompt — read a number, then read a single letter
+    that is supposed to be the person's next choice:</p>
+
+    <div class="code" data-file="menu_bug.c">
+<pre><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int score = 0;
+    char choice = 0;
+
+    printf("Enter your score: ");
+    scanf("%d", &amp;score);
+
+    printf("Continue? (y/n): ");
+    scanf("%c", &amp;choice); /* grabs the leftover '\n', not 'y' or 'n' */
+
+    printf("You typed: '%c'\n", choice);
+    return 0;
+}</code></pre>
+    </div>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror menu_bug.c -o menu_bug
+<span class="prompt">$</span> ./menu_bug
+Enter your score: 87
+Continue? (y/n): y
+You typed: '
+'</pre>
+    </div>
+
+    <p>The person typed <code>y</code>, and the program printed a newline instead. The
+    <code>y</code> is still sitting in the input, unread — the <code>%c</code> call finished
+    before it ever got there, because the leftover <code>'\n'</code> from pressing enter
+    after <code>87</code> was the very next character waiting.</p>
+
+    <div class="gotcha">
+      <p>The fix is one character: a space before <code>%c</code> in the format string,
+      <code>scanf(" %c", &amp;choice)</code>, tells <code>scanf</code> to skip whitespace
+      first, the same way <code>%d</code> already does. That single space is doing real work —
+      it is not there for style.</p>
+    </div>
+
+    <h3 id="scanf-leftover-newline">The trap: a leftover newline breaks the next read</h3>
+    <p>The same leftover-newline problem shows up in a second, more common shape: reading a
+    number with <code>scanf("%d", ...)</code>, then reading a whole line of text —
+    someone's name, which might contain a space — with <code>fgets</code>. You will study
+    <code>fgets</code> properly in Module 9; for this chapter, know that it reads everything
+    up to and including the next newline, into a buffer you give it.</p>
+
+    <p>Here is the trap in full. <code>scanf("%d", &amp;age)</code> stops the instant it has
+    read the digits of the number — it does not read the newline that comes right after
+    them. That newline is still sitting in the input, waiting. If the very next thing you
+    call is <code>fgets</code>, it finds that leftover newline immediately, decides the
+    "line" is already over, and hands you an empty string instead of the name you wanted:</p>
+
+    <div class="code" data-file="broken_name_and_age.c">
+<pre><code>int age = 0;
+char name[64];
+
+scanf("%d", &amp;age);
+fgets(name, sizeof(name), stdin); /* reads the leftover '\n', not the name */</code></pre>
+    </div>
+
+    <figure>
+      <svg viewBox="0 0 480 180" role="img" aria-label="Diagram of the input buffer holding
+           the text 9, newline, R, e, x, newline. After scanf percent d reads the 9, a
+           cursor sits right before the newline. fgets called next reads only that leftover
+           newline and returns immediately with an empty line, instead of reaching Rex."
+           xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor">
+        <text x="10" y="22" font-size="12" font-family="system-ui" fill="currentColor"
+              stroke="none" opacity=".75">What's waiting in the input, after scanf("%d", &amp;age) reads "9":</text>
+        <rect x="10" y="34" width="30" height="34" rx="4" stroke-width="1.5" opacity=".35"/>
+        <text x="25" y="56" text-anchor="middle" font-size="13" font-family="ui-monospace,monospace"
+              fill="currentColor" stroke="none" opacity=".5">9</text>
+        <rect x="40" y="34" width="30" height="34" rx="4" stroke-width="1.5"/>
+        <text x="55" y="56" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace"
+              fill="currentColor" stroke="none">\n</text>
+        <rect x="70" y="34" width="30" height="34" rx="4" stroke-width="1.5"/>
+        <text x="85" y="56" text-anchor="middle" font-size="13" font-family="ui-monospace,monospace"
+              fill="currentColor" stroke="none">R</text>
+        <rect x="100" y="34" width="30" height="34" rx="4" stroke-width="1.5"/>
+        <text x="115" y="56" text-anchor="middle" font-size="13" font-family="ui-monospace,monospace"
+              fill="currentColor" stroke="none">e</text>
+        <rect x="130" y="34" width="30" height="34" rx="4" stroke-width="1.5"/>
+        <text x="145" y="56" text-anchor="middle" font-size="13" font-family="ui-monospace,monospace"
+              fill="currentColor" stroke="none">x</text>
+        <rect x="160" y="34" width="30" height="34" rx="4" stroke-width="1.5"/>
+        <text x="175" y="56" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace"
+              fill="currentColor" stroke="none">\n</text>
+        <path d="M55 78 V96" stroke-width="1.5"/>
+        <path d="M55 96 l-5 -9 h10 z" fill="currentColor" stroke="none"/>
+        <text x="55" y="112" text-anchor="middle" font-size="11" font-family="system-ui"
+              fill="currentColor" stroke="none" opacity=".8">cursor sits here</text>
+        <text x="10" y="146" font-size="12" font-family="system-ui" fill="currentColor"
+              stroke="none" opacity=".85">fgets() called right now reads only this one
+              leftover "\n" — an empty line, not "Rex\n".</text>
+      </svg>
+      <figcaption>Figure 1 — <code>scanf("%d", &amp;age)</code> stops right after the digits,
+      leaving its own trailing newline for the next read to trip over.</figcaption>
+    </figure>
+
+    <p>The fix is to throw away that leftover newline yourself before calling
+    <code>fgets</code>, one character at a time, until you have consumed it:</p>
+
+    <div class="code" data-file="fixed_name_and_age.c">
+<pre><code>int age = 0;
+char name[64];
+
+scanf("%d", &amp;age);
+
+int c;
+while ((c = getchar()) != '\n' &amp;&amp; c != EOF) {
+    /* discard everything up to and including the leftover newline */
+}
+
+fgets(name, sizeof(name), stdin); /* now reads "Rex\n" for real */</code></pre>
+    </div>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> ./name_and_age
+9
+Rex
+Rex is 9 years old.</pre>
+    </div>
+
+    <p>Notice this trap needs <code>fgets</code> or <code>getchar</code> specifically —
+    chaining two ordinary <code>scanf</code> numeric or <code>%s</code> reads back to back
+    never hits it, because <code>%d</code>, <code>%f</code>, and <code>%s</code> all skip
+    leading whitespace on their own, the same way you saw earlier with two numbers split
+    across separate lines. The trap only appears the moment you mix a <code>scanf</code>
+    call with something that reads whitespace-sensitively right after it — <code>fgets</code>
+    and the bare <code>%c</code> you met a moment ago are the two you will meet most often in this
+    course.</p>
+
+    <p>This is the exact shape <code>exercises/04_name_and_age.c</code> asks you to build.
+    The bug this trap causes is a particularly nasty one to meet on your own: the program
+    compiles perfectly clean under <code>-Wall -Wextra -Werror</code>, and it runs without
+    crashing. It silently produces the wrong answer instead, which is the kind of bug that
+    teaches you why "it compiled" and "it works" are two completely different claims.</p>
+
+    <div class="gotcha">
+      <p><code>getchar()</code> reads and returns one character from the input as an
+      <code>int</code>, not a <code>char</code> — that is why <code>c</code> above is
+      declared as <code>int</code>. The reason is <code>EOF</code>, a special value
+      <code>getchar</code> returns when there is nothing left to read at all. <code>EOF</code>
+      has to be a value no real character could ever equal, and a plain <code>char</code>
+      cannot always represent every value <code>int</code> can — so <code>getchar()</code>
+      widens its answer to <code>int</code> to leave room for <code>EOF</code> to mean
+      exactly one thing: "the input is over," never mistaken for a real character.</p>
+    </div>
+  </section>
+
+  <!-- ===== 5. TRY IT ===== -->
+  <section class="try-it" id="try-it">
+    <p>You've read how <code>printf</code>'s specifiers control what prints and how it's
+    laid out, and how <code>scanf</code> reads values back in — traps and all. Now build
+    four small programs of your own: <code>exercises/01_format_price.c</code>,
+    <code>02_format_row.c</code>, <code>03_sum_two_numbers.c</code>, and
+    <code>04_name_and_age.c</code>.</p>
+    <p><a href="exercises/HOMEWORK.html">Open your homework →</a> for what each one asks,
+    why, and a hint if you get stuck.</p>
+    <p>Check your work with <code>make check-mine</code>. To check only this chapter, run
+    <code>make check-mine CHAPTER=1-module-basics/4-chapter-input-and-output</code>.</p>
+  </section>
+
+  <!-- ===== 6. ZOOM OUT ===== -->
+  <section class="zoom-out" id="zoom-out">
+    <h2>Zooming out: from typos the compiler catches to bugs it can't</h2>
+    <p>Every trap in this chapter shared one shape: the program compiled without a single
+    warning, ran without crashing, and still produced the wrong answer, or the right answer
+    by luck. A mismatched <code>printf</code> specifier and a missing <code>&amp;</code>
+    were the exceptions — <code>-Wall -Wextra -Werror</code> caught both of those for you,
+    at compile time, before the program ever ran. The leftover-newline trap was different:
+    nothing in the compiler could catch it, because nothing about
+    <code>scanf("%d", &amp;age)</code> followed by <code>fgets(...)</code> is technically
+    wrong. Both calls are individually correct. The bug only exists in how they interact,
+    at runtime, with a specific shape of input — and that is a whole category of bug the
+    compiler was never designed to see.</p>
+    <p>Next chapter is about exactly that gap. You will learn to read a compiler error
+    message properly instead of skimming past it, set a real breakpoint in a debugger so
+    you can pause a program mid-run and look at what its variables actually hold, and run a
+    program under AddressSanitizer — a tool built to catch the class of bug that compiles
+    clean and runs clean, right up until it doesn't. The leftover-newline bug you fixed by
+    hand a moment ago is a small, friendly preview of a much larger idea: some bugs only exist
+    while the program is running, and finding them takes different tools than the ones that
+    caught your typos.</p>
+    <p>Zoom out even further and the shape of this chapter repeats everywhere. Every
+    program that reads a configuration file, accepts a command-line flag, or takes a form
+    submission on a web server is doing exactly what
+    <code>exercises/04_name_and_age.c</code> does: turning outside text into typed values,
+    and having to survive whatever shape that text actually arrives in, not only the shape
+    you hoped for. <code>scanf</code> is the small, first version of a problem you will meet
+    again and again for the rest of this course.</p>
+    <p>Hold on to this chapter's core idea, too, because it does not go away once you stop
+    thinking about it consciously: every format string is a set of promises about type, and
+    C checks none of them for you at runtime. <code>-Wall -Wextra -Werror</code> catches the
+    promises you can check before the program ever runs — a mismatched specifier, a missing
+    <code>&amp;</code>. The promises that only break once real input arrives are the ones
+    that need a different kind of tool, and finding those is what the next chapter is for.</p>
+  </section>
+
+  <p>Go deeper: Harvard's <a href="https://cs50.harvard.edu/x/">CS50x, Week 1</a> covers
+  this same ground on video, free. cppreference's
+  <a href="https://en.cppreference.com/w/c/io/fprintf"><code>printf</code> reference</a> and
+  <a href="https://en.cppreference.com/w/c/io/fscanf"><code>scanf</code> reference</a>
+  document every specifier and flag precisely — useful as a lookup once you know roughly
+  what you're searching for, not as a first lesson.</p>
+
+  <nav class="chapter-nav">
+    <a href="../3-chapter-variables-and-types/CONTENT.html">← Previous chapter</a>
+    <a href="QUIZ.html">Take the quiz →</a>
+  </nav>
+
+  <footer class="chapter-foot">
+    <a href="https://github.com/johnatorres226/foundations-of-programming-c/issues/new?template=chapter-feedback.yml&title=%5BM1C4%5D+">
+      Something wrong with this chapter?</a>
+  </footer>
+
+</article>
+</body>
+</html>

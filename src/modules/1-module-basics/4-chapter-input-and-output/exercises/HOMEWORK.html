@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M1.4 Homework — Getting Input and Showing Output · Foundations of Programming: C</title>
+<link rel="stylesheet" href="../../../../../assets/style.css">
+</head>
+<body>
+<article class="chapter">
+
+  <header class="chapter-head">
+    <p class="crumb">Module 1 · Chapter 4 · Homework</p>
+    <h1>Homework: Getting Input and Showing Output</h1>
+  </header>
+
+  <section class="homework-intro">
+    <p>You've learned how <code>printf</code>'s format specifiers control what prints and
+    how it lines up, and how <code>scanf</code> reads values back in — including the traps
+    that come with it. Now put it into practice: four small pieces of code, written from
+    scratch in <code>exercises/</code> and checked with <code>make check-mine</code> — not
+    by reading this page.</p>
+  </section>
+
+  <section>
+    <h2 id="format-price"><code>exercises/01_format_price.c</code></h2>
+    <p>Write a function <code>format_price</code> that takes a whole number of cents and
+    writes it into a buffer as a dollar amount — <code>305</code> becomes
+    <code>"$3.05"</code>, and <code>5</code> becomes <code>"$0.05"</code>, never
+    <code>"$0.5"</code>.</p>
+    <p>The chapter's
+    <a href="../CONTENT.html#width-and-precision">field width and precision</a> subsection
+    showed you the specifier that always shows two digits, even for a small remainder — work
+    out which one, and how the whole dollar amount splits into two pieces to begin with.</p>
+
+    <div class="gotcha">
+      <p><code>cents % 100</code> gives you the remainder, but printing it with a plain
+      <code>%d</code> drops the leading zero on small remainders — <code>5</code> instead of
+      <code>05</code>. That is exactly the trap this exercise is checking for.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2 id="format-row"><code>exercises/02_format_row.c</code></h2>
+    <p>Write a function <code>format_row</code> that takes a name and a whole-number score
+    and writes one line into a buffer: the name left-aligned in a 10-character field,
+    followed immediately by the score right-aligned in a 5-character field, followed by a
+    newline.</p>
+    <p>This is the receipt-style formatting from
+    <a href="../CONTENT.html#width-and-precision">"Field width and precision"</a> — prove to
+    yourself that a name exactly 10 characters long gets no extra padding, and a name longer
+    than 10 characters isn't cut short.</p>
+
+    <details class="solution">
+      <summary>Stuck? Show one approach</summary>
+      <div class="code" data-file="02_format_row.c">
+<pre><code>void format_row(char out[64], char name[], int score) {
+    snprintf(out, 64, "%-10s%5d\n", name, score);
+}</code></pre>
+      </div>
+      <p class="note">This is one approach, not the answer. Any format string that
+      left-aligns the name to width 10 and right-aligns the score to width 5 passes — the
+      exact flags you use to get there don't have to match this example.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2 id="sum-two-numbers"><code>exercises/03_sum_two_numbers.c</code></h2>
+    <p>Write a complete program that reads two whole numbers with <code>scanf</code> and
+    prints their sum as <code>Sum: &lt;total&gt;</code>, followed by a newline.</p>
+    <p>The chapter's
+    <a href="../CONTENT.html#scanf-whitespace">"Why scanf skips blanks"</a> subsection
+    showed that <code>%d</code> does not care whether the two numbers are separated by a
+    space or a newline — prove it to yourself by testing both ways at a real terminal
+    before you trust the test alone.</p>
+
+    <div class="gotcha">
+      <p>Check <code>scanf</code>'s return value before you trust what it read — see
+      <a href="../CONTENT.html#reading-with-scanf">"Reading input with scanf"</a> for why a
+      failed read otherwise leaves your variables holding whatever they held before the
+      call.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2 id="name-and-age"><code>exercises/04_name_and_age.c</code></h2>
+    <p>Write a complete program that reads a whole number (an age) with <code>scanf</code>,
+    then reads a full line of text (a name, which may contain a space) with
+    <code>fgets</code>, then prints <code>&lt;name&gt; is &lt;age&gt; years old.</code>,
+    followed by a newline.</p>
+    <p>There's a trap here, and the chapter names it directly:
+    <a href="../CONTENT.html#scanf-leftover-newline">"The trap: a leftover newline breaks
+    the next read"</a>. Work out what's still sitting in the input right after
+    <code>scanf("%d", ...)</code> returns, and what you need to do about it before
+    <code>fgets</code> ever runs.</p>
+
+    <div class="gotcha">
+      <p>If your program prints an empty name instead of the real one, you skipped the
+      leftover <code>'\n'</code> — the chapter's diagram of the input buffer shows exactly
+      where it sits and why <code>fgets</code> finds it first.</p>
+    </div>
+  </section>
+
+  <section class="try-it">
+    <p>Check all four with <code>make check-mine</code>. To check only this chapter, run
+    <code>make check-mine CHAPTER=1-module-basics/4-chapter-input-and-output</code>.</p>
+  </section>
+
+  <nav class="chapter-nav">
+    <a href="../CONTENT.html">← Back to the chapter</a>
+  </nav>
+
+  <footer class="chapter-foot">
+    <a href="https://github.com/johnatorres226/foundations-of-programming-c/issues/new?template=chapter-feedback.yml&title=%5BM1C4-HW%5D+">
+      Something wrong with this homework?</a>
+  </footer>
+
+</article>
+</body>
+</html>

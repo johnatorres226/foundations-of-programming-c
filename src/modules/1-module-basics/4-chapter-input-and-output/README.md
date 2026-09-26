@@ -1,6 +1,6 @@
 # 1.4 — Getting Input and Showing Output
 
-**Status:** 🚧 Not yet written · **Module 1 — Basics** · **Exercises:** 4
+**Status:** ✅ Written · **Module 1 — Basics** · **Exercises:** 4
 
 ## Outcome
 

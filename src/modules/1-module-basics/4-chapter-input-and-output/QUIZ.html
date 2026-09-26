@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M1.4 Quiz — Getting Input and Showing Output · Foundations of Programming: C</title>
+<link rel="stylesheet" href="../../../../assets/style.css">
+</head>
+<body>
+<article class="chapter">
+  <header class="chapter-head">
+    <p class="crumb">Module 1 · Chapter 4 · Quiz</p>
+    <h1>Check your understanding</h1>
+  </header>
+
+  <p>Pick one answer for each question, then check. Every answer — right or wrong — comes
+  with an explanation. The wrong ones are where most of the learning is.</p>
+
+  <div id="quiz"></div>
+
+  <nav class="chapter-nav">
+    <a href="CONTENT.html">← Back to the chapter</a>
+    <a href="../5-chapter-when-things-break/CONTENT.html">Next chapter →</a>
+  </nav>
+
+  <footer class="chapter-foot">
+    <a href="https://github.com/johnatorres226/foundations-of-programming-c/issues/new?template=chapter-feedback.yml&title=%5BM1C4+Quiz%5D+">
+      Something wrong with this quiz?</a>
+  </footer>
+</article>
+
+<script type="application/json" id="quiz-data">
+{
+  "questions": [
+    {
+      "q": "In `printf(\"%d apples\", count)`, what does `%d` tell `printf`?",
+      "options": [
+        { "text": "Print the literal characters `%d`",
+          "correct": false,
+          "why": "`%%` is how you print a literal percent sign. A bare `%d` is always a specifier — a placeholder, not text to print as-is." },
+        { "text": "Read exactly the right number of bytes from `count` and print them as a whole number",
+          "correct": true,
+          "why": "Right. `%d` is a promise about type: it tells `printf` how many bytes to read starting at that argument, and how to interpret them — as a plain integer, not as a floating-point value or anything else." },
+        { "text": "Round `count` to the nearest whole number before printing it",
+          "correct": false,
+          "why": "There is nothing to round — `count` is already an `int`. Rounding only comes up with `%f` printing a `float` or `double` to a chosen number of digits." }
+      ]
+    },
+    {
+      "q": "`printf(\"%d\\n\", price);` where `price` is a `double`. What happens?",
+      "options": [
+        { "text": "It prints `price` rounded down to a whole number",
+          "correct": false,
+          "why": "That would require `printf` to know `price` is really a `double` and convert it — but it only knows what the format string tells it, and `%d` says \"whole number already.\"" },
+        { "text": "Undefined behavior — `%d` and a `double` argument do not match, and the result can be anything",
+          "correct": true,
+          "why": "Right. An `int` and a `double` are different sizes in memory (chapter 1.3's `sizeof`), so `%d` reads the wrong bytes the wrong way. `-Wall`'s `-Wformat` check would catch this at compile time if the format string is a literal — but nothing stops it at runtime." },
+        { "text": "The compiler always refuses to build this, no matter what warnings are on",
+          "correct": false,
+          "why": "The mismatch check (`-Wformat`) is part of `-Wall`, not something C always does. Without those flags on, this compiles and misbehaves silently." }
+      ]
+    },
+    {
+      "q": "`printf(\"[%-10s]\\n\", name);` is given a `name` that is 14 characters long. What prints?",
+      "options": [
+        { "text": "The first 10 characters of `name`, then `]`",
+          "correct": false,
+          "why": "Field width never cuts a value short. `%-10s` sets a *minimum* width, not a maximum — there is no truncation built into a plain width specifier." },
+        { "text": "All 14 characters of `name`, with no extra padding, then `]`",
+          "correct": true,
+          "why": "Right. Width only adds padding when the value is shorter than the field. A 14-character name already exceeds the 10-character minimum, so nothing gets added — or removed." },
+        { "text": "A compile error, since the name doesn't fit the declared width",
+          "correct": false,
+          "why": "Field width is not a hard limit the compiler enforces — it is a runtime padding rule. This compiles and runs; it prints more than 10 characters, that's all." }
+      ]
+    },
+    {
+      "q": "Why does `scanf(\"%d\", &age)` need the `&` in front of `age`, when `printf(\"%d\", age)` does not?",
+      "options": [
+        { "text": "`&` is required by tradition, but it does not actually change what the code does",
+          "correct": false,
+          "why": "It changes everything. Leaving `&` off passes `age`'s value instead of its address — `scanf` needs the address to know *where* to write the number it reads." },
+        { "text": "`scanf` changes the variable, so it needs to know where in memory that variable lives, not only its current value",
+          "correct": true,
+          "why": "Right. `printf` only reads `age`'s value, so the value alone is enough. `scanf` writes a new value into `age` from outside the function that declared it, which needs the location — the address, written `&age`." },
+        { "text": "`&` makes `scanf` run faster by skipping a copy of the value",
+          "correct": false,
+          "why": "Speed is not the reason. `&` is required for `scanf` to work correctly at all, not as a performance optimization." }
+      ]
+    },
+    {
+      "q": "A program calls `scanf(\"%d\", &score)` and then immediately `scanf(\"%c\", &grade)`. The person types `87` and presses enter, then types `A` and presses enter. What does `grade` end up holding?",
+      "options": [
+        { "text": "`'A'`, the letter the person typed second",
+          "correct": false,
+          "why": "`%c` does not skip whitespace the way `%d` does — it reads the very next character sitting in the input, whatever it is." },
+        { "text": "`'\\n'`, the leftover newline from pressing enter after `87`",
+          "correct": true,
+          "why": "Right. `scanf(\"%d\", ...)` stops right after reading the digits of `87` and leaves the following newline in the input. The very next character `%c` finds is that leftover `'\\n'`, not `'A'`." },
+        { "text": "`'8'`, the first character of the number read a moment before",
+          "correct": false,
+          "why": "`%d` already consumed `87` in the previous call. `scanf` does not re-read characters it already consumed." }
+      ]
+    },
+    {
+      "q": "A program reads an age with `scanf(\"%d\", &age)`, then reads a name with `fgets(name, sizeof(name), stdin)`. `name` comes out empty. What is the most likely cause?",
+      "options": [
+        { "text": "`fgets` only works on the very first line of a program's input, never later ones",
+          "correct": false,
+          "why": "`fgets` reads whatever line is next in the input, no matter how many reads came before it. The bug is not about which read this is — it is about what got left behind by the previous one." },
+        { "text": "The leftover newline from `scanf(\"%d\", ...)` is still in the input, and `fgets` read that empty line instead of the real name",
+          "correct": true,
+          "why": "Right. `scanf(\"%d\", ...)` stops right after the digits, leaving its own trailing newline behind. `fgets`, unlike `%d`, does not skip leading whitespace — it takes that leftover newline as a complete, empty line." },
+        { "text": "`fgets` cannot read text that contains letters, only numbers",
+          "correct": false,
+          "why": "`fgets` reads raw text, letters included — that is exactly why it is the right tool for a name that might contain a space, unlike `scanf(\"%s\", ...)`, which would stop at the first space." }
+      ]
+    }
+  ]
+}
+</script>
+<script src="../../../../assets/quiz.js"></script>
+</body>
+</html>
