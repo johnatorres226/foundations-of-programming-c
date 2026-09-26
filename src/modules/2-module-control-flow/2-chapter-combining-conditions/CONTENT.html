@@ -1,0 +1,631 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M2.2 — Combining Conditions · Foundations of Programming: C</title>
+<link rel="stylesheet" href="../../../../assets/style.css">
+</head>
+<body>
+<article class="chapter">
+
+  <header class="chapter-head">
+    <p class="crumb">Module 2 · Chapter 2</p>
+    <h1>Combining Conditions</h1>
+    <nav class="chapter-toc" aria-label="Chapter contents">
+      <p>In this chapter</p>
+      <ol>
+        <li><a href="#big-picture">Big picture: why real decisions need more than one condition</a></li>
+        <li><a href="#how">How it works</a>
+          <ol>
+            <li><a href="#and-operator">The AND operator: <code>&amp;&amp;</code></a></li>
+            <li><a href="#or-operator">The OR operator: <code>||</code></a></li>
+            <li><a href="#not-operator">The NOT operator: <code>!</code></a></li>
+            <li><a href="#short-circuit-evaluation">Short-circuit evaluation: why C stops early</a></li>
+            <li><a href="#short-circuit-and-safety">Why short-circuiting matters for safety</a></li>
+            <li><a href="#operator-precedence">Operator precedence: <code>&amp;&amp;</code> binds tighter than <code>||</code></a></li>
+            <li><a href="#common-mistakes">Common mistakes</a></li>
+          </ol>
+        </li>
+        <li><a href="#try-it">Try it</a></li>
+        <li><a href="#zoom-out">Zooming out: from one true/false answer to a loop that keeps asking</a></li>
+        <li><a href="exercises/HOMEWORK.html">Homework →</a></li>
+      </ol>
+    </nav>
+  </header>
+
+  <!-- ===== 1. RECAP ===== -->
+  <section class="recap">
+    <p>Last chapter you learned to write <code>if</code>/<code>else if</code>/<code>else</code>,
+    and that C has no true boolean type: zero counts as false, and every other value counts
+    as true. Every condition you wrote tested one thing at a time. This chapter combines
+    several conditions into a single expression, and shows a rule about how C checks
+    them that turns out to matter for more than saving keystrokes.</p>
+  </section>
+
+  <!-- ===== 2. BIG PICTURE ===== -->
+  <section class="big-picture" id="big-picture">
+    <h2>Big picture: why real decisions need more than one condition</h2>
+    <p>Almost no real decision hangs on exactly one fact. A theme park lets you ride the
+    roller coaster only if you are tall enough <em>and</em> the ride is not shut down for
+    repairs. A smoke alarm should sound if smoke is detected <em>or</em> if someone forces
+    a door meant to stay shut. A login screen should let someone in only if the password is
+    right <em>and</em> the account has not been banned. Each of these is one decision built
+    out of two or more smaller true/false facts.</p>
+    <p>You could write every one of these with nested <code>if</code> statements from the
+    last chapter — an <code>if</code> inside another <code>if</code>, one fact per layer.
+    Checking whether someone can ride the roller coaster, written that way, looks like
+    this:</p>
+
+    <div class="code" data-file="nested_if_demo.c">
+<pre><code>if (height_cm &gt;= 120) {
+    if (ride_is_open) {
+        printf("you can ride\n");
+    } else {
+        printf("sorry, ride is closed\n");
+    }
+} else {
+    printf("sorry, too short\n");
+}</code></pre>
+    </div>
+
+    <p>That works, but it grows clumsy fast. Four facts means four layers of nesting, two
+    different "sorry" branches to keep straight, and a reader has to hold every open
+    <code>{</code> in their head to see what the whole decision actually requires. The
+    two "no" cases do not even agree with each other, even though from the rider's point of
+    view they mean the exact same thing: not allowed. C gives you three operators that
+    combine true/false conditions into a single expression instead: one condition, one
+    decision, one reason for "no" when there is one to give.
+    <span class="vocab">&amp;&amp;</span> ("and"),
+    <span class="vocab">||</span> ("or"), and <span class="vocab">!</span> ("not"). Together
+    they are called <span class="vocab">logical operators</span> — operators that work on
+    true/false values, the way <code>+</code> and <code>-</code> work on numbers.</p>
+    <p>These three operators do more than tidy up your code. C makes a specific promise
+    about the order it checks the pieces of an <code>&amp;&amp;</code> or <code>||</code>
+    expression, and that promise turns out to be a real safety mechanism — not a style
+    choice. This chapter's second half is about that promise, called
+    <span class="vocab">short-circuit evaluation</span>, and why professional C code leans
+    on it deliberately.</p>
+    <p>This matters more in C than it would in a language that checks array bounds or
+    pointer validity for you automatically. C does neither. It trusts you to check first,
+    and it gives you exactly the tools this chapter covers to do that checking in one
+    expression instead of several scattered ones. A language that protects you from your
+    own mistakes does not need this promise nearly as badly — C does, and leans on it
+    constantly, in code you will read for the rest of this course.</p>
+  </section>
+
+  <!-- ===== 3. CORE IDEA ===== -->
+  <section class="core-idea">
+    <code>&amp;&amp;</code>, <code>||</code>, and <code>!</code> combine or invert true/false
+    conditions into one expression, and C checks only as much of that expression as it needs
+    to know the final answer.
+  </section>
+
+  <!-- ===== 4. HOW IT WORKS ===== -->
+  <section class="how" id="how">
+    <h2>How it works</h2>
+
+    <h3 id="and-operator">The AND operator: <code>&amp;&amp;</code></h3>
+    <p><code>a &amp;&amp; b</code> is true only when <strong>both</strong> <code>a</code>
+    and <code>b</code> are true. If either one is false, the whole expression is false.
+    Remember from last chapter that in C, <code>0</code> is false and every nonzero value is
+    true — that rule applies here too, on both sides of <code>&amp;&amp;</code>.</p>
+
+    <div class="code" data-file="in_range_demo.c">
+<pre><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int value = 5, low = 1, high = 10;
+
+    if (value &gt;= low &amp;&amp; value &lt;= high) {
+        printf("in range\n");
+    } else {
+        printf("out of range\n");
+    }
+    return 0;
+}</code></pre>
+    </div>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror in_range_demo.c -o in_range_demo
+<span class="prompt">$</span> ./in_range_demo
+in range</pre>
+    </div>
+
+    <p>Without <code>&amp;&amp;</code>, checking that <code>value</code> sits inside a range
+    takes two separate <code>if</code> statements, one nested inside the other. With
+    <code>&amp;&amp;</code>, both facts — "at least <code>low</code>" and "at most
+    <code>high</code>" — become one condition that reads the way you would say it out
+    loud: "value is at least low <em>and</em> at most high." <code>&amp;&amp;</code> is not
+    limited to two sides, either — <code>a &amp;&amp; b &amp;&amp; c</code> is true only
+    when all three are true, and C checks them left to right, one at a time.</p>
+
+    <div class="gotcha">
+      <p>Whatever C prints for <code>a &amp;&amp; b</code> is always exactly <code>0</code>
+      or <code>1</code> — never <code>a</code>'s or <code>b</code>'s own value, even if
+      those values are nonzero numbers like <code>5</code> or <code>200</code>. C converts
+      each side to true or false first, combines the results, and hands back a fresh
+      <code>0</code> or <code>1</code>. This chapter's exercise tests rely on that: a
+      function built from <code>&amp;&amp;</code> should always return <code>0</code> or
+      <code>1</code>, never one of its input numbers.</p>
+    </div>
+
+    <h3 id="or-operator">The OR operator: <code>||</code></h3>
+    <p><code>a || b</code> is true when <strong>at least one</strong> of <code>a</code> and
+    <code>b</code> is true. It is only false when both sides are false.</p>
+
+    <div class="code" data-file="alarm_demo.c">
+<pre><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int smoke_detected = 0, door_forced_open = 1;
+
+    if (smoke_detected || door_forced_open) {
+        printf("SOUND THE ALARM\n");
+    } else {
+        printf("all quiet\n");
+    }
+    return 0;
+}</code></pre>
+    </div>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror alarm_demo.c -o alarm_demo
+<span class="prompt">$</span> ./alarm_demo
+SOUND THE ALARM</pre>
+    </div>
+
+    <p>Notice that neither sensor here is "very true" or "true by itself" — one is
+    <code>0</code> (false) and the other is <code>1</code> (true), and one true side is
+    enough for <code>||</code> to make the whole condition true. A safety system built this
+    way does not require every sensor to agree that something is wrong. Any one of them
+    sounding off is reason enough to react. Like <code>&amp;&amp;</code>,
+    <code>||</code> chains: <code>a || b || c</code> is true the moment any one of the
+    three is true, and false only if all three are false.</p>
+
+    <figure>
+      <svg viewBox="0 0 460 150" role="img" aria-label="Two truth tables side by side. The
+           AND table shows a&amp;&amp;b is true only in the row where both a and b are
+           true. The OR table shows a||b is true in every row except the one where both a
+           and b are false."
+           xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor">
+        <text x="90" y="18" text-anchor="middle" font-size="13" font-family="system-ui"
+              fill="currentColor" stroke="none">a &amp;&amp; b</text>
+        <rect x="10" y="26" width="160" height="104" rx="6" stroke-width="1.5"/>
+        <line x1="10" y1="52" x2="170" y2="52" stroke-width="1"/>
+        <line x1="10" y1="78" x2="170" y2="78" stroke-width="1"/>
+        <line x1="10" y1="104" x2="170" y2="104" stroke-width="1"/>
+        <line x1="90" y1="26" x2="90" y2="130" stroke-width="1"/>
+        <text x="50" y="44" text-anchor="middle" font-size="11" font-family="system-ui"
+              fill="currentColor" stroke="none">a</text>
+        <text x="130" y="44" text-anchor="middle" font-size="11" font-family="system-ui"
+              fill="currentColor" stroke="none">b</text>
+        <text x="50" y="70" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace"
+              fill="currentColor" stroke="none">false</text>
+        <text x="130" y="70" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace"
+              fill="currentColor" stroke="none">false</text>
+        <text x="50" y="96" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace"
+              fill="currentColor" stroke="none">true</text>
+        <text x="130" y="96" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace"
+              fill="currentColor" stroke="none">false</text>
+        <text x="50" y="122" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace"
+              fill="currentColor" stroke="none">true</text>
+        <text x="130" y="122" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace"
+              fill="currentColor" stroke="none">true</text>
+        <rect x="10" y="110" width="160" height="20" fill="currentColor" opacity=".12" stroke="none"/>
+
+        <text x="360" y="18" text-anchor="middle" font-size="13" font-family="system-ui"
+              fill="currentColor" stroke="none">a || b</text>
+        <rect x="280" y="26" width="160" height="104" rx="6" stroke-width="1.5"/>
+        <line x1="280" y1="52" x2="440" y2="52" stroke-width="1"/>
+        <line x1="280" y1="78" x2="440" y2="78" stroke-width="1"/>
+        <line x1="280" y1="104" x2="440" y2="104" stroke-width="1"/>
+        <line x1="360" y1="26" x2="360" y2="130" stroke-width="1"/>
+        <text x="320" y="44" text-anchor="middle" font-size="11" font-family="system-ui"
+              fill="currentColor" stroke="none">a</text>
+        <text x="400" y="44" text-anchor="middle" font-size="11" font-family="system-ui"
+              fill="currentColor" stroke="none">b</text>
+        <text x="320" y="70" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace"
+              fill="currentColor" stroke="none">false</text>
+        <text x="400" y="70" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace"
+              fill="currentColor" stroke="none">false</text>
+        <rect x="280" y="84" width="160" height="46" fill="currentColor" opacity=".12" stroke="none"/>
+        <text x="320" y="96" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace"
+              fill="currentColor" stroke="none">true</text>
+        <text x="400" y="96" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace"
+              fill="currentColor" stroke="none">false</text>
+        <text x="320" y="122" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace"
+              fill="currentColor" stroke="none">true</text>
+        <text x="400" y="122" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace"
+              fill="currentColor" stroke="none">true</text>
+      </svg>
+      <figcaption>Figure 1 — the shaded row is where each operator's whole expression comes
+      out true. <code>&amp;&amp;</code> needs both sides; <code>||</code> needs only one.</figcaption>
+    </figure>
+
+    <h3 id="not-operator">The NOT operator: <code>!</code></h3>
+    <p><code>!</code> flips a single true/false value to its opposite: <code>!0</code> is
+    <code>1</code>, and <code>!</code> of any nonzero value is <code>0</code>. It reads as
+    "not" — <code>!is_banned</code> reads as "not banned."</p>
+
+    <div class="code" data-file="not_demo.c">
+<pre><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int is_banned = 0;
+
+    printf("%d\n", !is_banned);   /* is_banned is 0 (false), so !is_banned is 1 */
+    printf("%d\n", !5);           /* 5 is nonzero (true), so !5 is 0 */
+    return 0;
+}</code></pre>
+    </div>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror not_demo.c -o not_demo
+<span class="prompt">$</span> ./not_demo
+1
+0</pre>
+    </div>
+
+    <p><code>!</code> is most useful combined with <code>&amp;&amp;</code> or
+    <code>||</code>, turning "and not" or "or not" into a single readable expression:
+    <code>has_correct_password &amp;&amp; !is_banned</code> reads as "the password is right,
+    and the account is not banned" — exactly the rule a login screen needs, and exactly
+    what this chapter's second exercise asks you to write.</p>
+
+    <div class="gotcha">
+      <p><code>!</code> only ever inverts <em>true or false</em>, not the number itself.
+      <code>!5</code> is <code>0</code>, not <code>-5</code>. A beginner sometimes reaches
+      for <code>!</code> expecting it to negate a number the way unary <code>-</code> does —
+      it does not. If you want the negative of a number, use <code>-x</code>; if you want
+      the opposite true/false answer, use <code>!x</code>.</p>
+    </div>
+
+    <p>A second trap with <code>!</code> shows up as soon as it meets <code>&amp;&amp;</code>
+    or <code>||</code> inside parentheses. <code>!(a &amp;&amp; b)</code> is
+    <strong>not</strong> the same expression as <code>!a &amp;&amp; !b</code> — flipping
+    "both must be true" does not mean "both must be false." It means "at least one is
+    false," which is <code>!a || !b</code> instead. If <code>a</code> is true and
+    <code>b</code> is false, <code>!(a &amp;&amp; b)</code> is true (their AND was false, so
+    NOT of it is true), but <code>!a &amp;&amp; !b</code> is false (<code>!a</code> is
+    false, so the whole AND is false). The two expressions agree on some inputs and
+    disagree on others — the safest way to negate a whole combined condition is to wrap it
+    in <code>!(...)</code>, exactly as written, rather than trying to distribute the
+    <code>!</code> across each piece by hand.</p>
+
+    <div class="gotcha">
+      <p>A very common beginner mistake looks like membership testing from other
+      languages: <code>if (choice == 1 || 2 || 3)</code>, hoping it means "choice is 1, 2,
+      or 3." It does not. C reads each side of <code>||</code> as its own condition, so this
+      is <code>(choice == 1) || (2) || (3)</code> — and <code>2</code> and <code>3</code>
+      are nonzero, so they count as true all on their own, with no reference to
+      <code>choice</code> at all. The whole expression is true for <strong>every</strong>
+      value of <code>choice</code>, which the compiler will not warn you about, since it is
+      perfectly legal C. The comparison has to be repeated on every side:
+      <code>choice == 1 || choice == 2 || choice == 3</code>.</p>
+    </div>
+
+    <h3 id="short-circuit-evaluation">Short-circuit evaluation: why C stops early</h3>
+    <p>Here is the promise C makes, and it is a promise, not an implementation detail that
+    might change: when C evaluates <code>a &amp;&amp; b</code>, it checks <code>a</code>
+    first. If <code>a</code> is false, the whole expression is already false no matter what
+    <code>b</code> is — so C never even looks at <code>b</code>. The same idea applies to
+    <code>a || b</code> in reverse: C checks <code>a</code> first, and if <code>a</code> is
+    already true, the whole expression is already true no matter what <code>b</code> is — so
+    C never looks at <code>b</code> either. Skipping a side of the expression once the
+    answer is already decided is called
+    <span class="vocab">short-circuit evaluation</span>: the check stops early, the same way
+    an electrical short circuit takes a shortcut past the rest of a circuit.</p>
+
+    <div class="code" data-file="safe_divide_demo.c">
+<pre><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int count = 0, total = 100;
+
+    /* count is 0 (false), so &amp;&amp; already knows the answer is false —
+     * it never evaluates total / count, which would divide by zero. */
+    if (count != 0 &amp;&amp; total / count &gt; 5) {
+        printf("average is above 5\n");
+    } else {
+        printf("no count to average\n");
+    }
+    return 0;
+}</code></pre>
+    </div>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror -fsanitize=address,undefined safe_divide_demo.c -o safe_divide_demo
+<span class="prompt">$</span> ./safe_divide_demo
+no count to average</pre>
+    </div>
+
+    <p>Read that condition again with the order in mind: <code>count != 0</code> is the
+    <span class="vocab">guard</span> — a condition checked first specifically to make it
+    safe to check something else. Because <code>count</code> is <code>0</code>, the guard
+    is false, <code>&amp;&amp;</code> short-circuits, and <code>total / count</code> never
+    runs at all. Dividing by zero is undefined behavior in C — the program is allowed to do
+    anything, including crash — and this line never gives it the chance.</p>
+
+    <p><code>||</code> short-circuits the same way, in the opposite direction: once the left
+    side is already true, C never checks the right side. You can watch this happen instead
+    of reading about it, by putting a <code>printf</code> inside the side that should
+    get skipped:</p>
+
+    <div class="code" data-file="or_short_circuit_demo.c">
+<pre><code>#include &lt;stdio.h&gt;
+
+int loud_check(int x) {
+    printf("loud_check actually ran\n");
+    return x &gt; 0;
+}
+
+int main(void) {
+    int cache_has_answer = 1;
+
+    /* cache_has_answer is already true, so || already knows the answer.
+     * loud_check() never runs, and its printf never fires. */
+    if (cache_has_answer || loud_check(99)) {
+        printf("using the cached answer\n");
+    }
+    return 0;
+}</code></pre>
+    </div>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror or_short_circuit_demo.c -o or_short_circuit_demo
+<span class="prompt">$</span> ./or_short_circuit_demo
+using the cached answer</pre>
+    </div>
+
+    <p>"<code>loud_check actually ran</code>" never prints. If C evaluated both sides of
+    every <code>||</code> no matter what, that line would appear before "using the cached
+    answer" — it does not, because <code>||</code> already had its answer from the left
+    side alone. This is the exact same proof this chapter's fourth exercise asks you to
+    build yourself, with a counter instead of a <code>printf</code>.</p>
+
+    <figure>
+      <svg viewBox="0 0 460 130" role="img" aria-label="A flowchart: check count != 0
+           first. If false, take a short path straight to 'result: false', skipping the
+           division entirely. If true, continue on to check total / count &gt; 5."
+           xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor">
+        <rect x="10" y="46" width="110" height="40" rx="6" stroke-width="1.5"/>
+        <text x="65" y="70" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace"
+              fill="currentColor" stroke="none">count != 0</text>
+
+        <path d="M120 66 H210" stroke-width="1.5"/>
+        <path d="M210 66 l-9 -5 v10 z" fill="currentColor" stroke="none"/>
+        <text x="165" y="58" text-anchor="middle" font-size="10" font-family="system-ui"
+              fill="currentColor" stroke="none">true</text>
+
+        <rect x="215" y="46" width="150" height="40" rx="6" stroke-width="1.5"/>
+        <text x="290" y="70" text-anchor="middle" font-size="10" font-family="ui-monospace,monospace"
+              fill="currentColor" stroke="none">total / count &gt; 5</text>
+
+        <path d="M65 86 V112 H210" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <path d="M210 112 l-8 -5 v10 z" fill="currentColor" stroke="none"/>
+        <text x="90" y="104" text-anchor="middle" font-size="10" font-family="system-ui"
+              fill="currentColor" stroke="none">false — skip ahead</text>
+
+        <rect x="215" y="98" width="150" height="32" rx="6" stroke-width="1.5"/>
+        <text x="290" y="118" text-anchor="middle" font-size="10" font-family="system-ui"
+              fill="currentColor" stroke="none">result: false</text>
+      </svg>
+      <figcaption>Figure 2 — the dashed path is short-circuiting: a false guard skips the
+      risky operation entirely instead of running it and hoping.</figcaption>
+    </figure>
+
+    <h3 id="short-circuit-and-safety">Why short-circuiting matters for safety</h3>
+    <p>Short-circuit evaluation is not only a performance trick that saves a computer a
+    few microseconds. It is a pattern you can lean on to make risky operations safe: put
+    the guard first, put the risky part second, and join them with <code>&amp;&amp;</code>.
+    As long as the guard is written to fail exactly when the risky part would fail, the
+    risky part never runs unless it is already safe to.</p>
+    <p><code>count != 0 &amp;&amp; total / count &gt; 5</code> is one example. You will meet
+    the same shape again and again as this course continues: checking that an index is
+    still inside an array before reading it (Module 4), checking that a pointer is not
+    empty before following it (Module 5), checking that a file opened successfully before
+    reading from it (Module 9). Every one of those is the same pattern as this chapter's
+    division example — a cheap, safe check on the left, gating an operation on the right
+    that would be unsafe or meaningless if the check had failed.</p>
+    <p><code>||</code> gives you the mirror image of the same trick: put a condition that
+    already makes the risky check unnecessary on the left, and short-circuiting skips the
+    right side. <code>cache_has_answer || compute_the_slow_way()</code> only calls the slow
+    function when the fast cache does not already have what you need.</p>
+    <p>Programmers have a name for writing code this way on purpose: a
+    <span class="vocab">guard clause</span> — a condition placed early, specifically to make
+    everything that follows it safe to run. You are not writing the guard and the risky
+    operation as two separate steps that happen to sit near each other. You are writing one
+    single expression where the guard's only job is to protect the second half, and C's
+    order-of-evaluation promise is what makes that protection real instead of only
+    hopeful.</p>
+    <p>This chapter's fourth exercise asks you to prove this to yourself, rather than take
+    it on faith: a helper function counts how many times it actually runs, and your job is to
+    write a guarded <code>&amp;&amp;</code> expression that keeps that count at zero when
+    the guard fails. There is no way to pass that test by accident — the count only stays
+    at zero if short-circuiting genuinely skipped the call.</p>
+
+    <div class="gotcha">
+      <p>Short-circuiting only happens with <code>&amp;&amp;</code> and <code>||</code>.
+      C also has single-character bitwise operators, <code>&amp;</code> and <code>|</code>,
+      that look similar but work on individual bits of a number and
+      <strong>always evaluate both sides</strong> — no short-circuiting at all. Writing
+      <code>count != 0 &amp; total / count &gt; 5</code> with a single <code>&amp;</code>
+      would still divide by zero, because both sides run regardless. Module 14 covers what
+      <code>&amp;</code> and <code>|</code> actually do with bits; for now, the rule is
+      simple: for combining true/false conditions, always use the doubled operators,
+      <code>&amp;&amp;</code> and <code>||</code>.</p>
+    </div>
+
+    <h3 id="operator-precedence">Operator precedence: <code>&amp;&amp;</code> binds tighter than <code>||</code></h3>
+    <p>When an expression mixes <code>&amp;&amp;</code> and <code>||</code> together, C
+    groups the <code>&amp;&amp;</code> parts first, the same way multiplication groups
+    before addition in ordinary arithmetic — <code>2 + 3 * 4</code> is <code>14</code>, not
+    <code>20</code>, because <code>*</code> binds tighter than <code>+</code>.
+    <span class="vocab">Precedence</span> is the name for that grouping order:
+    <code>&amp;&amp;</code> has higher precedence than <code>||</code>, so it always grabs
+    its two sides before <code>||</code> gets a turn.</p>
+
+    <p>Picture a store discount that should apply only to <em>members</em>, and only if
+    they either have a coupon or hold VIP status. Written the way you might first reach for
+    it, without parentheses:</p>
+
+    <div class="code" data-file="discount_precedence_demo.c">
+<pre><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int is_member = 0, has_coupon = 0, is_vip = 1;
+
+    /* Intent: "a member, AND (has a coupon OR is VIP)".
+     * Actual grouping, because && binds tighter than ||:
+     *   (is_member &amp;&amp; has_coupon) || is_vip
+     * These are NOT the same rule. */
+    int gets_discount = is_member &amp;&amp; has_coupon || is_vip;
+
+    printf("%d\n", gets_discount);
+    return 0;
+}</code></pre>
+    </div>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror discount_precedence_demo.c -o discount_precedence_demo
+<span class="prompt">$</span> ./discount_precedence_demo
+1</pre>
+    </div>
+
+    <p>This customer is not a member at all — <code>is_member</code> is <code>0</code> — but
+    the program grants the discount anyway, because <code>is_vip</code> is <code>1</code>
+    and C grouped the expression as
+    <code>(is_member &amp;&amp; has_coupon) || is_vip</code>. Since <code>||</code> only
+    needs one true side, a true <code>is_vip</code> alone is enough, with no requirement
+    that this VIP is also a member. That may or may not be the rule the store actually
+    wants — but it is not the rule the code <em>reads</em> like it wants, and that gap
+    between what code says and what it does is exactly what precedence mistakes cause. The
+    fix is parentheses around the part that must be evaluated as one unit:</p>
+
+    <div class="code" data-file="discount_fixed.c">
+<pre><code>int gets_discount = is_member &amp;&amp; (has_coupon || is_vip);</code></pre>
+    </div>
+
+    <p>With the parentheses, a non-member gets <code>0</code> no matter what
+    <code>has_coupon</code> or <code>is_vip</code> say, because <code>&amp;&amp;</code>'s
+    left side is already false — membership is checked first, and short-circuiting means
+    the <code>(has_coupon || is_vip)</code> part is never even reached. When an expression
+    mixes both operators, add parentheses around the part you mean to group, even in cases
+    where you are confident you remember the precedence rule correctly. A reader should
+    never have to recite a precedence table to know what your code means, and getting it
+    wrong here does not crash the program or print a warning — it silently grants (or
+    silently denies) something it should not.</p>
+
+    <h3 id="common-mistakes">Common mistakes</h3>
+    <p>A few traps show up often enough with these operators to name directly, beyond the
+    single-<code>&amp;</code>/single-<code>|</code> mistake already covered above.</p>
+
+    <div class="gotcha">
+      <p><strong>Writing <code>=</code> instead of <code>==</code> inside a condition.</strong>
+      <code>if (is_banned = 1)</code> does not check whether <code>is_banned</code> equals
+      <code>1</code> — it <em>assigns</em> <code>1</code> to <code>is_banned</code>, and the
+      condition is true because the assignment's own result (<code>1</code>) is nonzero.
+      This compiles without error and quietly changes a variable you only meant to read.
+      Some compilers warn about it; <code>-Wall</code> catches many cases of it, which is
+      one more reason this course always builds with it on.</p>
+    </div>
+
+    <div class="gotcha">
+      <p><strong>Writing a chained comparison like math class taught you.</strong>
+      <code>0 &lt; x &amp;&amp; x &lt; 10</code> correctly checks that <code>x</code> is
+      between <code>0</code> and <code>10</code>. But <code>0 &lt; x &lt; 10</code>,
+      without the <code>&amp;&amp;</code>, is not a range check in C at all — it does not
+      even fail to compile, which makes it worse. C reads it left to right:
+      <code>0 &lt; x</code> is evaluated first, producing <code>0</code> or <code>1</code>
+      (last chapter's rule again), and then <em>that</em> result is compared against
+      <code>10</code>. <code>0 &lt; 10</code> and <code>1 &lt; 10</code> are both true, so
+      <code>0 &lt; x &lt; 10</code> is true for <strong>every</strong> value of
+      <code>x</code>, including <code>x = 500</code>. This is exactly why this chapter's
+      first exercise writes the range check as two comparisons joined with
+      <code>&amp;&amp;</code>, never as one chained inequality.</p>
+    </div>
+  </section>
+
+  <!-- ===== 5. TRY IT ===== -->
+  <section class="try-it" id="try-it">
+    <p>You read how <code>&amp;&amp;</code>, <code>||</code>, and <code>!</code> combine and
+    invert conditions, and how short-circuit evaluation turns that combination into a real
+    safety pattern. Now write four small functions that put each idea to work:
+    <code>exercises/01_in_range.c</code>, <code>02_is_valid_login.c</code>,
+    <code>03_should_sound_alarm.c</code>, and <code>04_no_wasted_work.c</code>.</p>
+    <p><a href="exercises/HOMEWORK.html">Open your homework →</a> for what each one asks,
+    why, and a hint if you get stuck.</p>
+    <p>Check your work with <code>make check-mine</code>. To check only this chapter, run
+    <code>make check-mine CHAPTER=2-module-control-flow/2-chapter-combining-conditions</code>.
+    Each exercise is a small function; the test file compiled alongside it calls that
+    function and checks its return value with <code>assert</code>.</p>
+  </section>
+
+  <!-- ===== 6. ZOOM OUT ===== -->
+  <section class="zoom-out" id="zoom-out">
+    <h2>Zooming out: from one true/false answer to a loop that keeps asking</h2>
+    <p>You can now combine conditions with <code>&amp;&amp;</code> and <code>||</code>,
+    invert one with <code>!</code>, and explain short-circuit evaluation: C checks the left
+    side of <code>&amp;&amp;</code> or <code>||</code> first, and skips the right side
+    entirely whenever the left side has already decided the answer. You have also seen why
+    that is not a minor efficiency detail — putting a safe guard on the left and a risky
+    operation on the right is a pattern for writing code that cannot reach an unsafe
+    operation by accident, and it is a pattern you will use for the rest of this course.</p>
+    <p>Every example in this chapter used <code>&amp;&amp;</code> and <code>||</code> inside
+    a single <code>if</code>, checked exactly once. Next chapter introduces
+    <code>while</code>, <code>do</code>/<code>while</code>, and <code>for</code> —
+    ways to make C check a condition and repeat a block of code for as long as that
+    condition stays true. The conditions loops check are built from exactly the same
+    material as this chapter: a loop like
+    <code>while (i &lt; length &amp;&amp; found == 0)</code> combines two facts the same way
+    <code>in_range</code> does, and short-circuiting matters here too — if
+    <code>i &lt; length</code> is already false, C never has to ask whether
+    <code>found == 0</code>, because the loop is about to stop either way. The next chapter
+    is about choosing the right kind of loop and making sure it actually terminates; the
+    conditions that decide when to stop are conditions you already know how to write.</p>
+    <p>The guard pattern from this chapter's safety section is going to keep showing up,
+    each time attached to a new kind of risk. Module 4 introduces arrays, and C never checks
+    on its own whether an index is still inside one — reading or writing past the end is
+    undefined behavior, exactly like the division by zero this chapter guarded against. The
+    fix will look almost identical to <code>count != 0 &amp;&amp; total / count &gt; 5</code>:
+    something like <code>index &gt;= 0 &amp;&amp; index &lt; length &amp;&amp; array[index] ...</code>,
+    a guard checked first, an access that could go wrong second, joined by
+    <code>&amp;&amp;</code> so the unsafe access only runs once the guard has already
+    confirmed it is safe to. Module 5 does the same thing for pointers: checking that a
+    pointer actually points somewhere before following it. You already have the operator
+    that makes both of these possible — what changes later is only what is being guarded
+    against.</p>
+    <p>Two smaller threads from this chapter also carry forward. The precedence trap —
+    <code>&amp;&amp;</code> silently binding tighter than <code>||</code> — is the same kind
+    of "the compiler accepts it, but it does not mean what it looks like it means" trap you
+    will meet again with C's bitwise operators in Module 14, which reuse the single-character
+    <code>&amp;</code> and <code>|</code> this chapter told you to leave alone for logic. And
+    the exercise that proved short-circuiting with a call counter is the same style of test
+    you will write by hand in Module 11, when this course teaches testing as its own
+    subject rather than something bundled quietly into every chapter's homework.</p>
+  </section>
+
+  <p>Go deeper: learn-c.org's
+  <a href="https://www.learn-c.org/en/Conditions">Conditions lesson</a>
+  covers <code>&amp;&amp;</code>, <code>||</code>, and <code>!</code> with runnable examples
+  in your browser, no install needed. cppreference's
+  <a href="https://en.cppreference.com/w/c/language/operator_logical">Logical operators</a>
+  page is the canonical reference for short-circuit evaluation and operator precedence —
+  use it as a lookup when you need the exact rule, not as a first read. Harvard's
+  <a href="https://cs50.harvard.edu/x/">CS50x, Week 1</a> covers combining conditions on
+  video, free.</p>
+
+  <nav class="chapter-nav">
+    <a href="../1-chapter-making-decisions/CONTENT.html">← Previous chapter</a>
+    <a href="QUIZ.html">Take the quiz →</a>
+  </nav>
+
+  <footer class="chapter-foot">
+    <a href="https://github.com/johnatorres226/foundations-of-programming-c/issues/new?template=chapter-feedback.yml&title=%5BM2C2%5D+">
+      Something wrong with this chapter?</a>
+  </footer>
+
+</article>
+</body>
+</html>

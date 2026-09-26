@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M2.2 Homework — Combining Conditions · Foundations of Programming: C</title>
+<link rel="stylesheet" href="../../../../../assets/style.css">
+</head>
+<body>
+<article class="chapter">
+
+  <header class="chapter-head">
+    <p class="crumb">Module 2 · Chapter 2 · Homework</p>
+    <h1>Homework: Combining Conditions</h1>
+  </header>
+
+  <section class="homework-intro">
+    <p>You've learned how <code>&amp;&amp;</code>, <code>||</code>, and <code>!</code>
+    combine and invert conditions, and how short-circuit evaluation makes a guard-then-act
+    pattern genuinely safe rather than hopeful. Now put it into practice: four small
+    functions, written from scratch in <code>exercises/</code> and checked with
+    <code>make check-mine</code> — not by reading this page.</p>
+  </section>
+
+  <section>
+    <h2 id="in-range"><code>exercises/01_in_range.c</code></h2>
+    <p>Write a function <code>int in_range(int value, int low, int high)</code> that
+    returns true only when <code>value</code> sits between <code>low</code> and
+    <code>high</code>, with both ends counting as inside the range.
+    <code>in_range(1, 1, 10)</code> and <code>in_range(10, 1, 10)</code> should both return
+    true.</p>
+    <p>The chapter's <a href="../CONTENT.html#and-operator">"The AND operator:
+    &amp;&amp;"</a> section built exactly this check out of two comparisons joined with
+    <code>&amp;&amp;</code>. Work out which two comparisons, and prove to yourself why one
+    <code>&amp;&amp;</code> is enough — you do not need a third condition.</p>
+
+    <div class="gotcha">
+      <p>A chained comparison like <code>low &lt;= value &lt;= high</code>, without the
+      <code>&amp;&amp;</code>, compiles without complaint and is wrong for almost every
+      input — see the chapter's <a href="../CONTENT.html#common-mistakes">"Common
+      mistakes"</a> section for exactly why. Write two separate comparisons, joined
+      explicitly.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2 id="is-valid-login"><code>exercises/02_is_valid_login.c</code></h2>
+    <p>Write a function
+    <code>int is_valid_login(int has_correct_password, int is_banned)</code> that returns
+    true only when the password is correct <strong>and</strong> the account is
+    <strong>not</strong> banned. A banned account must never be let in, even with the
+    right password.</p>
+    <p>The chapter's <a href="../CONTENT.html#not-operator">"The NOT operator: !"</a>
+    section showed <code>!</code> paired with <code>&amp;&amp;</code> to turn "and not"
+    into one expression. Work out how that pairing applies here.</p>
+
+    <div class="gotcha">
+      <p>Do not write two separate return statements gated by an <code>if</code>/<code>else</code>
+      before you have tried it as one expression — the whole point of this exercise is
+      writing the check as a single <code>&amp;&amp;</code>/<code>!</code> combination, the
+      way a login system in real code actually would.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2 id="should-sound-alarm"><code>exercises/03_should_sound_alarm.c</code></h2>
+    <p>Write a function
+    <code>int should_sound_alarm(int smoke_detected, int door_forced_open)</code> that
+    returns true if <strong>either</strong> sensor has tripped — the alarm does not need
+    both to agree.</p>
+    <p>The chapter's <a href="../CONTENT.html#or-operator">"The OR operator: ||"</a>
+    section covered this exact shape with the same two sensors. Prove to yourself that your
+    function still returns true when both sensors are tripped at once, not only when
+    exactly one is.</p>
+
+    <div class="gotcha">
+      <p>Remember that C's <code>||</code> always produces exactly <code>0</code> or
+      <code>1</code>, never one of the sensor values themselves — even if a caller passes
+      something like <code>9</code> instead of <code>1</code> for "tripped."</p>
+    </div>
+  </section>
+
+  <section>
+    <h2 id="no-wasted-work"><code>exercises/04_no_wasted_work.c</code></h2>
+    <p>Write a function <code>int safe_to_proceed(int guard_ok, int value)</code> so that
+    when <code>guard_ok</code> is false, it returns false <strong>without calling</strong>
+    <code>expensive_check()</code> at all — and when <code>guard_ok</code> is true, it
+    returns whatever <code>expensive_check(value)</code> reports. The provided
+    <code>expensive_check_count</code> counter is how the test proves whether
+    <code>expensive_check()</code> actually ran.</p>
+    <p>The chapter's <a href="../CONTENT.html#short-circuit-and-safety">"Why
+    short-circuiting matters for safety"</a> section built this exact guard-then-act shape
+    around <code>total / count</code>. Work out how to write
+    <code>safe_to_proceed</code> as a single <code>&amp;&amp;</code> expression, with the
+    guard on the left — there is no way to pass the test with an <code>if</code>/<code>else</code>
+    that calls <code>expensive_check()</code> unconditionally and only checks
+    <code>guard_ok</code> afterward.</p>
+
+    <details class="solution">
+      <summary>Stuck? Show one approach</summary>
+      <div class="code" data-file="04_no_wasted_work.c">
+<pre><code>int safe_to_proceed(int guard_ok, int value) {
+    return guard_ok &amp;&amp; expensive_check(value);
+}</code></pre>
+      </div>
+      <p class="note">This is one approach, not the answer. The important part is not the
+      exact wording — it is that <code>guard_ok</code> sits on the left of
+      <code>&amp;&amp;</code>, so a false guard stops C before it ever reaches
+      <code>expensive_check(value)</code>.</p>
+    </details>
+  </section>
+
+  <section class="try-it">
+    <p>Check your work with <code>make check-mine</code>. To check only this chapter, run
+    <code>make check-mine CHAPTER=2-module-control-flow/2-chapter-combining-conditions</code>.</p>
+  </section>
+
+  <nav class="chapter-nav">
+    <a href="../CONTENT.html">← Back to the chapter</a>
+  </nav>
+
+  <footer class="chapter-foot">
+    <a href="https://github.com/johnatorres226/foundations-of-programming-c/issues/new?template=chapter-feedback.yml&title=%5BM2C2-HW%5D+">
+      Something wrong with this homework?</a>
+  </footer>
+
+</article>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M2.2 Quiz — Combining Conditions · Foundations of Programming: C</title>
+<link rel="stylesheet" href="../../../../assets/style.css">
+</head>
+<body>
+<article class="chapter">
+  <header class="chapter-head">
+    <p class="crumb">Module 2 · Chapter 2 · Quiz</p>
+    <h1>Check your understanding</h1>
+  </header>
+
+  <p>Pick one answer for each question, then check. Every answer — right or wrong — comes
+  with an explanation. The wrong ones are where most of the learning is.</p>
+
+  <div id="quiz"></div>
+
+  <nav class="chapter-nav">
+    <a href="CONTENT.html">← Back to the chapter</a>
+    <a href="../3-chapter-repeating-work/CONTENT.html">Next chapter →</a>
+  </nav>
+
+  <footer class="chapter-foot">
+    <a href="https://github.com/johnatorres226/foundations-of-programming-c/issues/new?template=chapter-feedback.yml&title=%5BM2C2+Quiz%5D+">
+      Something wrong with this quiz?</a>
+  </footer>
+</article>
+
+<script type="application/json" id="quiz-data">
+{
+  "questions": [
+    {
+      "q": "What does `a && b` require to be true?",
+      "options": [
+        { "text": "At least one of `a` and `b` is true",
+          "correct": false,
+          "why": "That is the rule for `||`, not `&&`. `&&` is stricter than that — see the correct answer." },
+        { "text": "Both `a` and `b` are true",
+          "correct": true,
+          "why": "Right. `&&` (\"and\") is only true when neither side is false. If either one is false, the whole expression is false." },
+        { "text": "`a` and `b` are equal to each other",
+          "correct": false,
+          "why": "`&&` does not compare `a` and `b` to each other at all. It looks at whether each one, on its own, is true or false — equality is a separate question, checked with `==`." }
+      ]
+    },
+    {
+      "q": "`int result = !7;` — what does `result` hold, and why?",
+      "options": [
+        { "text": "-7, because `!` negates a number",
+          "correct": false,
+          "why": "`!` never negates a number's sign — that is what unary `-` does. `!` only flips true/false." },
+        { "text": "0, because 7 is nonzero (true), and `!` flips true to false",
+          "correct": true,
+          "why": "Right. Any nonzero value counts as true (Chapter 2.1), so `!7` flips it to false, which C represents as `0`." },
+        { "text": "1, because `!` always returns 1 for any input",
+          "correct": false,
+          "why": "`!` returns 1 only when its input is false (`0`). `!7` flips a true value to false, `0` — not the other way around." }
+      ]
+    },
+    {
+      "q": "Given `count = 0`, does `count != 0 && total / count > 5` divide by zero?",
+      "options": [
+        { "text": "No — `&&` checks `count != 0` first, sees it is false, and never evaluates `total / count`",
+          "correct": true,
+          "why": "Right. This is short-circuit evaluation: once the left side of `&&` is false, C already knows the whole expression is false and skips the right side entirely." },
+        { "text": "Yes — C always evaluates both sides of `&&` before combining them",
+          "correct": false,
+          "why": "That describes the single-character bitwise operators, `&` and `|`, which really do always evaluate both sides. `&&` and `||` are different — they can skip a side." },
+        { "text": "It depends on the compiler, since the C standard leaves evaluation order of `&&` unspecified",
+          "correct": false,
+          "why": "The opposite is true. Short-circuit evaluation for `&&` and `||` is one of the few evaluation-order rules the C standard guarantees exactly, not something left up to the compiler." }
+      ]
+    },
+    {
+      "q": "Why does short-circuit evaluation matter for safety, not only speed?",
+      "options": [
+        { "text": "It lets you write a safe guard on the left of `&&` that must pass before a risky operation on the right ever runs",
+          "correct": true,
+          "why": "Right. Because C guarantees it will skip the right side once the left side is already false, a guard like `count != 0` can reliably protect `total / count` from ever running unsafely." },
+        { "text": "It makes every program run measurably faster, which is the whole reason it matters",
+          "correct": false,
+          "why": "Skipping one comparison is a tiny speed difference, not the real reason this chapter cares about it. The guard-then-act safety pattern is the point, not raw speed." },
+        { "text": "It stops the compiler from reporting warnings about unsafe code",
+          "correct": false,
+          "why": "Short-circuit evaluation changes what actually runs at runtime. It has nothing to do with what warnings `-Wall`/`-Wextra` report at compile time." }
+      ]
+    },
+    {
+      "q": "`is_member && has_coupon || is_vip`, with `is_member = 0`, `has_coupon = 0`, `is_vip = 1` — what does this evaluate to, and why?",
+      "options": [
+        { "text": "0, because a non-member can never get the discount",
+          "correct": false,
+          "why": "That is what the programmer probably intended, but it is not what this exact expression, without parentheses, actually computes — see the correct answer." },
+        { "text": "1, because `&&` binds tighter than `||`, so this groups as `(is_member && has_coupon) || is_vip`, and `is_vip` alone makes that true",
+          "correct": true,
+          "why": "Right. `&&` has higher precedence than `||`, so it grabs its two neighbors first. A true `is_vip` on the right of `||` is enough on its own, with no membership requirement in this grouping." },
+        { "text": "1, because at least one of the three variables is true, and `||` only needs one true value anywhere in the expression",
+          "correct": false,
+          "why": "That is true of `||` on its own, but this expression is not one flat `||` of three things — `&&` groups two of them first. The reasoning happens to reach the same answer here, but not for the right reason." }
+      ]
+    },
+    {
+      "q": "A test proves that `expensive_check()` was called zero times after calling `safe_to_proceed(0, 999)`. What does that prove?",
+      "options": [
+        { "text": "That `safe_to_proceed` returned `0`",
+          "correct": false,
+          "why": "The call count says nothing about the return value directly — a function could return `0` after calling `expensive_check()` too. The count only proves whether that call happened." },
+        { "text": "That short-circuit evaluation genuinely skipped the right side of `&&`, not only that the final answer happened to come out false",
+          "correct": true,
+          "why": "Right. A call counter is observable proof that a specific line of code did not run — stronger evidence than checking only the final true/false result, which a buggy implementation could get right by accident." },
+        { "text": "Nothing — `expensive_check_count` only changes when a test explicitly resets it",
+          "correct": false,
+          "why": "The counter increases inside `expensive_check()` itself, every time it runs, regardless of tests. A count that stayed at `0` after a call means that function body never executed." }
+      ]
+    }
+  ]
+}
+</script>
+<script src="../../../../assets/quiz.js"></script>
+</body>
+</html>
