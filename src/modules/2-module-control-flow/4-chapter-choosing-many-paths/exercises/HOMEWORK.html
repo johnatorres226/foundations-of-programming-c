@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M2.4 Homework — Choosing Many Paths · Foundations of Programming: C</title>
+<link rel="stylesheet" href="../../../../../assets/style.css">
+</head>
+<body>
+<article class="chapter">
+
+  <header class="chapter-head">
+    <p class="crumb">Module 2 · Chapter 4 · Homework</p>
+    <h1>Homework: Choosing Many Paths</h1>
+  </header>
+
+  <section class="homework-intro">
+    <p>You've learned how <code>switch</code> picks one path out of several exact values,
+    how fall-through works whether you meant it or not, and what <code>break</code> and
+    <code>continue</code> each actually control. Now put it into practice: four small
+    functions, written from scratch in <code>exercises/</code> and checked with
+    <code>make check-mine</code> — not by reading this page.</p>
+  </section>
+
+  <section>
+    <h2 id="days-in-month"><code>exercises/01_days_in_month.c</code></h2>
+    <p>Write a function <code>int days_in_month(int month, int is_leap_year)</code> that
+    returns how many days a given month has. Month <code>1</code> is January, month
+    <code>12</code> is December. Any number outside <code>1</code>–<code>12</code> should
+    return <code>0</code> — there is no such month.</p>
+    <p>The chapter's <a href="../CONTENT.html#grouping-cases-on-purpose">"Grouping cases
+    on purpose"</a> section showed seven months sharing one <code>return 31;</code> by
+    stacking empty <code>case</code> labels. Work out which months share
+    <code>31</code>, which share <code>30</code>, and which month needs its own separate
+    case entirely.</p>
+
+    <div class="gotcha">
+      <p>February is not like the others — its answer depends on
+      <code>is_leap_year</code>, not on a fixed number. Give it its own
+      <code>case</code>, not a shared one.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2 id="bonus-points"><code>exercises/02_bonus_points.c</code></h2>
+    <p>Write a function <code>int bonus_points(int level)</code> for a three-tier
+    membership. Level <code>1</code> is worth <code>10</code> points. Level <code>2</code>
+    is worth <code>50</code> points <em>plus</em> everything level <code>1</code> gets.
+    Level <code>3</code> is worth <code>100</code> points plus everything level
+    <code>2</code> gets (which already includes level <code>1</code>'s points). Any other
+    number is not a real level and should return <code>0</code>.</p>
+    <p>The chapter's <a href="../CONTENT.html#deliberate-fall-through">"Falling through on
+    purpose, with code in between"</a> section built exactly this kind of "higher tier
+    includes the lower tiers" logic with deliberate fall-through. Prove to yourself which
+    direction the cases need to be written in for the accumulation to land correctly, and
+    mark each intentional fall-through the way the chapter did.</p>
+
+    <div class="gotcha">
+      <p>It is easy to write the cases in the wrong order out of habit — low number
+      first, high number last, the way you would read a table. For the fall-through to
+      accumulate correctly, the highest level's case has to come <em>first</em> in the
+      <code>switch</code>, falling down into the lower ones underneath it.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2 id="sum-until-negative"><code>exercises/03_sum_until_negative.c</code></h2>
+    <p>Write a function <code>int sum_until_negative(const int *values, int n)</code> that
+    adds up the first <code>n</code> numbers in <code>values</code>, but stops the instant
+    it sees a negative one — that number, and everything after it, is never added.</p>
+    <p>The chapter's <a href="../CONTENT.html#break-nearest-enclosing">"break: leaving the
+    nearest loop or switch"</a> section showed <code>break</code> stopping a
+    <code>for</code> loop the moment a condition is met, not only skipping one pass of it.
+    Work out where inside the loop that check has to sit.</p>
+
+    <details class="solution">
+      <summary>Stuck? Show one approach</summary>
+      <div class="code" data-file="03_sum_until_negative.c">
+<pre><code>int sum_until_negative(const int *values, int n) {
+    int total = 0;
+
+    for (int i = 0; i &lt; n; i++) {
+        if (values[i] &lt; 0) {
+            break;
+        }
+        total += values[i];
+    }
+
+    return total;
+}</code></pre>
+      </div>
+      <p class="note">This is one approach, not the answer. A <code>while</code> loop
+      with a hand-rolled counter does the same job — the exact loop shape matters less
+      here than putting the <code>break</code> before the number ever gets added.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2 id="count-letters"><code>exercises/04_count_letters.c</code></h2>
+    <p>Write a function <code>int count_letters(const char *s)</code> that counts how many
+    letters (<code>'a'</code>–<code>'z'</code> or <code>'A'</code>–<code>'Z'</code>) are
+    in a string. Anything that is not a letter — spaces, digits, punctuation — should be
+    skipped, not counted. If the string contains a <code>'#'</code>, stop counting
+    entirely right there; nothing after it counts, even if it is a letter.</p>
+    <p>The chapter's <a href="../CONTENT.html#continue-skip-iteration">"continue: skipping
+    to the next iteration"</a> section drew the line between skipping one pass
+    (<code>continue</code>) and leaving the loop entirely (<code>break</code>). This
+    exercise needs both, for two different conditions — work out which keyword belongs to
+    which one.</p>
+
+    <div class="gotcha">
+      <p>Checking for <code>'#'</code> and checking for "not a letter" are two separate
+      <code>if</code>s, not one combined condition — a <code>'#'</code> needs
+      <code>break</code>, everything else non-letter needs <code>continue</code>, and
+      mixing the two up gives you a function that either stops too early or never stops
+      at all.</p>
+    </div>
+  </section>
+
+  <section class="try-it">
+    <p>Check your work with <code>make check-mine</code>. To check only this chapter, run
+    <code>make check-mine CHAPTER=2-module-control-flow/4-chapter-choosing-many-paths</code>.</p>
+  </section>
+
+  <nav class="chapter-nav">
+    <a href="../CONTENT.html">← Back to the chapter</a>
+  </nav>
+
+  <footer class="chapter-foot">
+    <a href="https://github.com/johnatorres226/foundations-of-programming-c/issues/new?template=chapter-feedback.yml&title=%5BM2C4-HW%5D+">
+      Something wrong with this homework?</a>
+  </footer>
+
+</article>
+</body>
+</html>

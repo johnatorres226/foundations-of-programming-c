@@ -1,6 +1,6 @@
 # 2.4 — Choosing Many Paths
 
-**Status:** 🚧 Not yet written · **Module 2 — Control Flow** · **Exercises:** 4
+**Status:** ✅ Written · **Module 2 — Control Flow** · **Exercises:** 4
 
 ## Outcome
 
