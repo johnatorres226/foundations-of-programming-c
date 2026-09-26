@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M1.2 Quiz — How C Becomes a Program · Foundations of Programming: C</title>
+<link rel="stylesheet" href="../../../../assets/style.css">
+</head>
+<body>
+<article class="chapter">
+  <header class="chapter-head">
+    <p class="crumb">Module 1 · Chapter 2 · Quiz</p>
+    <h1>Check your understanding</h1>
+  </header>
+
+  <p>Pick one answer for each question, then check. Every answer — right or wrong — comes
+  with an explanation. The wrong ones are where most of the learning is.</p>
+
+  <div id="quiz"></div>
+
+  <nav class="chapter-nav">
+    <a href="CONTENT.html">← Back to the chapter</a>
+    <a href="../3-chapter-variables-and-types/CONTENT.html">Next chapter →</a>
+  </nav>
+
+  <footer class="chapter-foot">
+    <a href="https://github.com/johnatorres226/foundations-of-programming-c/issues/new?template=chapter-feedback.yml&title=%5BM1C2+Quiz%5D+">
+      Something wrong with this quiz?</a>
+  </footer>
+</article>
+
+<script type="application/json" id="quiz-data">
+{
+  "questions": [
+    {
+      "q": "Which stage runs first, and what does it work with?",
+      "options": [
+        { "text": "The compiler, working directly with machine code",
+          "correct": false,
+          "why": "The compiler is the second stage, and it never touches machine code. It reads text (already expanded by the preprocessor) and writes assembly text." },
+        { "text": "The preprocessor, working with plain text",
+          "correct": true,
+          "why": "Right. The preprocessor runs first and only understands lines starting with `#`. It substitutes text — pasting in headers, swapping macro names for their value — and never checks a single C rule." },
+        { "text": "The linker, working with your original .c file",
+          "correct": false,
+          "why": "The linker runs last, and it never sees your .c file at all — only the object files the earlier stages produced." }
+      ]
+    },
+    {
+      "q": "`#define CRATE_SIDE 4` is used in a program. What is `CRATE_SIDE` by the time the program is running?",
+      "options": [
+        { "text": "A variable holding the number 4, that the program could still change",
+          "correct": false,
+          "why": "A macro is not a variable and holds nothing at runtime. There is no memory location named CRATE_SIDE to change — it never survives past the preprocessor." },
+        { "text": "Nothing — the preprocessor already replaced every CRATE_SIDE with the literal digit 4",
+          "correct": true,
+          "why": "Right. The preprocessor deletes the #define line and swaps in the literal text 4 everywhere CRATE_SIDE appeared, before the compiler even starts. By the time the program runs, the name CRATE_SIDE never existed as far as it's concerned." },
+        { "text": "A function that returns 4 when called",
+          "correct": false,
+          "why": "A macro is not a function — it is never called, it is substituted. Nothing runs to produce its value; the value is pasted into the source text ahead of time." }
+      ]
+    },
+    {
+      "q": "`#define SQUARE(x) x * x` (missing parentheses) is used as `SQUARE(3 + 4)`. What goes wrong?",
+      "options": [
+        { "text": "It expands to `3 + 4 * 3 + 4`, which evaluates to 19, not the 49 you wanted",
+          "correct": true,
+          "why": "Right. The preprocessor pastes in the raw text \"3 + 4\" wherever x appeared, giving 3 + 4 * 3 + 4. Ordinary order of operations computes that as 19. This is why every parameter — and the whole expression — needs its own parentheses: ((x) * (x))." },
+        { "text": "The compiler rejects it, since 3 + 4 is not a valid single number",
+          "correct": false,
+          "why": "The preprocessor does not check whether its substitution makes sense — it only pastes text. The compiler then sees ordinary, valid arithmetic (3 + 4 * 3 + 4) and compiles it without complaint. The bug is a wrong answer, not a build failure." },
+        { "text": "Nothing — SQUARE always computes x times x correctly no matter what",
+          "correct": false,
+          "why": "It happens to work for a single number like SQUARE(7), which is exactly why this bug is easy to miss. It breaks the moment you pass in an expression with its own operator, like 3 + 4." }
+      ]
+    },
+    {
+      "q": "You misspell `printf` as `prntf`. Which stage produces the error, and why?",
+      "options": [
+        { "text": "Preprocess — stdio.h was never pasted in correctly",
+          "correct": false,
+          "why": "The header pastes in fine either way; #include does not care what function names you later call. This is not a text-substitution problem." },
+        { "text": "Compile — the compiler checks every name against what it now knows and finds no match for prntf",
+          "correct": true,
+          "why": "Right. By the time compiling starts, the preprocessor has already finished, and printf is genuinely declared in the pasted-in text from stdio.h. The compiler reads your call to prntf, checks it against every declared name, and refuses because none of them match." },
+        { "text": "Link — the linker cannot find machine code for prntf in the standard library",
+          "correct": false,
+          "why": "The linker only runs after compiling succeeds. A misspelled function name never reaches the linker — the compile stage already refused to continue." }
+      ]
+    },
+    {
+      "q": "A compiled object file lists `printf` as an undefined (`U`) symbol. What does that mean, and which stage fixes it?",
+      "options": [
+        { "text": "The object file has a bug in it that must be recompiled from scratch",
+          "correct": false,
+          "why": "An undefined symbol is not a bug — it is completely normal for an object file. Your program only declares that printf exists; it never wrote printf's own machine code, since someone else already did." },
+        { "text": "The assembler needs to run again to fill in the missing code",
+          "correct": false,
+          "why": "The assembler already ran — it produced this exact object file. Its job is only to turn instructions into bytes and note which names are still unresolved. Filling in the missing code is not its job." },
+        { "text": "The object file mentions printf but holds no code for it yet; the linker finds printf's real code in the standard library and joins it in",
+          "correct": true,
+          "why": "Right. U means \"undefined\" — a name this file calls but does not define. The linker searches the standard library's own object files for a matching defined (T) symbol and copies its machine code in, turning the U into a T in the finished program." }
+      ]
+    }
+  ]
+}
+</script>
+<script src="../../../../assets/quiz.js"></script>
+</body>
+</html>

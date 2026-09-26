@@ -1,0 +1,570 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M1.2 — How C Becomes a Program · Foundations of Programming: C</title>
+<link rel="stylesheet" href="../../../../assets/style.css">
+</head>
+<body>
+<article class="chapter">
+
+  <header class="chapter-head">
+    <p class="crumb">Module 1 · Chapter 2</p>
+    <h1>How C Becomes a Program</h1>
+    <nav class="chapter-toc" aria-label="Chapter contents">
+      <p>In this chapter</p>
+      <ol>
+        <li><a href="#big-picture">Big picture: why "compiling" is really four separate jobs</a></li>
+        <li><a href="#how">How it works</a>
+          <ol>
+            <li><a href="#preprocess">Preprocess: text in, bigger text out</a></li>
+            <li><a href="#compile-stage">Compile: text in, assembly out</a></li>
+            <li><a href="#assemble">Assemble: assembly in, machine code out</a></li>
+            <li><a href="#link">Link: object files in, one program out</a></li>
+          </ol>
+        </li>
+        <li><a href="#try-it">Try it</a></li>
+        <li><a href="#zoom-out">Zooming out: from a black box to the blanks variables fill in</a></li>
+        <li><a href="exercises/HOMEWORK.html">Homework →</a></li>
+      </ol>
+    </nav>
+  </header>
+
+  <!-- ===== 1. RECAP ===== -->
+  <section class="recap">
+    <p>Last chapter you learned to read every token of a hello-world program: what
+    <code>#include</code>, <code>main</code>, <code>printf</code>, and <code>return</code>
+    each do. You typed one command and a runnable program appeared. This chapter opens up
+    that command and shows the four separate jobs the compiler does, one after another,
+    between your source file and a program you can run.</p>
+  </section>
+
+  <!-- ===== 2. BIG PICTURE ===== -->
+  <section class="big-picture" id="big-picture">
+    <h2>Big picture: why "compiling" is really four separate jobs</h2>
+    <p>People say "compile the program" as if it were one step. It is not. Turning
+    <code>hello.c</code> into <code>hello</code> is four separate jobs, run one after
+    another, each one handing its output to the next: <strong>preprocess</strong>,
+    <strong>compile</strong>, <strong>assemble</strong>, <strong>link</strong>. Each job
+    reads one kind of file and writes a different kind of file. None of them can skip ahead
+    or do another job's work.</p>
+    <p>Think of a factory line that turns logs into furniture. One station saws logs to
+    rough length. The next station shapes each piece. The next joins the pieces into a
+    chair. The last station sands and finishes it. A worker at the joining station cannot
+    also do the sawing — the wood has to already be sawed before it reaches them. C's build
+    line works the same way. Each of the four stages expects its input to already be in a
+    specific shape, and it only knows how to do its own one job on it.</p>
+    <p>Why does this matter to you, a learner who types one <code>cc</code> command?
+    Because every error message you will ever see from a C toolchain comes from exactly one
+    of these four stages, and the stage tells you what kind of mistake you made. A missing
+    header is a preprocess problem. A misspelled type is a compile problem. A missing
+    <code>main</code> is a link problem. Once you know which stage produced an error, you
+    stop guessing and start reading it correctly — the rest of this chapter is what makes
+    that possible.</p>
+    <p>It also explains something you may already have noticed without a name for it: a
+    tiny one-line change to <code>hello.c</code> recompiles almost instantly, but the whole
+    process still touches four separate programs behind the scenes, not one. Each of those
+    programs is small and does one job well — the classic Unix habit of building one big
+    tool out of several small, focused ones chained together, instead of one program that
+    tries to do everything.</p>
+  </section>
+
+  <!-- ===== 3. CORE IDEA ===== -->
+  <section class="core-idea">
+    Turning a <code>.c</code> file into a runnable program is four separate jobs —
+    preprocess, compile, assemble, link — each one reading the previous job's output and
+    handing its own output to the next.
+  </section>
+
+  <!-- ===== 4. HOW IT WORKS ===== -->
+  <section class="how" id="how">
+    <h2>How it works</h2>
+
+    <p>Here is the whole pipeline in one picture before the detail. Follow one file,
+    <code>hello.c</code>, through all four stations:</p>
+
+    <pre class="mermaid">
+flowchart TD
+  A["hello.c (source text)"] --> B["Preprocess"]
+  B --> C["hello.i (expanded source text)"]
+  C --> D["Compile"]
+  D --> E["hello.s (assembly text)"]
+  E --> F["Assemble"]
+  F --> G["hello.o (machine code, not runnable alone)"]
+  G --> H["Link"]
+  H --> I["hello (runnable program)"]
+    </pre>
+
+    <p>One command, <code>cc -std=c17 -Wall -Wextra -Werror hello.c -o hello</code>, runs
+    all four stages back to back and deletes the in-between files when it is done — which
+    is exactly why the process has always looked like one step to you. Every stage below can
+    also be run on its own, stopping the pipeline early on purpose, so you can see each
+    in-between file for yourself.</p>
+
+    <h3 id="preprocess">Preprocess: text in, bigger text out</h3>
+    <p>The <span class="vocab">preprocessor</span> is the first stage, and it does not know
+    any C at all. It only understands lines that start with <code>#</code> — called
+    <span class="vocab">directives</span> — and it does one job: text substitution. It reads
+    your file, finds every directive, and follows it: paste in another file's contents,
+    swap a name for other text, or delete a whole block of text before anyone downstream
+    ever sees it. What comes out the other end is a longer file of plain C text, with every
+    directive already carried out and gone.</p>
+
+    <p><code>#include &lt;stdio.h&gt;</code>, which you met last chapter, is a preprocessor
+    directive. "Read that file before you read the rest of mine" is a copy-paste
+    instruction, nothing more — the preprocessor opens <code>stdio.h</code> and pastes its
+    contents in, right where the <code>#include</code> line was. You can watch this happen.
+    Stop the compiler after the preprocess stage with the <code>-E</code> flag, and it
+    prints the expanded file instead of continuing:</p>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -E hello.c | head -20</pre>
+    </div>
+
+    <p>Most of what scrolls by is the pasted-in contents of <code>stdio.h</code> — dozens
+    of lines you never wrote, describing every function that header offers, not only
+    <code>printf</code>. Near the bottom, your own <code>main</code> function appears
+    unchanged. That is the whole preprocess stage: paste, substitute, delete — never check
+    whether any of it makes sense as C.</p>
+
+    <p>The other directive you will use constantly is <code>#define</code>, which names a
+    piece of text so you can write the name instead of repeating the text everywhere. This
+    is called a <span class="vocab">macro</span>. The simplest kind, an
+    <span class="vocab">object-like macro</span>, names a single constant:</p>
+
+    <div class="code" data-file="crate.c">
+<pre><code>#define CRATE_SIDE 4
+
+int crate_volume(void) {
+    return CRATE_SIDE * CRATE_SIDE * CRATE_SIDE;
+}</code></pre>
+    </div>
+
+    <p>Run this through <code>-E</code> and every <code>CRATE_SIDE</code> is already gone,
+    replaced by the plain digit <code>4</code>, before the compile stage even starts:</p>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -E crate.c | tail -3
+int crate_volume(void) {
+    return 4 * 4 * 4;
+}</pre>
+    </div>
+
+    <p>Nobody downstream — not the compile stage, not the assembler, not the linker — ever
+    learns that the name <code>CRATE_SIDE</code> existed. It was a convenience for you, the
+    person reading and writing the source file, and the preprocessor erased it on your
+    behalf before anyone else looked at the text.</p>
+
+    <div class="gotcha">
+      <p>A macro is not a variable, even though <code>CRATE_SIDE</code> looks like one. A
+      variable is something the running program can read and change. A macro is text pasted
+      in before the program is even compiled — by the time <code>crate_volume</code> runs,
+      <code>CRATE_SIDE</code> does not exist anywhere in memory to inspect. It was never
+      more than three literal <code>4</code>s.</p>
+    </div>
+
+    <p>The finished, all-directives-carried-out text the preprocessor produces has its own
+    name: a <span class="vocab">translation unit</span>. One <code>.c</code> file becomes
+    exactly one translation unit — your own code plus every header it pulled in, pasted
+    together into one long piece of text. Every stage after this one works on translation
+    units, never on your original short file — which is worth knowing the next time an
+    error message points at a line number that looks nowhere near anything you wrote; it may
+    be pointing inside a pasted-in header instead.</p>
+
+    <figure>
+      <svg viewBox="0 0 460 130" role="img" aria-label="A short file with a macro before
+           preprocessing, and the same file after preprocessing, with CRATE_SIDE replaced
+           by the digit 4 in every spot it appeared."
+           xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor">
+        <text x="10" y="20" font-size="11" font-family="system-ui" opacity=".7"
+              fill="currentColor" stroke="none">before</text>
+        <text x="10" y="42" font-size="12" font-family="ui-monospace,monospace"
+              fill="currentColor" stroke="none">#define CRATE_SIDE 4</text>
+        <text x="10" y="64" font-size="12" font-family="ui-monospace,monospace"
+              fill="currentColor" stroke="none">return CRATE_SIDE * CRATE_SIDE</text>
+        <text x="10" y="86" font-size="12" font-family="ui-monospace,monospace"
+              fill="currentColor" stroke="none">       * CRATE_SIDE;</text>
+
+        <path d="M225 55 H255" stroke-width="1.5"/>
+        <path d="M255 55 l-9 -5 v10 z" fill="currentColor" stroke="none"/>
+
+        <text x="270" y="20" font-size="11" font-family="system-ui" opacity=".7"
+              fill="currentColor" stroke="none">after (-E)</text>
+        <text x="270" y="42" font-size="12" font-family="ui-monospace,monospace"
+              fill="currentColor" stroke="none">/* directive is gone */</text>
+        <text x="270" y="64" font-size="12" font-family="ui-monospace,monospace"
+              fill="currentColor" stroke="none">return 4 * 4</text>
+        <text x="270" y="86" font-size="12" font-family="ui-monospace,monospace"
+              fill="currentColor" stroke="none">       * 4;</text>
+      </svg>
+      <figcaption>Figure 2 — the <code>#define</code> line disappears entirely; every use
+      of the name it defined is replaced by its literal text.</figcaption>
+    </figure>
+
+    <p><code>#include</code> also comes in two spellings, and the difference is not
+    cosmetic. Angle brackets, <code>#include &lt;stdio.h&gt;</code>, tell the preprocessor
+    to look in the compiler's own collection of standard headers — the ones that shipped
+    with your toolchain. Double quotes, <code>#include "helpers.h"</code>, tell it to look
+    first in your own project's folders, for a header you wrote yourself. Mixing them up —
+    quoting a standard header, or angle-bracketing your own — often still works, since most
+    compilers fall back and search both places, but it states the wrong intention to anyone
+    reading your code later. You will write your own headers starting in Module 10; for now,
+    recognize the pattern: angle brackets mean "the compiler's own headers," quotes mean
+    "look here in my project first."</p>
+
+    <p>C also has <span class="vocab">function-like macros</span> — a macro that takes its
+    own text argument and pastes it into a pattern, written with parentheses right after the
+    macro's name and no space before them:</p>
+
+    <div class="code" data-file="square.c">
+<pre><code>#define SQUARE(x) ((x) * (x))
+
+int square_of_seven(void) {
+    return SQUARE(7);
+}</code></pre>
+    </div>
+
+    <p><code>SQUARE(7)</code> expands to <code>((7) * (7))</code> — the preprocessor copies
+    the text <code>7</code> everywhere <code>x</code> appeared in the pattern. This looks
+    exactly like calling a function, but it is still pure text substitution, with no idea
+    what a number, a type, or an expression even is. That difference is not academic — it
+    produces a real, well-known trap:</p>
+
+    <div class="gotcha">
+      <p>Drop the inner parentheses and write <code>#define SQUARE(x) x * x</code> instead.
+      <code>SQUARE(7)</code> still expands to <code>7 * 7</code> and still gives <code>49</code>
+      — looks fine. But <code>SQUARE(3 + 4)</code> expands to the literal text
+      <code>3 + 4 * 3 + 4</code>, not <code>(3 + 4) * (3 + 4)</code>. Ordinary
+      multiplication-before-addition order gives <code>3 + 12 + 4 = 19</code>, not the
+      <code>49</code> you wanted. The macro did exactly what it was told — paste this text
+      in, unchanged — and the surrounding arithmetic reshuffled it. Every parameter and the
+      whole expression need their own parentheses: <code>((x) * (x))</code>, not
+      <code>x * x</code>. This is the single most common macro bug in real C code.</p>
+    </div>
+
+    <p>The third directive worth knowing now is conditional compilation:
+    <code>#if</code>, <code>#ifdef</code>, <code>#else</code>, and <code>#endif</code>. These
+    let you write two versions of some code and have the preprocessor keep only one of them,
+    deleting the other before the compiler ever reads it:</p>
+
+    <div class="code" data-file="units.c">
+<pre><code>#define METRIC_UNITS 1
+
+#if METRIC_UNITS
+int box_capacity(void) {
+    return 100;
+}
+#else
+int box_capacity(void) {
+    return 12;
+}
+#endif</code></pre>
+    </div>
+
+    <p>Because <code>METRIC_UNITS</code> is <code>1</code>, the preprocessor keeps the first
+    <code>box_capacity</code> and deletes the second one, text and all, before compiling
+    starts. Only one version of <code>box_capacity</code> ever reaches the compiler — there
+    is never a moment where both exist at once. Flip the <code>1</code> to <code>0</code> and
+    recompile, and the opposite happens: the second version survives and the first is
+    deleted instead.</p>
+
+    <div class="gotcha">
+      <p>Because the deleted branch is never even read as C, it does not have to be valid
+      C. You could write nonsense — misspelled keywords, unmatched braces, anything — inside
+      the <code>#else</code> branch above, and the program still compiles cleanly as long as
+      <code>METRIC_UNITS</code> stays truthy. This is a strong sign that preprocessing is a
+      completely separate stage from compiling: text the preprocessor deletes is gone before
+      any C rule is ever checked against it.</p>
+    </div>
+
+    <p>Put the three directives together and you have the whole job description of a
+    preprocessor: <code>#include</code> pastes another file's text in, <code>#define</code>
+    swaps a name for other text, and <code>#if</code>/<code>#ifdef</code> keep one block of
+    text and delete another. Nothing here understands types, nothing here checks that
+    braces match, nothing here knows what a function is. That checking is the next stage's
+    job entirely.</p>
+
+    <h3 id="compile-stage">Compile: text in, assembly out</h3>
+    <p>This is the stage most people mean when they casually say "compiling," which is a
+    little confusing now that you know it is only one of four stages sharing that name. Here
+    it means one specific thing: turning preprocessed C text into
+    <span class="vocab">assembly language</span> — a text format that names the exact
+    instructions one specific kind of processor understands, still readable by a person, but
+    no longer C.</p>
+
+    <p>This is also the stage that actually reads C as a language, with all its rules. It
+    checks that every name you use was declared. It checks that types make sense together.
+    It is where "implicit function declaration," "expected a type," and most of the errors
+    you saw last chapter come from — the preprocessor cannot produce those, since it never
+    reads C rules at all, only directives.</p>
+
+    <p>Remember the misspelled <code>prntf</code> error from last chapter? That error came
+    from this exact stage, not from a missing header. The preprocessor had already finished
+    its job — every <code>#include</code> was pasted in, and <code>printf</code> was
+    genuinely declared somewhere in that pasted-in text. The compile stage read your call to
+    <code>prntf</code>, checked it against every name it now knew about, found no match, and
+    refused. That is the pattern worth keeping: a preprocess error means text never arrived
+    at all; a compile error means the text arrived, and something about it still breaks a
+    rule of the C language itself.</p>
+
+    <p>Not every compile-stage complaint stops the pipeline. A <span class="vocab">warning</span>
+    is the compiler telling you something looks suspicious, then continuing anyway; an
+    <span class="vocab">error</span> is the compiler refusing to continue at all. Left to
+    itself, a compiler lets many warnings through silently. This course always adds
+    <code>-Wall -Wextra -Werror</code> for a reason: the first two flags turn on warnings the
+    compiler would otherwise stay quiet about, and the third turns every one of those
+    warnings into a hard error, so a suspicious line stops you the same way a broken one
+    does. You are not seeing more mistakes than other C learners — you are seeing the same
+    mistakes immediately, instead of finding them later as strange runtime behavior.</p>
+
+    <p>Stop the compiler after this stage with <code>-S</code>, and it writes the assembly
+    text instead of continuing:</p>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -S hello.c
+<span class="prompt">$</span> head -6 hello.s
+	.section	__TEXT,__text,regular,pure_instructions
+	.build_version macos, 14, 0
+	.globl	_main
+	.p2align	4, 0x90
+_main:
+	.cfi_startproc</pre>
+    </div>
+
+    <p>You are not expected to read assembly fluently — this course never asks you to write
+    it. What matters is recognizing the shape: short instruction names, one operation per
+    line, addressing real processor registers and memory. This is exactly one processor
+    family's private, exact instruction list — the same <code>hello.c</code> compiled on a
+    different kind of processor produces different assembly text, even though the C source
+    never changed. C's whole promise of "write once, compile anywhere" lives in this stage:
+    the compiler is the part that knows how to translate the same C meaning into whatever
+    machine you are building for.</p>
+
+    <div class="gotcha">
+      <p>An error at this stage means your C is not valid C — a real language rule was
+      broken, not only a missing file. This is different from a preprocess error like a
+      missing header, which stops before any C rule is even checked. A compile-stage error
+      is the compiler telling you: "I understood every <code>#include</code> and macro, and
+      what came out still does not make sense as C."</p>
+    </div>
+
+    <h3 id="assemble">Assemble: assembly in, machine code out</h3>
+    <p>The <span class="vocab">assembler</span> takes the assembly text from the previous
+    stage and turns it into <span class="vocab">machine code</span>: raw numbers, the actual
+    bit patterns a processor executes directly. Assembly and machine code describe exactly
+    the same instructions — assembly is the human-readable spelling of numbers the
+    assembler now writes out.</p>
+
+    <p>Stop the compiler after this stage with <code>-c</code>, and it writes an
+    <span class="vocab">object file</span> — a file of machine code, ending in
+    <code>.o</code>, that is not yet a runnable program:</p>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -c hello.c
+<span class="prompt">$</span> ls -la hello.o
+-rw-r--r--  1 you  staff  656 Jan  1 00:00 hello.o</pre>
+    </div>
+
+    <p>Try to run <code>hello.o</code> directly, and your operating system refuses — it is
+    not shaped like a program the system knows how to start:</p>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> ./hello.o
+zsh: exec format error: ./hello.o</pre>
+    </div>
+
+    <p>An object file holds machine code for what you wrote — in this case, your version of
+    <code>main</code> — but it is missing something specific: real, working machine code for
+    <code>printf</code>. Your <code>hello.c</code> only <em>declared</em> that
+    <code>printf</code> exists, back in <code>stdio.h</code>. It never wrote
+    <code>printf</code>'s own machine code, because you never wrote <code>printf</code>
+    yourself — someone else already did, long before you compiled anything. Where that code
+    lives, and how it gets joined to yours, is exactly what the last stage does.</p>
+
+    <p>You can see this hole directly. Every name an object file mentions — one it defines
+    itself, or one it only calls and expects to find elsewhere — is called a
+    <span class="vocab">symbol</span>. A tool named <code>nm</code> lists an object file's
+    symbols:</p>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> nm hello.o | grep -i printf
+                 U _printf</pre>
+    </div>
+
+    <p><code>U</code> stands for <em>undefined</em>: <code>hello.o</code> mentions
+    <code>printf</code> by name, but holds no machine code for it — only a note-to-self
+    saying "something else needs to supply this." Run <code>nm</code> on the same file and
+    look for <code>main</code> instead, and you see the opposite letter, <code>T</code>,
+    meaning "defined, right here, in the executable code section":</p>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> nm hello.o | grep -i main
+0000000000000000 T _main</pre>
+    </div>
+
+    <p>The assembler's whole job stops there. It turns instructions into real bytes and
+    keeps an honest list of which names still need to be found somewhere else. It never goes
+    looking for <code>printf</code> itself — that search is the next stage's job, and only
+    its job.</p>
+
+    <div class="gotcha">
+      <p>Machine code is specific to one kind of processor, and an object file carries that
+      choice with it — the error message earlier in this chapter named it directly:
+      <code>architecture arm64</code>. An object file assembled for one processor family
+      cannot be linked with one assembled for another; the linker refuses instead of
+      guessing. You will not hit this by hand in this course, but it is why a program built
+      on one kind of computer sometimes needs a fresh rebuild, not a plain copy, to run on a
+      different one.</p>
+    </div>
+
+    <h3 id="link">Link: object files in, one program out</h3>
+    <p>The <span class="vocab">linker</span> takes one or more object files and produces one
+    finished, runnable program. Your program almost never supplies every function it calls
+    — you wrote <code>main</code>, but <code>printf</code>'s actual machine code lives in a
+    separately compiled collection of object files called the
+    <span class="vocab">standard library</span>, already sitting on your computer from when
+    you installed your compiler. The linker's job is to find every function your object file
+    calls but does not define, locate its real machine code in the standard library (or in
+    any other object files you hand it), and stitch everything into one file with nothing
+    left unresolved.</p>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc hello.o -o hello
+<span class="prompt">$</span> ./hello
+Hello, World!</pre>
+    </div>
+
+    <p>That one command ran the linker directly on the object file you already had, since
+    preprocessing, compiling, and assembling were already done in the previous step. The
+    result, <code>hello</code>, is the first file in this whole chapter that your operating
+    system will actually run — it carries real machine code for both <code>main</code> and
+    <code>printf</code>, joined into one piece.</p>
+
+    <p>Put the last two stages together and the linker's job is exactly: read every
+    <code>U</code> symbol the assembler left undefined, search the standard library's own
+    object files for a matching <code>T</code> symbol with real machine code under that
+    name, and copy that code in. Run <code>nm</code> again on the finished program instead of
+    the object file, and <code>printf</code>'s letter changes from <code>U</code> to
+    <code>T</code> — proof the hole from the previous stage is now filled:</p>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> nm hello | grep -i printf
+0000000100003f80 T _printf</pre>
+    </div>
+
+    <p>A program can hand the linker more than one object file at once, and this is the one
+    part of the whole pipeline that scales past a single <code>.c</code> file. Once you start
+    splitting a program across several files of your own, in Module 10, you will compile each
+    one to its own object file, then link all of them together in one command — the linker's
+    job does not change at all, it resolves symbols across more object files instead
+    of one file plus the standard library.</p>
+
+    <p>This is also where a whole category of error you have not seen yet comes from.
+    Suppose you spell out <code>printf</code>'s existence yourself, without ever
+    <code>#include</code>-ing <code>stdio.h</code> or writing the function's body — the
+    compile stage lets it through with only a warning, since older C allowed calling
+    undeclared functions. But the linker cannot find real machine code for it anywhere:</p>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc broken.c -o broken
+Undefined symbols for architecture arm64:
+  "_printf", referenced from:
+      _main in broken-a1b2c3.o
+ld: symbol(s) not found for architecture arm64
+clang: error: linker command failed with exit code 1</pre>
+    </div>
+
+    <p><code>ld</code> in that error is the name of the linker program itself — a strong
+    clue this failure is not about your C syntax at all. "Symbol not found" means: I have a
+    finished object file that calls something named <code>printf</code>, and I searched
+    every object file and library I was given, and none of them contain real machine code
+    under that name. Compiling succeeded. Linking is what failed.</p>
+
+    <div class="gotcha">
+      <p>A missing <code>main</code> produces this exact same kind of error, for the same
+      reason. Every C program's own object file is missing one thing it needs from outside
+      itself: the very first instruction the operating system will jump to. Normally your
+      own <code>main</code> supplies it. Delete <code>main</code> entirely, and the linker
+      reports it as an undefined symbol too — to the linker, "main" is not special syntax,
+      only one more name it was asked to find, and this time could not.</p>
+    </div>
+
+    <p>Four stages, four different jobs, four different kinds of error. A missing or
+    misspelled header is a preprocess problem — text that was never pasted in. A type
+    mistake or a genuinely broken statement is a compile problem — text that does not follow
+    C's rules. A missing <code>-c</code> input file is vanishingly rare to hit by hand, since
+    the assembler almost never fails on its own once compiling succeeded. A missing function
+    or missing <code>main</code> is a link problem — an object file with a hole in it that
+    nothing else could fill. Knowing which of the four produced a given error message is
+    most of what "reading a compiler error" means.</p>
+
+  </section>
+
+  <!-- ===== 5. TRY IT ===== -->
+  <section class="try-it" id="try-it">
+    <p>You read how the preprocessor substitutes text with <code>#define</code> and
+    <code>#if</code>/<code>#else</code>, before the compiler ever checks a single C rule.
+    Now use those directives yourself in three small exercises:
+    <code>exercises/01_object_macro.c</code>, <code>02_function_macro.c</code>, and
+    <code>03_conditional_build.c</code>.</p>
+    <p><a href="exercises/HOMEWORK.html">Open your homework →</a> for what each one asks,
+    why, and a hint if you get stuck.</p>
+    <p>Check your work with <code>make check-mine</code>. To check only this chapter, run
+    <code>make check-mine CHAPTER=1-module-basics/2-chapter-how-c-becomes-a-program</code>.
+    Each exercise is checked with <code>assert</code>, not by comparing printed text — the
+    function you write is called directly and its return value is checked against the right
+    answer.</p>
+  </section>
+
+  <!-- ===== 6. ZOOM OUT ===== -->
+  <section class="zoom-out" id="zoom-out">
+    <h2>Zooming out: from a black box to the blanks variables fill in</h2>
+    <p>The single <code>cc</code> command you have typed since chapter 0.4 was never one
+    step. It is preprocess, compile, assemble, and link, run back to back, each stage
+    handing a different kind of file to the next: text, expanded text, assembly, machine
+    code, then one finished program. You have now watched every one of those in-between
+    files appear on its own, with <code>-E</code>, <code>-S</code>, and <code>-c</code>, and
+    you have seen the specific kind of error each stage produces when something goes wrong —
+    a missing header at preprocess time, a broken statement at compile time, a missing
+    function at link time.</p>
+    <p>Notice what this chapter's examples all had to work around: every value you computed
+    was a fixed number, baked in with <code>#define</code>, because you have not yet met a
+    way to store a number that can change while a program runs. That gap is deliberate. The
+    next chapter introduces <span class="vocab">variables</span> — named slots in memory
+    that hold a value the running program can read and change — along with the handful of
+    types C offers for them: <code>int</code>, <code>char</code>, <code>float</code>, and
+    <code>double</code>. Where a macro is a name the preprocessor erases before compiling
+    even starts, a variable is a name the compiled program keeps using the entire time it
+    runs. You have now seen the whole pipeline that turns your text into a program; next you
+    fill that program with values it can actually work with while it runs.</p>
+  </section>
+
+  <p>Go deeper: Harvard's <a href="https://cs50.harvard.edu/x/">CS50x, Week 1</a> walks
+  through this same compile-to-program pipeline on video, free.
+  <a href="https://en.cppreference.com/w/c/preprocessor">cppreference's preprocessor
+  reference</a> is worth bookmarking once you start writing your own macros — not a lesson,
+  but the exact rule book for every directive.</p>
+
+  <nav class="chapter-nav">
+    <a href="../1-chapter-first-program/CONTENT.html">← Previous chapter</a>
+    <a href="QUIZ.html">Take the quiz →</a>
+  </nav>
+
+  <footer class="chapter-foot">
+    <a href="https://github.com/johnatorres226/foundations-of-programming-c/issues/new?template=chapter-feedback.yml&title=%5BM1C2%5D+">
+      Something wrong with this chapter?</a>
+  </footer>
+
+</article>
+
+<script src="../../../../assets/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    securityLevel: "strict",
+    theme: matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "default"
+  });
+</script>
+</body>
+</html>
