@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M1.2 Homework — How C Becomes a Program · Foundations of Programming: C</title>
+<link rel="stylesheet" href="../../../../../assets/style.css">
+</head>
+<body>
+<article class="chapter">
+
+  <header class="chapter-head">
+    <p class="crumb">Module 1 · Chapter 2 · Homework</p>
+    <h1>Homework: How C Becomes a Program</h1>
+  </header>
+
+  <section class="homework-intro">
+    <p>You've learned that the preprocessor runs before the compiler ever checks a single C
+    rule, swapping <code>#define</code> names for their literal text and keeping only one
+    side of an <code>#if</code>/<code>#else</code>. Now put it into practice: three small
+    functions, written from scratch in <code>exercises/</code> and checked with
+    <code>make check-mine</code> — not by reading this page.</p>
+  </section>
+
+  <section>
+    <h2 id="object-macro"><code>exercises/01_object_macro.c</code></h2>
+    <p>Name a constant with <code>#define</code>, then write a function that uses it.
+    Define <code>CRATE_SIDE</code> as <code>4</code>, and write
+    <code>crate_volume()</code> so it returns <code>CRATE_SIDE * CRATE_SIDE * CRATE_SIDE</code>
+    — the volume of a cube-shaped crate with that side length.</p>
+    <p>The chapter's <a href="../CONTENT.html#preprocess">"Preprocess" section</a> showed
+    <code>CRATE_SIDE</code> get replaced by a plain number before compiling ever starts —
+    prove it to yourself by running <code>cc -E</code> on your own file once it's written,
+    and checking that <code>CRATE_SIDE</code> is nowhere left in the output.</p>
+
+    <div class="gotcha">
+      <p>A macro is not a variable. Do not try to change <code>CRATE_SIDE</code>'s value
+      anywhere in your code — there is no memory to change. It is text, swapped in once,
+      before your program is even compiled.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2 id="function-macro"><code>exercises/02_function_macro.c</code></h2>
+    <p>Write a function-like macro named <code>SQUARE</code>, then use it in two functions:
+    <code>square_of_seven()</code> should return <code>49</code>, and so should
+    <code>square_of_sum()</code>, which computes <code>SQUARE(3 + 4)</code>.</p>
+    <p>The chapter's <a href="../CONTENT.html#preprocess">"Preprocess" section</a> named the
+    trap: a macro missing its parentheses can give the right answer for one input and the
+    wrong answer for another, because it is pasting in raw text, not evaluating a real
+    expression. Work out where every parenthesis has to go so <code>square_of_sum()</code>
+    survives being handed <code>3 + 4</code> instead of a plain number.</p>
+
+    <details class="solution">
+      <summary>Stuck? Show one approach</summary>
+      <div class="code" data-file="02_function_macro.c">
+<pre><code>#define SQUARE(x) ((x) * (x))
+
+int square_of_seven(void) {
+    return SQUARE(7);
+}
+
+int square_of_sum(void) {
+    return SQUARE(3 + 4);
+}</code></pre>
+      </div>
+      <p class="note">This is one approach, not the answer. Any macro that parenthesizes
+      both the parameter and the whole expression passes — the exact spelling of the macro
+      body doesn't have to match this example, only the shape of the parentheses.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2 id="conditional-build"><code>exercises/03_conditional_build.c</code></h2>
+    <p>Use <code>#if</code>/<code>#else</code>/<code>#endif</code> to write two versions of
+    <code>box_capacity()</code>, guarded by a macro named <code>METRIC_UNITS</code>. With
+    <code>METRIC_UNITS</code> defined as <code>1</code>, the kept version should return
+    <code>100</code>.</p>
+    <p>The chapter's <a href="../CONTENT.html#preprocess">"Preprocess" section</a> showed
+    that the untaken branch of an <code>#if</code> is deleted before the compiler ever reads
+    it — so completely that it does not even need to be valid C. Prove it to yourself: once
+    your test passes, replace the <code>#else</code> branch's body with nonsense (misspelled
+    words, unmatched braces, anything) and recompile. It should still build clean, because
+    the preprocessor throws that text away before any C rule gets checked against it. Put the
+    real code back afterward.</p>
+
+    <div class="gotcha">
+      <p>Do not delete the <code>#else</code> branch entirely to "clean it up" — an
+      <code>#if</code> without a matching <code>#endif</code> (or one <code>#endif</code>
+      short) is a preprocessor error the compiler cannot recover from, and it will point at
+      a line far from where you actually made the mistake.</p>
+    </div>
+  </section>
+
+  <section class="try-it">
+    <p>Check all three with <code>make check-mine</code>. To check only this chapter, run
+    <code>make check-mine CHAPTER=1-module-basics/2-chapter-how-c-becomes-a-program</code>.</p>
+  </section>
+
+  <nav class="chapter-nav">
+    <a href="../CONTENT.html">← Back to the chapter</a>
+  </nav>
+
+  <footer class="chapter-foot">
+    <a href="https://github.com/johnatorres226/foundations-of-programming-c/issues/new?template=chapter-feedback.yml&title=%5BM1C2-HW%5D+">
+      Something wrong with this homework?</a>
+  </footer>
+
+</article>
+</body>
+</html>

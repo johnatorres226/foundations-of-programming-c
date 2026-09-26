@@ -1,6 +1,6 @@
 # 1.2 — How C Becomes a Program
 
-**Status:** 🚧 Not yet written · **Module 1 — Basics** · **Exercises:** 3
+**Status:** ✅ Written · **Module 1 — Basics** · **Exercises:** 3
 
 ## Outcome
 
