@@ -8,7 +8,7 @@
 | **Exercises** | 17 |
 | **Tags** | syntax, compilation, types, io, debugging |
 | **Prerequisites** | Module 0 |
-| **Status** | 🚧 Not yet written |
+| **Status** | ✅ Chapters written · 🚧 Project and exam pending |
 
 ## Chapters
 

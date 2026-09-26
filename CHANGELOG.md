@@ -19,3 +19,6 @@ in progress.
 - Project foundation: PRD, design guidelines, syllabus (65 chapters across 15 modules)
 - Build and lint tooling: `Makefile`, `.clang-format`, CI workflows
 - Issue templates and contribution guide
+- Module 1 — Basics: all 5 chapters written (1.1 Your First Program, 1.2 How C Becomes
+  a Program, 1.3 Variables and Types, 1.4 Getting Input and Showing Output, 1.5 When
+  Things Break). Project and exam still pending.
