@@ -8,7 +8,7 @@
 | **Exercises** | 17 |
 | **Tags** | conditionals, loops, branching |
 | **Prerequisites** | Module 1 |
-| **Status** | 🚧 Not yet written |
+| **Status** | ✅ Chapters written · 🚧 Project and exam pending |
 
 ## Chapters
 

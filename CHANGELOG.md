@@ -22,3 +22,5 @@ in progress.
 - Module 1 — Basics: all 5 chapters written (1.1 Your First Program, 1.2 How C Becomes
   a Program, 1.3 Variables and Types, 1.4 Getting Input and Showing Output, 1.5 When
   Things Break). Project and exam still pending.
+- Module 2 — Control Flow: all 4 chapters written (2.1 Making Decisions, 2.2 Combining
+  Conditions, 2.3 Repeating Work, 2.4 Choosing Many Paths). Project and exam still pending.
