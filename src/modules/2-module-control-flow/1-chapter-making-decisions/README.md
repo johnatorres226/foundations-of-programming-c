@@ -1,6 +1,6 @@
 # 2.1 — Making Decisions
 
-**Status:** 🚧 Not yet written · **Module 2 — Control Flow** · **Exercises:** 4
+**Status:** ✅ Written · **Module 2 — Control Flow** · **Exercises:** 4
 
 ## Outcome
 

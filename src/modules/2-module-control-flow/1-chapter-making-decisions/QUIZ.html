@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M2.1 Quiz — Making Decisions · Foundations of Programming: C</title>
+<link rel="stylesheet" href="../../../../assets/style.css">
+</head>
+<body>
+<article class="chapter">
+  <header class="chapter-head">
+    <p class="crumb">Module 2 · Chapter 1 · Quiz</p>
+    <h1>Check your understanding</h1>
+  </header>
+
+  <p>Pick one answer for each question, then check. Every answer — right or wrong — comes
+  with an explanation. The wrong ones are where most of the learning is.</p>
+
+  <div id="quiz"></div>
+
+  <nav class="chapter-nav">
+    <a href="CONTENT.html">← Back to the chapter</a>
+  </nav>
+
+  <footer class="chapter-foot">
+    <a href="https://github.com/johnatorres226/foundations-of-programming-c/issues/new?template=chapter-feedback.yml&title=%5BM2C1+Quiz%5D+">
+      Something wrong with this quiz?</a>
+  </footer>
+</article>
+
+<script type="application/json" id="quiz-data">
+{
+  "questions": [
+    {
+      "q": "`int flag = 0; if (flag) { printf(\"yes\\n\"); } else { printf(\"no\\n\"); }` — what does this print?",
+      "options": [
+        { "text": "yes, because every declared variable starts out true",
+          "correct": false,
+          "why": "C does not treat a variable as true only because it was declared. It reads the variable's actual value, and `flag` holds `0` here — the one and only false value." },
+        { "text": "no",
+          "correct": true,
+          "why": "Right. `flag` is `0`, and `0` is the only value C's `if` treats as false. Every other number, including negative ones, counts as true." },
+        { "text": "A compile error, because `flag` is an `int`, not a `bool`",
+          "correct": false,
+          "why": "C's `if` has always accepted a plain `int` as a condition — this predates `bool` by decades. No error here, in this course's default build or any other." }
+      ]
+    },
+    {
+      "q": "Which of these does C's `if` treat as true: `1`, `-1`, `42`, `-100`?",
+      "options": [
+        { "text": "Only `1`",
+          "correct": false,
+          "why": "`1` is true, but it is not special — it is one nonzero value among many. `-1`, `42`, and `-100` are all true too." },
+        { "text": "Only the positive ones: `1` and `42`",
+          "correct": false,
+          "why": "C's rule is not about the sign of a number. `-1` and `-100` are both nonzero, so both count as true, exactly like `1` and `42` do." },
+        { "text": "All four",
+          "correct": true,
+          "why": "Right. C's rule is \"nonzero,\" not \"positive.\" Every one of these four numbers is nonzero, so every one of them is true." }
+      ]
+    },
+    {
+      "q": "An `if`/`else if`/`else` chain has three branches, and two of their conditions are both true for the value being tested. How many of those two branches run?",
+      "options": [
+        { "text": "Both of them",
+          "correct": false,
+          "why": "An `else if` chain is not the same as two separate `if` statements — it stops checking the moment one condition matches. A later condition being true too never matters." },
+        { "text": "Only one — the first one, top to bottom, whose condition is true",
+          "correct": true,
+          "why": "Right. The chain checks each condition in order and runs the block belonging to the first one that turns out true, then skips every check after it." },
+        { "text": "Neither — a chain with more than one true condition is undefined behavior",
+          "correct": false,
+          "why": "This situation is completely ordinary and well-defined — it happens constantly, for example whenever a grade chain like `score >= 80` and `score >= 70` are both technically true for the same score. C always runs the first match, cleanly." }
+      ]
+    },
+    {
+      "q": "A chain checks `score >= 60` before it checks `score >= 90`. For `score` equal to `95`, which branch runs?",
+      "options": [
+        { "text": "The `score >= 90` branch, since `95` satisfies it most precisely",
+          "correct": false,
+          "why": "The chain does not look ahead for the \"best\" match — it stops at the very first true condition it reaches while reading top to bottom, regardless of whether a later condition would fit more precisely." },
+        { "text": "The `score >= 60` branch",
+          "correct": true,
+          "why": "Right. `score >= 60` is checked first and `95` satisfies it, so the chain stops there. `score >= 90` is never even reached, even though `95` would have satisfied that one too." },
+        { "text": "Both branches run, since `95` satisfies both conditions",
+          "correct": false,
+          "why": "An `else if` chain guarantees at most one branch runs. Once `score >= 60` matches, every `else if` after it — including `score >= 90` — is skipped entirely, not only skipped in output." }
+      ]
+    },
+    {
+      "q": "`if (x = 5) { ... }` compiles under this course's default flags. What is actually wrong with it, and how do you fix it?",
+      "options": [
+        { "text": "Nothing is wrong — `=` and `==` both compare in C",
+          "correct": false,
+          "why": "They do very different jobs. `=` stores a value into a variable; `==` compares two values without changing either one. Using `=` where you meant `==` is one of the most common early C bugs." },
+        { "text": "`=` assigns `5` to `x` and the condition then tests that assignment's result, `5` — always true. The fix is `if (x == 5)`",
+          "correct": true,
+          "why": "Right. `x = 5` stores `5` into `x`, and the value of that whole expression is `5` — nonzero, so always true. `-Wall -Wextra -Werror`, this course's default build, actually refuses to compile this exact line and tells you to add parentheses or switch to `==`." },
+        { "text": "The condition is false every time, because assignment always evaluates to `0`",
+          "correct": false,
+          "why": "An assignment's value is whatever was stored a moment ago — here, `5`, not `0`. If it were always `0`, this bug would fail loudly every time instead of being dangerous; the real danger is that it is always true, not always false." }
+      ]
+    }
+  ]
+}
+</script>
+<script src="../../../../assets/quiz.js"></script>
+</body>
+</html>

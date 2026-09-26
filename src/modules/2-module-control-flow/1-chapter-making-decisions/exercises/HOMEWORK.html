@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M2.1 Homework — Making Decisions · Foundations of Programming: C</title>
+<link rel="stylesheet" href="../../../../../assets/style.css">
+</head>
+<body>
+<article class="chapter">
+
+  <header class="chapter-head">
+    <p class="crumb">Module 2 · Chapter 1 · Homework</p>
+    <h1>Homework: Making Decisions</h1>
+  </header>
+
+  <section class="homework-intro">
+    <p>You've read how <code>if</code>, <code>else</code>, and <code>else if</code> choose
+    between paths, and how C decides true from false using nothing but zero and nonzero.
+    Now put it into practice: four small functions, written from scratch in
+    <code>exercises/</code> and checked with <code>make check-mine</code> — not by reading
+    this page.</p>
+  </section>
+
+  <section>
+    <h2 id="classify-sign"><code>exercises/01_classify_sign.c</code></h2>
+    <p>Write a function <code>int classify_sign(int n)</code> that returns <code>-1</code>
+    when <code>n</code> is negative, <code>0</code> when <code>n</code> is exactly zero, and
+    <code>1</code> when <code>n</code> is positive.</p>
+    <p>The chapter's <a href="../CONTENT.html#else-if-chain">"<code>else if</code> —
+    chaining more questions"</a> section built a three-way chain out of a grade. Work out
+    the same shape here, with three conditions instead of four.</p>
+
+    <div class="gotcha">
+      <p>Zero is neither negative nor positive — it needs its own branch. A chain that only
+      checks <code>n &lt; 0</code> and falls back to <code>1</code> for everything else
+      will return <code>1</code> for <code>n = 0</code>, which the test does not accept.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2 id="max-of-three"><code>exercises/02_max_of_three.c</code></h2>
+    <p>Write a function <code>int max_of_three(int a, int b, int c)</code> that returns
+    whichever of the three is largest. If two or more are tied for largest, return that
+    shared value.</p>
+    <p>You do not have <code>&amp;&amp;</code> yet — that arrives next chapter. The chapter's
+    <a href="../CONTENT.html#else-clause">"<code>else</code> — the other path"</a> section
+    showed <code>if</code>/<code>else</code> nesting inside each other. Work out how to
+    find the largest of three values by nesting one comparison inside another, two levels
+    deep, instead of combining conditions into one line.</p>
+
+    <div class="gotcha">
+      <p>Compare <code>a</code> and <code>b</code> first, keep only the winner, then
+      compare that winner against <code>c</code>. Trying to compare all three at once in a
+      single condition is exactly the tangle next chapter's <code>&amp;&amp;</code>
+      exists to untangle — for now, nest two simple decisions instead of writing one
+      complicated one.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2 id="truthy"><code>exercises/03_truthy.c</code></h2>
+    <p>Write a function <code>int is_truthy(int n)</code> that returns <code>1</code> if
+    C's own <code>if</code> would treat <code>n</code> as true, and <code>0</code> if it
+    would treat <code>n</code> as false — for any <code>int</code>, including negative
+    ones.</p>
+    <p>The chapter's <a href="../CONTENT.html#truthiness">"Zero is false, everything else
+    is true"</a> section is the entire content of this exercise. Prove to yourself that you
+    do not need a comparison operator anywhere in this function at all — the parameter
+    itself is already the condition.</p>
+
+    <details class="solution">
+      <summary>Stuck? Show one approach</summary>
+      <div class="code" data-file="03_truthy.c">
+<pre><code>int is_truthy(int n) {
+    if (n) {
+        return 1;
+    } else {
+        return 0;
+    }
+}</code></pre>
+      </div>
+      <p class="note">This is one approach, not the answer. Writing <code>n</code> directly
+      as the condition, with no <code>== 0</code> or <code>!= 0</code> anywhere, is the
+      whole point — it is the same test C's own <code>if</code> runs on any condition you
+      give it.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2 id="grade-letter"><code>exercises/04_grade_letter.c</code></h2>
+    <p>Write a function <code>char grade_letter(int score)</code> that returns
+    <code>'A'</code> for a score of 90 or above, <code>'B'</code> for 80 or above,
+    <code>'C'</code> for 70 or above, <code>'D'</code> for 60 or above, and <code>'F'</code>
+    for anything below that.</p>
+    <p>The chapter's <a href="../CONTENT.html#common-traps">"Two traps: branch order and
+    <code>=</code> vs <code>==</code>"</a> section showed exactly what goes wrong when a
+    chain like this is ordered loosest-first. Write your chain narrowest condition first,
+    and prove to yourself with a boundary score — try <code>90</code> itself, not only
+    <code>95</code> — that each cutoff lands on the letter you meant.</p>
+
+    <div class="gotcha">
+      <p>The test checks the exact boundaries: <code>90</code>, <code>80</code>,
+      <code>70</code>, and <code>60</code> each belong to the higher letter, not the lower
+      one. Using <code>&gt;</code> where the chapter's example used <code>&gt;=</code> shifts
+      every one of those four scores to the wrong grade.</p>
+    </div>
+  </section>
+
+  <section class="try-it">
+    <p>Check your work with <code>make check-mine</code>. To check only this chapter, run
+    <code>make check-mine CHAPTER=2-module-control-flow/1-chapter-making-decisions</code>.</p>
+  </section>
+
+  <nav class="chapter-nav">
+    <a href="../CONTENT.html">← Back to the chapter</a>
+  </nav>
+
+  <footer class="chapter-foot">
+    <a href="https://github.com/johnatorres226/foundations-of-programming-c/issues/new?template=chapter-feedback.yml&title=%5BM2C1-HW%5D+">
+      Something wrong with this homework?</a>
+  </footer>
+
+</article>
+</body>
+</html>

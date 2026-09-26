@@ -1,0 +1,631 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M2.1 — Making Decisions · Foundations of Programming: C</title>
+<link rel="stylesheet" href="../../../../assets/style.css">
+</head>
+<body>
+<article class="chapter">
+
+  <header class="chapter-head">
+    <p class="crumb">Module 2 · Chapter 1</p>
+    <h1>Making Decisions</h1>
+    <nav class="chapter-toc" aria-label="Chapter contents">
+      <p>In this chapter</p>
+      <ol>
+        <li><a href="#big-picture">Big picture: why a program needs to choose, not only run straight through</a></li>
+        <li><a href="#how">How it works</a>
+          <ol>
+            <li><a href="#if-statement"><code>if</code> — asking one question</a></li>
+            <li><a href="#else-clause"><code>else</code> — the other path</a></li>
+            <li><a href="#else-if-chain"><code>else if</code> — chaining more questions</a></li>
+            <li><a href="#truthiness">Zero is false, everything else is true</a></li>
+            <li><a href="#common-traps">Two traps: branch order and <code>=</code> vs <code>==</code></a></li>
+          </ol>
+        </li>
+        <li><a href="#try-it">Try it</a></li>
+        <li><a href="#zoom-out">Zooming out: from asking one question to asking several at once</a></li>
+        <li><a href="exercises/HOMEWORK.html">Homework →</a></li>
+      </ol>
+    </nav>
+  </header>
+
+  <!-- ===== 1. RECAP ===== -->
+  <section class="recap">
+    <p>Last chapter you learned to read a compiler error, watch a breakpoint catch a wrong
+    loop bound, and read an AddressSanitizer report catch a memory bug — three ways to find
+    out that something already went wrong. Every program you have written so far ran the
+    exact same steps in the exact same order, every single time, with no way to check
+    anything and respond differently. This chapter gives your program its first way to
+    decide: <code>if</code>, <code>else if</code>, and <code>else</code>, built on a rule
+    with no dedicated true-or-false type behind it at all — zero counts as false, and every
+    other number counts as true.</p>
+  </section>
+
+  <!-- ===== 2. BIG PICTURE ===== -->
+  <section class="big-picture" id="big-picture">
+    <h2>Big picture: why a program needs to choose, not only run straight through</h2>
+    <p>Every program you have written in this course so far has had exactly one path
+    through it. Line one runs, then line two, then line three, in the same order, no matter
+    what numbers you feed it. That works fine for a program that only ever computes one
+    fixed thing — an area, a sum, a printed sentence. It stops working the moment a program
+    needs to react to something it cannot know in advance: was the number the person typed
+    negative? Did the score pass? Is the temperature above freezing? A program that can only
+    run straight through has no way to answer questions like that — it can only ever do the
+    one thing it was written to do, regardless of what it is handed.</p>
+    <p>A <span class="vocab">condition</span> is what fixes this: a question a program asks
+    about a value it is holding, whose answer decides which lines run next and which ones
+    get skipped entirely. A home thermostat is a condition running in a loop, forever: is
+    the room colder than the target temperature? If yes, turn the heat on. If no, leave it
+    off. The thermostat does not run both instructions every time and hope for the best — it
+    checks, then picks exactly one path. That is the whole idea this chapter teaches you to
+    write in C: check something, then run one block of code or another based on the
+    answer.</p>
+    <p>Here is where C shows its age a little. Many newer languages ship with a dedicated
+    <span class="vocab">boolean</span> type — a value that can only ever be exactly
+    <code>true</code> or exactly <code>false</code>, nothing else. C did not have one at all
+    for its first thirty years. The earliest versions of C had no <code>true</code> or
+    <code>false</code> keyword anywhere in the language — a condition was only a plain
+    number, and the rule for reading it was short: <code>0</code> means false, and every
+    other number, positive or negative, means true. C99 later added a way to spell
+    <code>true</code> and <code>false</code> as words (you will see it below), but it did not
+    change the underlying rule one bit — it only gave the same old numbers friendlier
+    names. This is the same bargain you have met since Module 0: C hides less, and asks more
+    of you, in exchange for control. A condition in C is never anything more mysterious than
+    a number being zero or not.</p>
+    <p>The zero-or-not rule is not only a language quirk — it is close to how the hardware
+    underneath actually works. Chapter 1.2 showed your source code passing through the
+    compiler on its way to a runnable program. Deep inside that compiled program, a
+    comparison like <code>age &lt; 18</code> becomes a CPU instruction that compares two
+    numbers and sets a tiny piece of hardware state called a
+    <span class="vocab">flag</span> to <code>1</code> or <code>0</code> — "was the left side
+    smaller, yes or no." The very next instruction, a
+    <span class="vocab">conditional jump</span>, reads that one flag and decides whether to
+    skip ahead in the program or keep going in order. An <code>if</code> statement in your
+    source code compiles down to exactly that: a comparison, a flag, and a jump. C's rule
+    feels close to the machine because, at this one spot, it is the machine.</p>
+    <p>This chapter covers exactly three keywords built on that one rule: <code>if</code>, on
+    its own; <code>if</code> paired with <code>else</code>, for exactly two paths; and a
+    chain of <code>if</code>/<code>else if</code>/<code>else</code>, for choosing among more
+    than two. It does not cover combining more than one condition in a single check with
+    <code>&amp;&amp;</code> or <code>||</code> — that is next chapter, once you can already
+    write a single, solid condition on its own.</p>
+  </section>
+
+  <!-- ===== 3. CORE IDEA ===== -->
+  <section class="core-idea">
+    An <code>if</code> statement runs its block only when a condition — any expression that
+    comes out nonzero — is true, and in C, zero is the only value that counts as false.
+  </section>
+
+  <!-- ===== 4. HOW IT WORKS ===== -->
+  <section class="how" id="how">
+    <h2>How it works</h2>
+
+    <h3 id="if-statement"><code>if</code> — asking one question</h3>
+    <p>An <code>if</code> statement is written as the word <code>if</code>, a condition in
+    parentheses, and a block in <code>{ }</code>. The block runs only when the condition is
+    true; otherwise, the program skips straight past it, as if the block was never there at
+    all.</p>
+
+    <div class="code" data-file="age_check.c">
+<pre><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int age = 15;
+
+    if (age &lt; 18) {
+        printf("Not old enough to vote yet.\n");
+    }
+
+    printf("Program finished.\n");
+    return 0;
+}</code></pre>
+    </div>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror age_check.c -o age_check
+<span class="prompt">$</span> ./age_check
+Not old enough to vote yet.
+Program finished.</pre>
+    </div>
+
+    <p>Change <code>age</code> to <code>20</code> and recompile, and the first line vanishes
+    from the output entirely — the condition <code>age &lt; 18</code> is now false, so the
+    block never runs. The last line, outside the <code>if</code>, prints either way, because
+    it was never inside the block that the condition guards.</p>
+
+    <p><code>age &lt; 18</code> is one of six
+    <span class="vocab">relational</span> and <span class="vocab">equality</span> operators
+    C gives you for building a condition — every one of them produces <code>1</code> or
+    <code>0</code>, ready to feed straight into an <code>if</code>:</p>
+
+    <table>
+      <caption>C's comparison operators</caption>
+      <thead>
+        <tr><th>Operator</th><th>Means</th><th>Example</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>&lt;</code></td><td>less than</td><td><code>age &lt; 18</code></td></tr>
+        <tr><td><code>&gt;</code></td><td>greater than</td><td><code>score &gt; 100</code></td></tr>
+        <tr><td><code>&lt;=</code></td><td>less than or equal to</td><td><code>score &lt;= 0</code></td></tr>
+        <tr><td><code>&gt;=</code></td><td>greater than or equal to</td><td><code>score &gt;= 90</code></td></tr>
+        <tr><td><code>==</code></td><td>equal to</td><td><code>letter == 'A'</code></td></tr>
+        <tr><td><code>!=</code></td><td>not equal to</td><td><code>count != 0</code></td></tr>
+      </tbody>
+    </table>
+
+    <p>Every one of these compares two values and never anything more than that. Combining
+    two comparisons into a single condition — "is <code>age</code> at least 13
+    <em>and</em> under 20" — needs a different set of operators entirely, covered next
+    chapter. For now, one comparison is one condition, full stop.</p>
+
+    <div class="gotcha">
+      <p>The <code>{ }</code> around an <code>if</code>'s block are easy to skip when the
+      block is only one line — C allows it — but skipping them is the single most common
+      trap beginners hit with <code>if</code>. Without braces, only the <em>very next
+      statement</em> belongs to the <code>if</code>; every line after that runs no matter
+      what, indentation or not:</p>
+      <div class="code" data-file="missing_braces.c">
+<pre><code>if (age &lt; 18)
+    printf("Not old enough to vote yet.\n");
+    printf("Enjoy the movie anyway.\n");   /* NOT part of the if! */</code></pre>
+      </div>
+      <p>Indenting the second <code>printf</code> makes it <em>look</em> like it belongs to
+      the <code>if</code>, but the compiler does not read indentation — it reads the
+      semicolon that ends a statement. That second line runs for every age, always. Writing
+      <code>{ }</code> around every <code>if</code>'s block, even a one-line one, is the
+      single habit that prevents this bug outright, and this course's exercises expect
+      it.</p>
+    </div>
+
+    <h3 id="else-clause"><code>else</code> — the other path</h3>
+    <p>An <code>if</code> on its own only tells you what runs when a condition is true — the
+    false path falls through with nothing happening. Adding <code>else</code>, with its
+    own <code>{ }</code> block, gives you the other path explicitly: exactly one of the two
+    blocks runs, never both, never neither.</p>
+
+    <div class="code" data-file="age_check2.c">
+<pre><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int age = 15;
+
+    if (age &lt; 18) {
+        printf("Not old enough to vote yet.\n");
+    } else {
+        printf("Old enough to vote.\n");
+    }
+
+    return 0;
+}</code></pre>
+    </div>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror age_check2.c -o age_check2
+<span class="prompt">$</span> ./age_check2
+Not old enough to vote yet.</pre>
+    </div>
+
+    <p>Nothing here decides both messages could print, or neither could — that is exactly
+    the guarantee <code>if</code>/<code>else</code> gives you over two separate,
+    unconnected <code>if</code> statements. Two plain <code>if</code>s that happen to test
+    opposite conditions can drift out of sync if one of them is ever edited later; a single
+    <code>if</code>/<code>else</code> pair cannot drift, because there is only one condition
+    being tested, not two copies of it.</p>
+
+    <div class="gotcha">
+      <p>When <code>if</code> statements nest inside each other, an <code>else</code> always
+      attaches to the <em>closest</em> unmatched <code>if</code> above it — not necessarily
+      the one your indentation suggests. This is called the <span class="vocab">dangling
+      else</span> problem:</p>
+      <div class="code" data-file="dangling_else.c">
+<pre><code>if (age &gt;= 0)
+    if (age &gt;= 18)
+        printf("Adult.\n");
+else
+    printf("Invalid age.\n");   /* attaches to "if (age >= 18)", not "if (age >= 0)" */</code></pre>
+      </div>
+      <p>Despite how it is indented here, that <code>else</code> pairs with
+      <code>age &gt;= 18</code>, so a negative <code>age</code> prints nothing at all instead
+      of "Invalid age." Wrapping every nested <code>if</code> in its own
+      <code>{ }</code> removes the ambiguity for a human reader and the compiler alike —
+      another reason this course always writes the braces.</p>
+    </div>
+
+    <h3 id="else-if-chain"><code>else if</code> — chaining more questions</h3>
+    <p>Two paths are not always enough. Stack <code>else if</code> between the first
+    <code>if</code> and a final <code>else</code> to test more than one condition in order,
+    top to bottom, and run the block belonging to the <em>first</em> one that turns out
+    true:</p>
+
+    <div class="code" data-file="grade_demo.c">
+<pre><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int score = 82;
+
+    if (score &gt;= 90) {
+        printf("A\n");
+    } else if (score &gt;= 80) {
+        printf("B\n");
+    } else if (score &gt;= 70) {
+        printf("C\n");
+    } else {
+        printf("Needs improvement\n");
+    }
+
+    return 0;
+}</code></pre>
+    </div>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror grade_demo.c -o grade_demo
+<span class="prompt">$</span> ./grade_demo
+B</pre>
+    </div>
+
+    <p><code>score</code> is <code>82</code>, which satisfies both <code>score &gt;= 80</code>
+    and <code>score &gt;= 70</code> — but only <code>"B"</code> prints. The chain checks each
+    condition in order and stops at the very first true one; every condition after that,
+    even one that would also have matched, is never even evaluated. This is exactly the
+    behavior this chapter's fourth exercise, <code>grade_letter</code>, asks you to
+    build.</p>
+
+    <figure>
+      <svg viewBox="0 0 460 260" role="img" aria-label="A flowchart showing an if/else if/else
+           chain checking score &gt;= 90, then score &gt;= 80, then score &gt;= 70, in order,
+           stopping at the first true condition and skipping every check after it."
+           xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor">
+        <rect x="150" y="6" width="160" height="34" rx="6" stroke-width="1.5"/>
+        <text x="230" y="28" text-anchor="middle" fill="currentColor" stroke="none"
+              font-size="12" font-family="ui-monospace,monospace">score &gt;= 90?</text>
+
+        <path d="M230 40 V64" stroke-width="1.5"/>
+        <path d="M230 64 l-6 -8 h12 z" fill="currentColor" stroke="none"/>
+        <text x="248" y="56" font-size="10" font-family="system-ui" fill="currentColor" stroke="none">no</text>
+
+        <rect x="150" y="66" width="160" height="34" rx="6" stroke-width="1.5"/>
+        <text x="230" y="88" text-anchor="middle" fill="currentColor" stroke="none"
+              font-size="12" font-family="ui-monospace,monospace">score &gt;= 80?</text>
+
+        <path d="M230 100 V124" stroke-width="1.5"/>
+        <path d="M230 124 l-6 -8 h12 z" fill="currentColor" stroke="none"/>
+        <text x="248" y="116" font-size="10" font-family="system-ui" fill="currentColor" stroke="none">no</text>
+
+        <rect x="150" y="126" width="160" height="34" rx="6" stroke-width="1.5"/>
+        <text x="230" y="148" text-anchor="middle" fill="currentColor" stroke="none"
+              font-size="12" font-family="ui-monospace,monospace">score &gt;= 70?</text>
+
+        <path d="M230 160 V184" stroke-width="1.5"/>
+        <path d="M230 184 l-6 -8 h12 z" fill="currentColor" stroke="none"/>
+        <text x="248" y="176" font-size="10" font-family="system-ui" fill="currentColor" stroke="none">no</text>
+
+        <rect x="160" y="186" width="140" height="34" rx="6" stroke-width="1.5"/>
+        <text x="230" y="208" text-anchor="middle" fill="currentColor" stroke="none"
+              font-size="12" font-family="system-ui">print "Needs improvement"</text>
+
+        <path d="M310 22 H400" stroke-width="1.5"/>
+        <path d="M400 22 l-9 -5 v10 z" fill="currentColor" stroke="none"/>
+        <text x="355" y="16" font-size="10" font-family="system-ui" fill="currentColor" stroke="none">yes</text>
+        <rect x="330" y="6" width="70" height="34" rx="6" stroke-width="1.5"/>
+        <text x="365" y="28" text-anchor="middle" fill="currentColor" stroke="none"
+              font-size="13" font-family="system-ui">"A"</text>
+
+        <path d="M310 82 H400" stroke-width="1.5"/>
+        <path d="M400 82 l-9 -5 v10 z" fill="currentColor" stroke="none"/>
+        <text x="355" y="76" font-size="10" font-family="system-ui" fill="currentColor" stroke="none">yes</text>
+        <rect x="330" y="66" width="70" height="34" rx="6" stroke-width="1.5"/>
+        <text x="365" y="88" text-anchor="middle" fill="currentColor" stroke="none"
+              font-size="13" font-family="system-ui">"B"</text>
+
+        <path d="M310 142 H400" stroke-width="1.5"/>
+        <path d="M400 142 l-9 -5 v10 z" fill="currentColor" stroke="none"/>
+        <text x="355" y="136" font-size="10" font-family="system-ui" fill="currentColor" stroke="none">yes</text>
+        <rect x="330" y="126" width="70" height="34" rx="6" stroke-width="1.5"/>
+        <text x="365" y="148" text-anchor="middle" fill="currentColor" stroke="none"
+              font-size="13" font-family="system-ui">"C"</text>
+      </svg>
+      <figcaption>Figure 1 — each question is only asked if every question above it was
+      false. <code>score</code> of 82 reaches the second box, matches, and the chain stops
+      right there — the third box is never checked.</figcaption>
+    </figure>
+
+    <div class="gotcha">
+      <p>An <code>else if</code> chain is not the same as several separate <code>if</code>
+      statements written one after another with no <code>else</code> connecting them. Stack
+      three lone <code>if</code>s instead of chaining them, and C dutifully checks every
+      single one, every time — even after an earlier one already matched:</p>
+      <div class="code" data-file="separate_ifs.c">
+<pre><code>if (score &gt;= 90) { printf("A\n"); }
+if (score &gt;= 80) { printf("B\n"); }   /* still checked and printed, even for score 95 */
+if (score &gt;= 70) { printf("C\n"); }   /* same here */</code></pre>
+      </div>
+      <p>For <code>score = 95</code>, this prints all three letters, not one — because each
+      <code>if</code> is its own independent statement with no memory of the ones before it.
+      Chaining with <code>else if</code> is what creates "stop at the first match"; three
+      bare <code>if</code>s never do.</p>
+    </div>
+
+    <p>Here is a small but useful fact about C's grammar: <code>else if</code> is not its
+    own keyword. It does not exist as a separate thing the language defines. It is really
+    only an ordinary <code>else</code> whose entire block happens to be one single, nested
+    <code>if</code> statement — and C already lets you drop the <code>{ }</code> around a
+    block that is only one statement long. Written out in full, without that shortcut, the
+    grade example above is doing exactly this underneath:</p>
+
+    <div class="code" data-file="else_if_unrolled.c">
+<pre><code>if (score &gt;= 90) {
+    printf("A\n");
+} else {
+    if (score &gt;= 80) {
+        printf("B\n");
+    } else {
+        if (score &gt;= 70) {
+            printf("C\n");
+        } else {
+            printf("Needs improvement\n");
+        }
+    }
+}</code></pre>
+    </div>
+
+    <p>Both versions compile to the same program and behave identically — the
+    <code>else if</code> spelling is only easier to read, since it avoids one more level of
+    nested braces for every extra condition you add. Seeing the unrolled version once is
+    worth it, though: it is the reason "stop at the first true condition" is true at all.
+    Each <code>else</code> only ever runs when everything above it was false, and its whole
+    job, at every level, is to ask one more question before giving up.</p>
+
+    <h3 id="truthiness">Zero is false, everything else is true</h3>
+    <p>Every condition you have written so far — <code>age &lt; 18</code>,
+    <code>score &gt;= 80</code> — happens to be a <span class="vocab">comparison</span>,
+    which produces the whole number <code>1</code> when it is true and <code>0</code> when
+    it is false. But <code>if</code> does not require a comparison at all. It accepts any
+    expression that evaluates to a number, and the rule for reading that number never
+    changes: <code>0</code> is false, and anything else — <code>1</code>, <code>-1</code>,
+    <code>42</code>, <code>-1000</code> — is true.</p>
+
+    <div class="code" data-file="truthiness_demo.c">
+<pre><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int count = -3;
+
+    if (count) {
+        printf("count is truthy\n");
+    } else {
+        printf("count is falsy\n");
+    }
+
+    return 0;
+}</code></pre>
+    </div>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror truthiness_demo.c -o truthiness_demo
+<span class="prompt">$</span> ./truthiness_demo
+count is truthy</pre>
+    </div>
+
+    <p><code>count</code> is <code>-3</code> here — negative, not the <code>1</code> a
+    comparison would have produced — and the <code>if</code> still runs its true branch,
+    because <code>-3</code> is not <code>0</code>. This is precisely the rule this chapter's
+    third exercise, <code>is_truthy</code>, asks you to write out as a function of your own:
+    return whatever answer C's own <code>if</code> would have given for that same number.</p>
+
+    <p>C99 added <code>&lt;stdbool.h&gt;</code>, a header that lets you write the words
+    <code>true</code> and <code>false</code> and a type named <code>bool</code> instead of
+    bare <code>1</code> and <code>0</code>. It reads a little clearer in your own code, and
+    this course uses it sometimes from here on — but it changes nothing underneath.
+    <code>bool</code> is still stored as a small whole number, <code>true</code> is still
+    exactly <code>1</code>, and <code>false</code> is still exactly <code>0</code>. Every
+    rule in this section applies identically whether you write <code>0</code> or
+    <code>false</code>, <code>1</code> or <code>true</code> — they are the same values
+    wearing a friendlier name.</p>
+
+    <div class="gotcha">
+      <p>Because <em>any</em> nonzero number counts as true, testing a condition you meant
+      to spell differently can silently "work" without ever failing loudly. A comparison
+      that always evaluates to some nonzero number — even one that is not <code>1</code> —
+      still takes the true branch every single time, with no warning from the compiler. C
+      trusts that the number in the parentheses is the one you meant to test; it does not
+      check whether a <code>0</code> was ever a real possibility.</p>
+    </div>
+
+    <p>This same rule is why C functions so often report a plain <code>int</code> "status"
+    instead of a full word answer, and hand it straight to an <code>if</code>. Picture a
+    function that looks through a list of names and reports how many times it found the one
+    you were searching for:</p>
+
+    <div class="code" data-file="status_demo.c">
+<pre><code>int count_matches(void);   /* pretend this searches something and returns a count */
+
+int main(void) {
+    if (count_matches()) {
+        printf("Found at least one.\n");
+    } else {
+        printf("Not found.\n");
+    }
+    return 0;
+}</code></pre>
+    </div>
+
+    <p><code>count_matches()</code> is not a comparison — it is a whole number, the count
+    itself, plugged directly into <code>if</code>. Zero matches is false, and any nonzero
+    count, whether it is <code>1</code> or <code>50</code>, is true. Real C code leans on
+    this constantly: a function reports <code>0</code> for "nothing, none, not found," and
+    the caller tests the result directly, with no separate comparison needed at all.</p>
+
+    <p>Chapter 1.3 showed that a <code>char</code> is really a small whole number
+    underneath, and that rule reaches straight into truthiness too: <code>if (letter)</code>
+    is true for every character except one whose underlying number happens to be
+    <code>0</code> — a special value called the <span class="vocab">null character</span>,
+    written <code>'\0'</code>, not the digit character <code>'0'</code>, which is
+    <code>48</code> and therefore true. This one distinction — <code>'\0'</code> is falsy,
+    <code>'0'</code> is not — is exactly how C marks where a piece of text ends, once
+    strings arrive in Module 4. The rule you are learning right now, "zero is false," is the
+    same rule that quietly holds C's entire string system together later on.</p>
+
+    <h3 id="common-traps">Two traps: branch order and <code>=</code> vs <code>==</code></h3>
+    <p>Two mistakes account for most of the bugs beginners write with <code>if</code>. Both
+    compile without a single warning by default, and both produce a program that runs to
+    the end and prints something — but not the right something.</p>
+
+    <div class="gotcha">
+      <p>The first trap is ordering an <code>else if</code> chain from loosest condition to
+      tightest instead of the other way around. Since the chain stops at the first true
+      condition, a broad check placed too early <em>steals</em> every case that a narrower,
+      more specific check further down was supposed to catch:</p>
+      <div class="code" data-file="wrong_order.c">
+<pre><code>int score = 95;
+
+/* WRONG ORDER — score >= 60 is checked before score >= 90 */
+if (score &gt;= 60) {
+    printf("D\n");
+} else if (score &gt;= 90) {
+    printf("A\n");
+}</code></pre>
+      </div>
+      <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror wrong_order.c -o wrong_order
+<span class="prompt">$</span> ./wrong_order
+D</pre>
+      </div>
+      <p>A score of <code>95</code> clearly satisfies <code>score &gt;= 90</code> too, but
+      the chain never reaches that check — <code>score &gt;= 60</code> already matched
+      first, so the chain stops there. The fix is always the same: order an
+      <code>else if</code> chain from the narrowest, most specific condition down to the
+      broadest, so a broad catch-all condition never runs ahead of a more exact one it
+      would otherwise shadow. This is exactly the trap this chapter's fourth exercise is
+      built to catch if you get the order wrong.</p>
+    </div>
+
+    <p>The second trap is easy to type by accident and equally easy to miss reading it
+    back: writing a single <code>=</code>, which <span class="vocab">assigns</span> a value,
+    where you meant <code>==</code>, which <span class="vocab">compares</span> two values
+    for equality.</p>
+
+    <div class="code" data-file="assign_vs_compare.c">
+<pre><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int x = 0;
+
+    if (x = 5) {              /* assigns 5 to x, THEN tests 5 — always true */
+        printf("x is 5\n");
+    } else {
+        printf("x is not 5\n");
+    }
+
+    printf("x is now: %d\n", x);
+    return 0;
+}</code></pre>
+    </div>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror assign_vs_compare.c -o assign_vs_compare
+assign_vs_compare.c:6:10: error: using the result of an assignment as a condition
+      without parentheses [-Werror,-Wparentheses]
+    if (x = 5) {
+        ~~^~~
+1 error generated.</pre>
+    </div>
+
+    <div class="gotcha">
+      <p><code>x = 5</code> is not a question at all — it is an instruction that stores
+      <code>5</code> into <code>x</code>, and the <em>result</em> of that instruction is
+      the value <code>5</code> itself, which <code>if</code> then reads as a condition.
+      Since <code>5</code> is nonzero, the branch runs every time, no matter what
+      <code>x</code> held a moment before — and <code>x</code>'s original value is gone,
+      overwritten. This course's <code>-Wall -Wextra -Werror</code> catches exactly this
+      mistake and refuses to build, which is one more reason those flags are never
+      optional in this course: a silent version of this bug, in a compiler without those
+      warnings turned on, would run fine and lie to you forever. The fix is one extra
+      character: <code>if (x == 5)</code> compares instead of assigning, and leaves
+      <code>x</code> untouched.</p>
+    </div>
+
+    <p>One place C programmers really do assign inside a condition on purpose is worth
+    knowing about, even though this course does not ask you to write it yet: wrapping the
+    assignment in one extra pair of parentheses, like <code>if ((x = getchar()) != EOF)</code>,
+    tells the compiler "yes, I meant to assign here" and silences the warning, while a
+    plain <code>if (x = getchar())</code> would still trigger it. You will meet this exact
+    pattern for real once file reading arrives in Module 9 — it reads one item, assigns it,
+    and checks whether reading actually succeeded, all in a single line. For now, treat any
+    unparenthesized <code>=</code> inside an <code>if</code>'s parentheses as a typo until
+    proven otherwise.</p>
+  </section>
+
+  <!-- ===== 5. TRY IT ===== -->
+  <section class="try-it" id="try-it">
+    <p>You have read how <code>if</code>, <code>else</code>, and <code>else if</code> choose
+    between paths, and how C decides true from false using nothing but zero and nonzero.
+    Now write four small functions that put each idea to work:
+    <code>exercises/01_classify_sign.c</code>, <code>02_max_of_three.c</code>,
+    <code>03_truthy.c</code>, and <code>04_grade_letter.c</code>.</p>
+    <p><a href="exercises/HOMEWORK.html">Open your homework →</a> for what each one asks,
+    why, and a hint if you get stuck.</p>
+    <p>Check your work with <code>make check-mine</code>. To check only this chapter, run
+    <code>make check-mine CHAPTER=2-module-control-flow/1-chapter-making-decisions</code>.</p>
+  </section>
+
+  <!-- ===== 6. ZOOM OUT ===== -->
+  <section class="zoom-out" id="zoom-out">
+    <h2>Zooming out: from asking one question to asking several at once</h2>
+    <p>You can now write <code>if</code>, <code>else</code>, and <code>else if</code>, and
+    explain exactly how C decides whether any given number counts as true: zero means false,
+    and every other number — including every negative one — means true. That single rule is
+    quiet but load-bearing. Every condition you write for the rest of this course, no matter
+    how it is dressed up in comparison operators, function calls, or the logical operators
+    coming next chapter, reduces to exactly this same zero-or-not check at the machine
+    level.</p>
+    <p>Look back at this chapter's second exercise, <code>max_of_three</code>. Finding the
+    largest of three numbers with only plain <code>if</code>/<code>else</code> forces you
+    to nest one decision inside another — a condition inside a condition, several layers
+    deep, only to combine two simple ideas ("is <code>a</code> at least <code>b</code>?"
+    and "is <code>a</code> at least <code>c</code>?") into one check. That nesting is the
+    exact seed of next chapter's subject: <code>&amp;&amp;</code>, <code>||</code>, and
+    <code>!</code> let you combine several conditions into a single line, without nesting
+    one <code>if</code> inside another at all, and you will learn a rule called
+    <span class="vocab">short-circuit evaluation</span> that decides, sometimes, not to
+    check a later condition at all — which turns out to matter for more than tidiness. It is
+    also how real C code safely checks "is this pointer usable?" before ever reading through
+    it, a pattern you will meet properly once pointers arrive in Module 5.</p>
+    <p>Two more shapes of decision are still ahead, both built on the same true-or-false
+    foundation this chapter gave you. Choosing between many exact, specific values —
+    a menu option, a day of the week — gets its own dedicated tool, <code>switch</code>,
+    in chapter 2.4, since a long <code>else if</code> chain of exact equality checks gets
+    repetitive fast, and makes the branch-order trap this chapter already walked through
+    easier to fall into with every condition you add. And every loop you write starting in
+    chapter 2.3 —
+    <code>while</code>, <code>do</code>/<code>while</code>, <code>for</code> — is a
+    condition, checked over and over, deciding each time around whether to run its body
+    once more, using the same zero-is-false rule and the same six comparison operators from
+    this chapter, not a new set built specially for loops. You already know how to write
+    that condition. What is new from here is everything C lets you build on top of it.</p>
+  </section>
+
+  <p>Go deeper: learn-c.org's
+  <a href="https://www.learn-c.org/en/If_Statement">If Statement lesson</a> lets you try
+  <code>if</code>/<code>else</code> in your browser, no install needed. cppreference's
+  <a href="https://en.cppreference.com/w/c/language/if">if statement</a> page is the
+  canonical reference for the exact grammar and rules. Harvard's
+  <a href="https://cs50.harvard.edu/x/">CS50x, Week 1</a> covers conditionals on video,
+  free.</p>
+
+  <nav class="chapter-nav">
+    <a href="../../1-module-basics/5-chapter-when-things-break/CONTENT.html">← Previous chapter</a>
+    <a href="QUIZ.html">Take the quiz →</a>
+  </nav>
+
+  <footer class="chapter-foot">
+    <a href="https://github.com/johnatorres226/foundations-of-programming-c/issues/new?template=chapter-feedback.yml&title=%5BM2C1%5D+">
+      Something wrong with this chapter?</a>
+  </footer>
+
+</article>
+</body>
+</html>
