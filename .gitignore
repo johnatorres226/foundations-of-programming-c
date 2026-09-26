@@ -19,4 +19,5 @@ bin/
 
 # Internal orchestration — generated locally, never part of the public build
 CRITICAL-PATH.md
+SPRINT-REVIEWS.md
 .claude/worktrees/

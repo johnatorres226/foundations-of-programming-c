@@ -3,10 +3,11 @@
   src/modules/<M>-module-<slug>/<C>-chapter-<slug>/exercises/HOMEWORK.html
 
   Required for every chapter with real exercises (everything outside Module 0's reading
-  chapters — PRD §9's exception). One part per exercise: what it asks, why (linking back to
-  the exact CONTENT.html subsection it exercises), and a hint — never the solution itself,
-  which stays in src/back-of-the-book/. See .claude/project-specs/PRD.md §9 "Homework —
-  bridging chapter to exercise."
+  chapters — PRD §9's exception). One part per exercise: the task in direct address (what to
+  build, not a restated spec), a concept line that sends them to work it out (linking back to
+  the exact CONTENT.html subsection, framed as "prove it to yourself" not "copy this
+  pattern"), and a hint — never the solution itself, which stays in src/back-of-the-book/.
+  See .claude/project-specs/PRD.md §9 "Homework — bridging chapter to exercise."
 
   This file sits one level DEEPER than CONTENT.html (inside exercises/), so its asset paths
   need one more ../ than the chapter's own CONTENT.html. This template sits in .claude/ so
@@ -29,24 +30,30 @@
     <h1>Homework: Chapter Template</h1>
   </header>
 
-  <!-- Short bridging orientation — not a Recap of a previous chapter, but the same "where
-       you are" framing, reused for a consistent visual language across the two pages. -->
-  <section class="recap">
-    <p>You read how declaring and dereferencing a pointer works. This homework has two
-    parts, one for each idea. Each one is a small, complete program or function you write
-    yourself in <code>exercises/</code>, checked by <code>make check-mine</code> — not by
-    reading this page.</p>
+  <!-- Not a Recap of a previous chapter, and not styled as one: class="homework-intro",
+       never "recap" — .recap's ::before stamps "Where you are", a positioning framing that
+       belongs to CONTENT.html, not here. Homework hands back what THIS chapter taught and
+       turns it into practice; .homework-intro::before stamps "Now practice it" instead. -->
+  <section class="homework-intro">
+    <p>You've learned how declaring and dereferencing a pointer works. Now put it into
+    practice: two parts, one for each idea, each a small complete program or function you
+    write yourself in <code>exercises/</code> — checked with <code>make check-mine</code>,
+    not by reading this page.</p>
   </section>
 
   <!-- One plain <section> per exercise. No special component class: this is prose (h2, p,
-       reused .gotcha / .code / details.solution), not a new thing to add to the kit. -->
+       reused .gotcha / .code / details.solution), not a new thing to add to the kit.
+       Each exercise is a task brief, not a spec sheet — direct address ("write a function
+       that..."), not a restated "What it asks:" bullet. The concept line still links back
+       to CONTENT.html, but sends the learner to work it out ("prove it to yourself") rather
+       than pointing at the exact pattern to copy. -->
   <section>
     <h2 id="declare-a-pointer"><code>exercises/01_declare_pointer.c</code></h2>
-    <p><strong>What it asks:</strong> declare an <code>int</code> variable, declare a pointer
-    to it, and print the value through the pointer — not by naming the variable directly.</p>
-    <p><strong>Why:</strong> this is the exact pattern from
-    <a href="../CONTENT.html#declaring-a-pointer">"Declaring a pointer"</a> in the chapter,
-    with your own variable name in place of <code>age</code>.</p>
+    <p>Declare an <code>int</code> variable, declare a pointer to it, and print the value
+    through the pointer — not by naming the variable directly.</p>
+    <p>The chapter showed this with a variable named <code>age</code> in
+    <a href="../CONTENT.html#declaring-a-pointer">"Declaring a pointer"</a> — do it again
+    with a variable of your own.</p>
 
     <div class="gotcha">
       <p>Forgetting the <code>&amp;</code> when you point at your variable is the most common
@@ -57,13 +64,12 @@
 
   <section>
     <h2 id="swap"><code>exercises/02_swap.c</code></h2>
-    <p><strong>What it asks:</strong> write a <code>swap</code> function that exchanges two
-    <code>int</code> values using pointers, so the change is visible back in the code that
-    called it.</p>
-    <p><strong>Why:</strong> this is what
+    <p>Write a <code>swap</code> function that exchanges two <code>int</code> values using
+    pointers, so the change is visible back in the code that called it.</p>
+    <p>This is what
     <a href="../CONTENT.html#dereferencing-a-pointer">"Dereferencing a pointer"</a> in the
-    chapter was building toward — not only reading through a pointer, but writing through
-    one too.</p>
+    chapter was building toward — not just reading through a pointer, but writing through
+    one. Work out how.</p>
 
     <details class="solution">
       <summary>Stuck? Show one approach</summary>

@@ -380,13 +380,25 @@ then `.try-it` dropped a bare file list with no bridge between "here is how this
 right (same `assets/style.css`, one directory deeper than `CONTENT.html` — fix asset paths
 to `../../../../../assets/`), not a section inside `CONTENT.html`.
 
-What it contains, one part per exercise:
+The opening section is `class="homework-intro"`, **never `class="recap"`.** `.recap`'s
+`::before` stamps the label "Where you are" — a positioning framing that only makes sense on
+`CONTENT.html` (this chapter vs. the last one, per the Recap row above). Homework isn't
+positioning the learner in the course; it's handing back what this chapter just taught and
+pointing them at practice. `.homework-intro::before` stamps "Now practice it" instead. The
+paragraph itself: name what the chapter taught, then the turn — "Now put it into practice" —
+plus the mechanics (write it yourself in `exercises/`, check with `make check-mine`, not by
+reading this page).
 
-- **What it asks** — restate the exercise's goal in one or two sentences, concretely (not
-  "practice what you learned" — name the actual output or behavior expected).
-- **Why** — tie it back to the specific `.how` subsection it exercises, linking to that
-  subsection's `id` in `CONTENT.html` (e.g. `../CONTENT.html#printf-line`). This is the
-  bridge the old `.try-it` bullet list didn't have.
+What it contains, one part per exercise — a task brief, not a spec sheet:
+
+- **The task, in direct address** — tell the learner what to build, second person,
+  concretely (not "practice what you learned" — name the actual output or behavior
+  expected). This is a problem being handed to them, not a restatement of an answer they
+  should go copy.
+- **A concept line that sends them to work it out** — tie it to the specific `.how`
+  subsection it exercises, linking to that subsection's `id` in `CONTENT.html` (e.g.
+  `../CONTENT.html#printf-line`), but frame it as something to prove to themselves or figure
+  out ("prove it to yourself", "work out how") — not "this is the pattern, go copy it."
 - **A hint, not the solution** — a `.gotcha` naming the trap this exercise is likely to hit,
   or a `<details class="solution">` "one approach" reveal per §10's honor-system rule. The
   canonical answer still lives only in `src/back-of-the-book/`.
@@ -554,7 +566,7 @@ SemVer, recorded in `CHANGELOG.md`:
 - [ ] `tests/*.c` written first, `assert`-based, and failing before the solution exists (not in Module 0)
 - [ ] Reference solution in `back-of-the-book/` passes `make check`
 - [ ] `exercises/*.c` stubs present, compile, and fail the tests until completed
-- [ ] `exercises/HOMEWORK.html` present (chapters with real exercises only), copied from the template, one part per exercise, each linking back to its `.how` subsection (§9)
+- [ ] `exercises/HOMEWORK.html` present (chapters with real exercises only), copied from the template, opening section is `.homework-intro` (never `.recap`), one part per exercise written as a direct-address task brief (not a restated "What it asks" spec), each linking back to its `.how` subsection as something to work out (§9)
 - [ ] `CONTENT.html` has all six sections in order
 - [ ] Core Idea is one sentence
 - [ ] Recap is 2–3 sentences, written against `SYLLABUS.md` outcomes

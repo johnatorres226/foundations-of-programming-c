@@ -15,6 +15,17 @@ real files. Audience has **minimal programming experience**; prose targets **6th
 | **`.claude/templates/homework-template.html`** | Copy for every new `exercises/HOMEWORK.html` (chapters with real exercises — not Module 0). Bridges chapter concepts to what each exercise asks; see `.claude/project-specs/PRD.md` §9. |
 | **`.claude/templates/exam-template.html`** | Copy for every new `module-exam/EXAM.html`. Same schema and engine as the quiz template, longer, with an optional `section` field to group questions by chapter. Correct answers + reasoning also live in `src/back-of-the-book/module-<N>/exam-answers.md`; see `.claude/project-specs/PRD.md` §10. |
 | **`CRITICAL-PATH.md`** | What to work on next. Generated from the GitHub issue graph; dispatch only unblocked issues. Gitignored — local orchestration only, never pushed. Regenerate from the issue graph when stale. |
+| **`SPRINT-REVIEWS.md`** | Raw sprint review feedback, appended sprint by sprint during the prototype build. Gitignored — local only, parked until the prototype is complete, then triaged into the GitHub issue graph. |
+
+## Sprint delivery
+
+The prototype content build runs in sprints: each covers a defined batch of
+modules/chapters, then work pauses for a sprint review. Feedback from that review goes
+into `SPRINT-REVIEWS.md`, one section per sprint — parked, not acted on mid-sprint. All of
+it stays parked until the full prototype (every module/chapter, content only, no UX/UI
+pass) is done; only then does it get triaged into the GitHub issue graph and drive a
+separate iteration phase (UX/UI, engagement, polish). Don't jump ahead and fix a
+sprint-review item early — park it and keep building the next sprint.
 
 ## `.claude/` layout
 

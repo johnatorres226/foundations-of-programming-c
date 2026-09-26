@@ -116,12 +116,13 @@ diagrams may exceed it.
 
 ## 4. Component kit
 
-Eleven blocks. Everything in a chapter is built from these — do not invent new ones
-without adding them here first.
+Twelve blocks. Everything in a chapter or its homework is built from these — do not invent
+new ones without adding them here first.
 
 | Class | Use |
 |---|---|
-| `.recap` | Muted, small. 2–3 sentences of orientation. |
+| `.recap` | Muted, small. 2–3 sentences of orientation — `CONTENT.html` only. `::before` stamps "Where you are". |
+| `.homework-intro` | Same box as `.recap`, different label (`::before` stamps "Now practice it"). `exercises/HOMEWORK.html`'s opening section only — never `.recap` there, since homework isn't positioning the learner against the rest of the course. See `PRD.md` §9. |
 | `.big-picture` | Accent left-border callout. The advance organizer. Its `<h2>` names what the chapter connects to, not the bare label — see `PRD.md` §3. |
 | `.core-idea` | Boxed, accent background, larger type. **One sentence.** |
 | `.chapter-toc` | A real nested table of contents — not a link list — inside `.chapter-head`, right after `<h1>`. Every chapter has one. See `PRD.md` §3. |
