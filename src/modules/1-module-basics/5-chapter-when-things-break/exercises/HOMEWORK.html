@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M1.5 Homework — When Things Break · Foundations of Programming: C</title>
+<link rel="stylesheet" href="../../../../../assets/style.css">
+</head>
+<body>
+<article class="chapter">
+
+  <header class="chapter-head">
+    <p class="crumb">Module 1 · Chapter 5 · Homework</p>
+    <h1>Homework: When Things Break</h1>
+  </header>
+
+  <section class="homework-intro">
+    <p>You've read a compiler error, watched a breakpoint catch a wrong loop bound, and read
+    an AddressSanitizer report catch a buffer overflow. Now put it into practice: three small
+    programs, written from scratch in <code>exercises/</code> and checked with
+    <code>make check-mine</code> — not by reading this page.</p>
+  </section>
+
+  <section>
+    <h2 id="read-the-error"><code>exercises/01_read_the_error.c</code></h2>
+    <p>Write a complete program that computes the area of a 4-by-5 rectangle and prints
+    exactly one line: <code>Area: 20</code>.</p>
+    <p>There's a trap here, and it's on purpose: type your first attempt at the multiplication
+    with a typo in one variable's name, the way <a href="../CONTENT.html#compiler-errors">the
+    chapter's first example</a> did. Compile it. Read the error the compiler gives you —
+    the file, the line, the column, and its own guess at the fix — before you touch the code
+    again. Only then correct the typo and recompile.</p>
+
+    <div class="gotcha">
+      <p>The test compares your output letter for letter, including the newline at the end of
+      the line. Get the numbers right but leave off <code>printf</code>'s trailing
+      <code>\n</code>, and the check still fails.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2 id="off-by-one"><code>exercises/02_off_by_one.c</code></h2>
+    <p>Write a program that adds up the numbers 1 through 5 with a <code>for</code> loop and
+    prints exactly one line: <code>Sum: 15</code>.</p>
+    <p>Write the loop condition as <code>i &lt; 5</code> first, the way
+    <a href="../CONTENT.html#breakpoint">the chapter's <code>sum.c</code> example</a> did, and
+    compile with <code>-g</code>. Run it — you should get <code>Sum: 10</code>, not
+    <code>15</code>. Before you guess at the fix, set a breakpoint inside the loop and
+    step through it with <code>print i</code> and <code>continue</code>, the same way the
+    chapter did. Watch where <code>i</code> stops. Prove to yourself which number the loop
+    never reaches before you change the condition.</p>
+
+    <div class="gotcha">
+      <p>Once you see the loop stop one iteration early, resist changing the loop entirely —
+      the fix here is one character, in the condition that decides when the loop stops. A
+      much larger rewrite usually means the real bug was never found, only worked around.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2 id="out-of-bounds"><code>exercises/03_out_of_bounds.c</code></h2>
+    <p>Write a program that allocates a 5-slot array of <code>int</code> on the heap with
+    <code>malloc</code>, fills it with <code>0, 10, 20, 30, 40</code>, prints each value on
+    its own line, then <code>free</code>s it.</p>
+    <p>Write your fill loop's condition as <code>i &lt;= count</code> first, the way
+    <a href="../CONTENT.html#address-sanitizer">the chapter's <code>scores.c</code> example</a>
+    did, and compile with <code>-fsanitize=address</code> — this course's checker already
+    turns it on for you by default, but run it by hand first so you see the report yourself.
+    Read the line number and the "N bytes after a N-byte region" line before you fix anything.
+    Work out which loop bound is wrong and why, the same way the chapter's example did.</p>
+
+    <details class="solution">
+      <summary>Stuck? Show one approach</summary>
+      <div class="code" data-file="03_out_of_bounds.c">
+<pre><code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+int main(void) {
+    int count = 5;
+    int *scores = malloc((size_t) count * sizeof(int));
+    if (scores == NULL) {
+        fprintf(stderr, "malloc failed\n");
+        return 1;
+    }
+
+    for (int i = 0; i &lt; count; i++) {
+        scores[i] = i * 10;
+    }
+
+    for (int i = 0; i &lt; count; i++) {
+        printf("%d\n", scores[i]);
+    }
+
+    free(scores);
+    return 0;
+}</code></pre>
+      </div>
+      <p class="note">This is one approach, not the answer. Checking <code>malloc</code>'s
+      result for <code>NULL</code> before using it is good habit, not a requirement the test
+      checks — the loop bound is the part this exercise is really about.</p>
+    </details>
+  </section>
+
+  <section class="try-it">
+    <p>Check all three with <code>make check-mine</code>. To check only this chapter, run
+    <code>make check-mine CHAPTER=1-module-basics/5-chapter-when-things-break</code>.</p>
+  </section>
+
+  <nav class="chapter-nav">
+    <a href="../CONTENT.html">← Back to the chapter</a>
+  </nav>
+
+  <footer class="chapter-foot">
+    <a href="https://github.com/johnatorres226/foundations-of-programming-c/issues/new?template=chapter-feedback.yml&title=%5BM1C5-HW%5D+">
+      Something wrong with this homework?</a>
+  </footer>
+
+</article>
+</body>
+</html>

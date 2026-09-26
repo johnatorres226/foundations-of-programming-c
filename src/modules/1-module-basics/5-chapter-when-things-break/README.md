@@ -1,6 +1,6 @@
 # 1.5 — When Things Break
 
-**Status:** 🚧 Not yet written · **Module 1 — Basics** · **Exercises:** 3
+**Status:** ✅ Written · **Module 1 — Basics** · **Exercises:** 3
 
 ## Outcome
 
