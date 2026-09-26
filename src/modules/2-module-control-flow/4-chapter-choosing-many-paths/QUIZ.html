@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M2.4 Quiz — Choosing Many Paths · Foundations of Programming: C</title>
+<link rel="stylesheet" href="../../../../assets/style.css">
+</head>
+<body>
+<article class="chapter">
+  <header class="chapter-head">
+    <p class="crumb">Module 2 · Chapter 4 · Quiz</p>
+    <h1>Check your understanding</h1>
+  </header>
+
+  <p>Pick one answer for each question, then check. Every answer — right or wrong — comes
+  with an explanation. The wrong ones are where most of the learning is.</p>
+
+  <div id="quiz"></div>
+
+  <nav class="chapter-nav">
+    <a href="CONTENT.html">← Back to the chapter</a>
+    <a href="../../3-module-functions/1-chapter-writing-functions/CONTENT.html">Next chapter →</a>
+  </nav>
+
+  <footer class="chapter-foot">
+    <a href="https://github.com/johnatorres226/foundations-of-programming-c/issues/new?template=chapter-feedback.yml&title=%5BM2C4+Quiz%5D+">
+      Something wrong with this quiz?</a>
+  </footer>
+</article>
+
+<script type="application/json" id="quiz-data">
+{
+  "questions": [
+    {
+      "q": "A `case` in a `switch` has no `break` at the end of it. What happens when execution reaches the end of that case's code?",
+      "options": [
+        { "text": "The switch exits automatically, the same as if `break` were there",
+          "correct": false,
+          "why": "This is the opposite of C's rule. Nothing exits automatically — execution keeps going into whatever comes next, matched or not." },
+        { "text": "It falls through into the next case's code and keeps running",
+          "correct": true,
+          "why": "Right. Fall-through is C's default behavior. Without a `break`, execution does not stop at the end of a case — it continues straight into the next label's code." },
+        { "text": "The compiler refuses to build it",
+          "correct": false,
+          "why": "A missing `break` is completely legal C. The compiler builds it without complaint, which is exactly why the bug is easy to miss." }
+      ]
+    },
+    {
+      "q": "Which of these is the safe, idiomatic use of fall-through, not a bug waiting to happen?",
+      "options": [
+        { "text": "`case 1: printf(\"one\\n\"); case 2: printf(\"two\\n\"); break;` with no `break` after the first `printf`",
+          "correct": false,
+          "why": "This prints both lines for `case 1`, which is very likely not intended — it is the shape of the classic missing-break mistake, not the safe pattern." },
+        { "text": "`case 1: case 3: case 5: return 31;` — several empty case labels stacked before one shared line of code",
+          "correct": true,
+          "why": "Right. Nothing runs in the gap between the empty labels, so there is nothing to accidentally execute for the wrong case — every label only points at the same shared code." },
+        { "text": "Never using `break` anywhere in a switch, so every case always falls into the next one",
+          "correct": false,
+          "why": "That is not a pattern, it is a switch that runs every case below wherever execution starts — almost never the intended behavior." }
+      ]
+    },
+    {
+      "q": "A `switch` sits inside a `for` loop. Inside one of its cases, you write `break;`. What does it do?",
+      "options": [
+        { "text": "Exits the switch only — the for loop keeps running",
+          "correct": true,
+          "why": "Right. `break` always exits the single nearest enclosing loop or switch. Here that is the switch, so the for loop continues to its next iteration normally." },
+        { "text": "Exits both the switch and the for loop",
+          "correct": false,
+          "why": "`break` never exits two levels at once. It stops at the nearest one — the switch, in this case — no matter how the code is nested." },
+        { "text": "Exits the for loop only, since loops take priority over switches",
+          "correct": false,
+          "why": "There is no priority rule like this. `break` answers to whichever loop or switch physically wraps around it most tightly, which here is the switch." }
+      ]
+    },
+    {
+      "q": "Inside a `for (int i = 0; i < n; i++)` loop, `continue;` runs partway through the loop body. Does `i++` still happen before the loop checks its condition again?",
+      "options": [
+        { "text": "Yes — a for loop's update step still runs after continue, then the condition is checked",
+          "correct": true,
+          "why": "Right. In a for loop, continue jumps to the increment expression, not past it. If it skipped `i++` too, a continue near the top of the loop body would freeze `i` and the loop would never end." },
+        { "text": "No — continue skips the increment step entirely, straight to the condition check",
+          "correct": false,
+          "why": "This is the mistake that causes accidental infinite loops in hand-written while loops, but a for loop's own increment expression is not skipped by continue — it always runs first." },
+        { "text": "It depends on where in the loop body the continue is written",
+          "correct": false,
+          "why": "A for loop's increment step is part of the loop's own machinery, not the loop body — it runs the same way regardless of where inside the body continue was written." }
+      ]
+    },
+    {
+      "q": "Why mark a deliberate fall-through with a comment like `/* fallthrough */` instead of leaving out the `break` with no comment at all?",
+      "options": [
+        { "text": "The comment changes how the compiler runs the code",
+          "correct": false,
+          "why": "A comment never changes what compiled code does — the program behaves identically with or without it. The comment is for the next person reading the code, not for the compiler." },
+        { "text": "It tells the next reader the missing break was a choice, not a mistake that looks identical otherwise",
+          "correct": true,
+          "why": "Right. A case with real code and no break looks exactly like the classic missing-break bug. The comment is how a reader — including a future you — tells the two apart." },
+        { "text": "C requires a comment on every case that does not end in break",
+          "correct": false,
+          "why": "Nothing in C requires this comment — a switch with no break at all still compiles and runs. It is a widely used convention, not a rule the compiler enforces." }
+      ]
+    }
+  ]
+}
+</script>
+<script src="../../../../assets/quiz.js"></script>
+</body>
+</html>

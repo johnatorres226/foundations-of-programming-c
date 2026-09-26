@@ -1,0 +1,703 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M2.4 — Choosing Many Paths · Foundations of Programming: C</title>
+<link rel="stylesheet" href="../../../../assets/style.css">
+</head>
+<body>
+<article class="chapter">
+
+  <header class="chapter-head">
+    <p class="crumb">Module 2 · Chapter 4</p>
+    <h1>Choosing Many Paths</h1>
+    <nav class="chapter-toc" aria-label="Chapter contents">
+      <p>In this chapter</p>
+      <ol>
+        <li><a href="#big-picture">Big picture: why C gives you a second way to branch</a></li>
+        <li><a href="#how">How it works</a>
+          <ol>
+            <li><a href="#the-switch-statement">The <code>switch</code> statement</a></li>
+            <li><a href="#fall-through-is-the-default">Fall-through is the default</a></li>
+            <li><a href="#grouping-cases-on-purpose">Grouping cases on purpose</a></li>
+            <li><a href="#deliberate-fall-through">Falling through on purpose, with code in between</a></li>
+            <li><a href="#break-nearest-enclosing"><code>break</code>: leaving the nearest loop or switch</a></li>
+            <li><a href="#continue-skip-iteration"><code>continue</code>: skipping to the next iteration</a></li>
+          </ol>
+        </li>
+        <li><a href="#try-it">Try it</a></li>
+        <li><a href="#zoom-out">Zooming out: from many paths to your own functions</a></li>
+        <li><a href="exercises/HOMEWORK.html">Homework →</a></li>
+      </ol>
+    </nav>
+  </header>
+
+  <!-- ===== 1. RECAP ===== -->
+  <section class="recap">
+    <p>Last chapter you learned to choose correctly between <code>while</code>,
+    <code>do</code>/<code>while</code>, and <code>for</code>, and to write loops that
+    actually stop instead of running forever. This chapter is not about repeating work —
+    it is about picking one path out of several, the way <code>if</code>/<code>else</code>
+    already let you do, but built for a single value that must match one of several exact
+    cases.</p>
+  </section>
+
+  <!-- ===== 2. BIG PICTURE ===== -->
+  <section class="big-picture" id="big-picture">
+    <h2>Big picture: why C gives you a second way to branch</h2>
+    <p>Module 2 opened with <code>if</code>, <code>else if</code>, and <code>else</code>,
+    and chapter 2.2 added <code>&amp;&amp;</code>, <code>||</code>, and <code>!</code> to
+    combine conditions. Between the two, you can already write any branch this course
+    will ever ask you to write. So why does C bother with a second branching tool at
+    all?</p>
+    <p>Picture a program that reads a single number — a menu choice, a day of the week, a
+    grade letter — and has to do something different for each exact value it might be.
+    Written with <code>if</code>/<code>else if</code>, that looks like this:</p>
+
+    <div class="code" data-file="menu_if_chain.c">
+<pre><code>if (choice == 1) {
+    print_hours();
+} else if (choice == 2) {
+    print_menu();
+} else if (choice == 3) {
+    print_directions();
+} else if (choice == 4) {
+    print_phone_number();
+} else {
+    printf("Not a valid choice.\n");
+}</code></pre>
+    </div>
+
+    <p>Nothing here is wrong. It compiles, it runs, and it does exactly what it looks
+    like it does. But read it again and notice what repeats: <code>choice ==</code>,
+    four times, testing the same single variable against four different exact numbers.
+    An <code>if</code> chain is built for conditions that can be anything — a range, a
+    comparison, a combination of several variables. When what you actually have is one
+    variable and a list of exact values it might equal, repeating <code>choice ==</code>
+    on every line is the language telling you, quietly, that a more specific tool
+    exists.</p>
+    <p>That tool is <span class="vocab">switch</span>. A <code>switch</code> statement
+    names the variable once, then lists the exact values it might match as separate
+    <span class="vocab">case</span> labels underneath. It reads top to bottom as "when
+    <code>choice</code> is this, do this; when it's that, do that" — the same intent as
+    the <code>if</code> chain above, spoken more directly. Compilers can also often turn a
+    <code>switch</code> with many cases into a single jump straight to the matching case,
+    instead of testing each value one at a time the way an <code>if</code> chain must —
+    though C never promises this, and it is not the reason to reach for
+    <code>switch</code>. The real reason is what the reader sees: one value, a menu of
+    exact matches, laid out so the shape of the decision is visible at a glance.</p>
+    <p>You will meet this exact shape constantly once you start writing real programs.
+    A calculator program dispatches on which operator character the person typed —
+    <code>'+'</code>, <code>'-'</code>, <code>'*'</code>, <code>'/'</code>. A command-line
+    tool dispatches on which subcommand its first argument named. A game's turn loop
+    dispatches on which menu number a player entered. In every one of these, there is
+    exactly one value, and a fixed, known set of exact things it might be — precisely the
+    situation <code>switch</code> was built for, and precisely the situation where an
+    <code>if</code> chain's repeated <code>choice ==</code> starts to feel like the wrong
+    tool doing the right job.</p>
+    <p><code>switch</code> is not a replacement for <code>if</code>. It only compares one
+    value against exact constants — it cannot ask "is <code>age</code> greater than 18,"
+    the way <code>if</code> can, and it cannot test a <code>float</code> or a piece of
+    text at all, only whole-number types like <code>int</code>, <code>char</code>, and
+    the enumerated types Module 6 introduces. This chapter is about what
+    <code>switch</code> can do inside that narrower job, and about two small keywords —
+    <code>break</code> and <code>continue</code> — that control exactly how far execution
+    travels once it starts down one of these paths.</p>
+  </section>
+
+  <!-- ===== 3. CORE IDEA ===== -->
+  <section class="core-idea">
+    <code>switch</code> picks one path out of several exact values, and unless you stop it
+    with <code>break</code>, it keeps running into the next one too.
+  </section>
+
+  <!-- ===== 4. HOW IT WORKS ===== -->
+  <section class="how" id="how">
+    <h2>How it works</h2>
+
+    <h3 id="the-switch-statement">The <code>switch</code> statement</h3>
+    <p>A <code>switch</code> statement names one expression, then lists
+    <span class="vocab">case labels</span> — exact constant values that expression might
+    equal. Execution jumps straight to the matching label and keeps running from there,
+    line by line, until it hits a <code>break</code> or reaches the end of the
+    <code>switch</code>. A final, optional <code>default</code> label catches any value
+    that matched nothing above it — the same job <code>else</code> does at the end of an
+    <code>if</code> chain.</p>
+
+    <div class="code" data-file="switch_basics.c">
+<pre><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int choice = 2;
+
+    switch (choice) {
+    case 1:
+        printf("Store hours: 9am to 6pm\n");
+        break;
+    case 2:
+        printf("Today's menu: soup and bread\n");
+        break;
+    case 3:
+        printf("We are two blocks north of the station.\n");
+        break;
+    default:
+        printf("Not a valid choice.\n");
+        break;
+    }
+
+    return 0;
+}</code></pre>
+    </div>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror switch_basics.c -o switch_basics
+<span class="prompt">$</span> ./switch_basics
+Today's menu: soup and bread</pre>
+    </div>
+
+    <p>Every <code>case</code> label needs a <span class="vocab">constant
+    expression</span> — a value the compiler can work out before your program ever runs,
+    like a literal number or a named constant. <code>case choice:</code> or
+    <code>case some_variable:</code> will not compile; only the value being switched
+    <em>on</em> is allowed to be a variable. Two case labels can never share the same
+    value either — the compiler rejects a second <code>case 2:</code> in the same
+    <code>switch</code> as a duplicate, since execution could never know which one you
+    meant.</p>
+
+    <p>The value being switched on does not have to be an <code>int</code>. It can be any
+    of C's whole-number types, including <code>char</code> — and a <code>char</code>
+    switch reads especially naturally, since a character literal like <code>'A'</code> is
+    itself a constant expression:</p>
+
+    <div class="code" data-file="grade_letter.c">
+<pre><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    char grade = 'B';
+
+    switch (grade) {
+    case 'A':
+        printf("Excellent work.\n");
+        break;
+    case 'B':
+        printf("Good work.\n");
+        break;
+    case 'C':
+        printf("Passing.\n");
+        break;
+    default:
+        printf("Not a recognized grade.\n");
+        break;
+    }
+
+    return 0;
+}</code></pre>
+    </div>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror grade_letter.c -o grade_letter
+<span class="prompt">$</span> ./grade_letter
+Good work.</pre>
+    </div>
+
+    <p>A plain number like <code>1</code> or <code>2</code> in a case label tells the
+    compiler exactly what it needs, but it tells a human reading the code nothing about
+    <em>why</em> that number matters. Real C code often gives each case a name instead,
+    using either <code>#define</code> (Module 10 covers the preprocessor properly) or an
+    <span class="vocab">enum</span> — a type built exactly for naming a small, fixed set
+    of whole-number constants, which Module 6 covers in full. Either way, the
+    <code>switch</code> itself does not change at all; only what each case label is
+    called does.</p>
+
+    <figure>
+      <svg viewBox="0 0 460 190" role="img" aria-label="A switch statement on choice with
+           three case labels and a default. An arrow from the switch expression points
+           directly at the matching case label — case 2 — skipping past case 1 and case 3,
+           showing that switch jumps straight to the match instead of testing each one in
+           order."
+           xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor">
+        <rect x="10" y="70" width="110" height="40" rx="6" stroke-width="1.5"/>
+        <text x="65" y="95" text-anchor="middle" fill="currentColor" stroke="none"
+              font-size="12" font-family="system-ui">switch(choice)</text>
+
+        <path d="M120 90 H150" stroke-width="1.5"/>
+        <path d="M150 90 l-8 -5 v10 z" fill="currentColor" stroke="none"/>
+
+        <rect x="155" y="10" width="95" height="34" rx="4" stroke-width="1.2" opacity=".5"/>
+        <text x="202" y="32" text-anchor="middle" fill="currentColor" stroke="none"
+              font-size="11" font-family="ui-monospace,monospace" opacity=".5">case 1:</text>
+
+        <rect x="155" y="73" width="95" height="34" rx="4" stroke-width="1.8"/>
+        <text x="202" y="95" text-anchor="middle" fill="currentColor" stroke="none"
+              font-size="11" font-family="ui-monospace,monospace">case 2: ← match</text>
+
+        <rect x="155" y="136" width="95" height="34" rx="4" stroke-width="1.2" opacity=".5"/>
+        <text x="202" y="158" text-anchor="middle" fill="currentColor" stroke="none"
+              font-size="11" font-family="ui-monospace,monospace" opacity=".5">case 3:</text>
+
+        <path d="M130 90 L155 27" stroke-width="1.2" opacity=".35" stroke-dasharray="3 3"/>
+        <path d="M130 90 L155 153" stroke-width="1.2" opacity=".35" stroke-dasharray="3 3"/>
+
+        <rect x="290" y="73" width="150" height="34" rx="4" stroke-width="1.5"/>
+        <text x="365" y="95" text-anchor="middle" fill="currentColor" stroke="none"
+              font-size="11" font-family="system-ui">prints the menu</text>
+        <path d="M250 90 H285" stroke-width="1.5"/>
+        <path d="M285 90 l-8 -5 v10 z" fill="currentColor" stroke="none"/>
+      </svg>
+      <figcaption>Figure 1 — <code>switch</code> jumps straight to the matching case
+      label; the other cases are skipped entirely, not tested and rejected one by
+      one.</figcaption>
+    </figure>
+
+    <h3 id="fall-through-is-the-default">Fall-through is the default</h3>
+    <p>Look again at <code>switch_basics.c</code> above and notice every single
+    <code>case</code> ends with <code>break;</code>. That is not a style choice — leave
+    one out, and execution does not stop at the end of that case's code. It keeps running
+    straight into the next case's code too, matched or not. This behavior has a name:
+    <span class="vocab">fall-through</span>, and in C it is the <em>default</em>, not
+    something you opt into.</p>
+
+    <div class="code" data-file="missing_break.c">
+<pre><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int choice = 1;
+
+    switch (choice) {
+    case 1:
+        printf("Store hours: 9am to 6pm\n");
+        /* no break here! */
+    case 2:
+        printf("Today's menu: soup and bread\n");
+        break;
+    default:
+        printf("Not a valid choice.\n");
+        break;
+    }
+
+    return 0;
+}</code></pre>
+    </div>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror missing_break.c -o missing_break
+<span class="prompt">$</span> ./missing_break
+Store hours: 9am to 6pm
+Today's menu: soup and bread</pre>
+    </div>
+
+    <p><code>choice</code> is <code>1</code>, so execution starts at <code>case 1:</code>
+    exactly like before. But with no <code>break</code> at the end of that case, it does
+    not stop there — it falls straight through the <code>case 2:</code> label and keeps
+    running, printing the menu too, before finally reaching a <code>break</code>. The
+    program printed two lines for one choice, and nothing about the code shouted an
+    error. This is the single most common beginner mistake with <code>switch</code>: a
+    missing <code>break</code> that leaves the program quietly doing more than it should,
+    for one specific input, in a way that might not surface until someone tests exactly
+    that case.</p>
+
+    <div class="gotcha">
+      <p>Most other languages you might meet later — Python has no <code>switch</code> at
+      all; Java, C#, and JavaScript all copy C's fall-through behavior exactly, for the
+      same historical reason — inherited this design directly from C's original 1970s
+      spec, and none of them changed it, because too much existing code already depended
+      on it falling through by the time anyone might have wanted to fix it. Knowing this
+      will not stop you from forgetting a <code>break</code> the first few times. The
+      habit that does stop it: after you write the last line of a <code>case</code>'s
+      code, immediately ask "does this need to keep going into the next case, or does it
+      need to stop here?" and write the answer — <code>break;</code> or a comment — before
+      you move on, rather than after.</p>
+    </div>
+
+    <h3 id="grouping-cases-on-purpose">Grouping cases on purpose</h3>
+    <p>Fall-through is not always a bug waiting to happen. Stack two or more
+    <code>case</code> labels back to back with nothing between them, and you get a
+    completely safe, common pattern: every one of those labels shares the same code,
+    because execution "falls through" the empty labels with nothing to execute along the
+    way.</p>
+
+    <div class="code" data-file="01_days_in_month.c">
+<pre><code>int days_in_month(int month, int is_leap_year) {
+    switch (month) {
+    case 1:
+    case 3:
+    case 5:
+    case 7:
+    case 8:
+    case 10:
+    case 12:
+        return 31;
+    case 4:
+    case 6:
+    case 9:
+    case 11:
+        return 30;
+    case 2:
+        return is_leap_year ? 29 : 28;
+    default:
+        return 0;
+    }
+}</code></pre>
+    </div>
+
+    <p>Seven separate month numbers all land on the same <code>return 31;</code>, because
+    nothing sits between one <code>case</code> label and the next — there is no code to
+    fall through, only more labels pointing at the same destination. This reads as one
+    idea: "these seven months behave the same way," not seven repeated <code>if</code>
+    branches. This chapter's first exercise asks you to write exactly this function.
+    Notice, too, that <code>return</code> ends a case as finally as <code>break</code>
+    does — either one hands control back out of the <code>switch</code> (and here, out of
+    the function itself), so no case below a <code>return</code> can ever run by
+    accident.</p>
+
+    <p><code>default</code> does not have to be the last label written, either — the
+    compiler accepts it anywhere among the cases, and it only runs when nothing above or
+    below it matched. Every example in this chapter puts it last purely because that
+    reads best: "if none of that, then this" is a more natural last line than a first
+    one. Some languages that also have a <code>switch</code>-like construct — Swift and
+    Rust's <code>match</code>, for instance — go further than C and refuse to compile a
+    match that does not cover every possible value. C makes no such promise.
+    <code>switch (month)</code> above only lists thirteen cases (twelve months and
+    <code>default</code>); if <code>default</code> were left out entirely and
+    <code>month</code> came in as <code>0</code> or <code>13</code>, the
+    <code>switch</code> would do nothing at all and execution would continue right
+    past it — no error, no warning, only silence. A <code>switch</code> with no
+    <code>default</code> is a bet that every value that can actually occur is already
+    listed above it; get that bet wrong and the bug is an unhandled case that never even
+    announces itself.</p>
+
+    <p>The difference between this section and the last one is not the syntax — both use
+    fall-through, in the strict sense that execution can pass from one label into the
+    next. The difference is whether anything runs in between. Empty labels stacked
+    together cost nothing and hide nothing: every path they share is visible right there,
+    one line apart. A case with real code and no <code>break</code>, like
+    <code>missing_break.c</code> above, is where the danger lives — and where the next
+    section shows you how to keep that same power without the accident.</p>
+
+    <div class="gotcha">
+      <p>The grouping only stays safe as long as the labels really do stay empty. Add so
+      much as one line between two stacked <code>case</code> labels — even a comment
+      containing real code you meant to keep, or a stray <code>printf</code> left over
+      from debugging — and it now belongs only to the case above it, silently breaking the
+      sharing you were relying on. <code>case 1: case 3: printf("odd\n"); case 5:</code>
+      does not print for <code>case 1</code> at all; it falls through
+      <em>into</em> the <code>printf</code> only from <code>case 3</code> onward. If a
+      group of cases is meant to share nothing but a single trailing action, keep every
+      label above that action completely empty, the way <code>days_in_month</code> does
+      above.</p>
+    </div>
+
+    <h3 id="deliberate-fall-through">Falling through on purpose, with code in between</h3>
+    <p>Sometimes you want fall-through with actual code running along the way — a higher
+    tier of something that should also get everything the tier below it gets. Writing
+    this safely means being loud about it, so the next person reading the code (very
+    possibly you, in six months) can tell instantly that a missing <code>break</code> was
+    a choice, not a slip.</p>
+
+    <div class="code" data-file="02_bonus_points.c">
+<pre><code>int bonus_points(int level) {
+    int points = 0;
+
+    switch (level) {
+    case 3:
+        points += 100;
+        /* fallthrough */
+    case 2:
+        points += 50;
+        /* fallthrough */
+    case 1:
+        points += 10;
+        break;
+    default:
+        points = 0;
+        break;
+    }
+
+    return points;
+}</code></pre>
+    </div>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror -c bonus_demo.c
+<span class="prompt">$</span> # bonus_points(1) -> 10
+<span class="prompt">$</span> # bonus_points(2) -> 60   (50 + the 10 it falls into)
+<span class="prompt">$</span> # bonus_points(3) -> 160  (100 + 50 + the 10 it falls into)</pre>
+    </div>
+
+    <p>Level 3 membership is meant to include everything level 2 gets, which in turn
+    includes everything level 1 gets — so <code>case 3</code> adds its own <code>100</code>
+    points and then deliberately falls into <code>case 2</code>'s code, which adds
+    <code>50</code> and falls into <code>case 1</code>'s <code>10</code>, which finally
+    <code>break</code>s. Delete either <code>/* fallthrough */</code> comment and the code
+    still runs identically — comments do not change what a compiler does. What they
+    change is what a human reading this code six months from now believes. Without the
+    comment, a missing <code>break</code> here looks exactly like the bug in
+    <code>missing_break.c</code> above. With it, it looks like a decision. This is a
+    real, widely used C convention, not a decoration specific to this course — you will
+    see <code>/* fallthrough */</code> or <code>/* FALLTHROUGH */</code> in serious C
+    codebases for exactly this reason. This chapter's second exercise asks you to write
+    <code>bonus_points</code> yourself, with the fall-through doing the accumulating.</p>
+
+    <div class="gotcha">
+      <p>Newer compilers can warn about a <code>case</code> that falls through without any
+      marker at all — a flag called <code>-Wimplicit-fallthrough</code> — specifically to
+      catch the <code>missing_break.c</code> mistake automatically. This course does not
+      enable that flag, so it will not catch a missing <code>break</code> for you here;
+      treat the comment convention above as the habit to build by hand. C23 goes one step
+      further and adds a real language attribute, <code>[[fallthrough]];</code>, that
+      means the same thing as the comment but that a compiler can actually check. This
+      course pins C17 (Module 0 explains why), so <code>[[fallthrough]]</code> is not
+      available here — the comment is what you have, and it is what most existing C code
+      still uses regardless.</p>
+    </div>
+
+    <h3 id="break-nearest-enclosing"><code>break</code>: leaving the nearest loop or switch</h3>
+    <p>You already know <code>break</code> from last chapter's loops — it exits a
+    <code>while</code>, <code>do</code>/<code>while</code>, or <code>for</code> loop
+    immediately, skipping anything left in the loop body and anything left to iterate.
+    Inside a <code>switch</code>, it does the same job for a different container: it
+    exits the <code>switch</code> immediately, skipping every case below it, matched or
+    not.</p>
+
+    <div class="code" data-file="03_sum_until_negative.c">
+<pre><code>int sum_until_negative(const int *values, int n) {
+    int total = 0;
+
+    for (int i = 0; i &lt; n; i++) {
+        if (values[i] &lt; 0) {
+            break;
+        }
+        total += values[i];
+    }
+
+    return total;
+}</code></pre>
+    </div>
+
+    <p>Given <code>{1, 2, 3, -1, 100}</code>, this function adds <code>1</code>,
+    <code>2</code>, and <code>3</code>, then hits <code>-1</code> and stops — the
+    <code>break</code> exits the <code>for</code> loop right there, so <code>100</code> is
+    never even looked at. This chapter's third exercise asks you to write this function.
+    It is one <code>break</code>, in one loop, and it behaves exactly the way last
+    chapter already taught you.</p>
+
+    <p>The one new wrinkle <code>break</code> has now that <code>switch</code> exists:
+    <code>break</code> always exits the <em>single nearest</em> loop or
+    <code>switch</code> that contains it — never both, even when one sits directly inside
+    the other.</p>
+
+    <div class="code" data-file="switch_in_loop.c">
+<pre><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    for (int day = 1; day &lt;= 3; day++) {
+        switch (day) {
+        case 2:
+            printf("Skipping day 2's switch cases.\n");
+            break;   /* exits the switch, NOT the for loop */
+        default:
+            printf("Handling day %d\n", day);
+            break;
+        }
+    }
+    printf("Loop finished normally.\n");
+    return 0;
+}</code></pre>
+    </div>
+
+    <div class="terminal">
+<pre><span class="prompt">$</span> cc -std=c17 -Wall -Wextra -Werror switch_in_loop.c -o switch_in_loop
+<span class="prompt">$</span> ./switch_in_loop
+Handling day 1
+Skipping day 2's switch cases.
+Handling day 3
+Loop finished normally.</pre>
+    </div>
+
+    <div class="gotcha">
+      <p>A beginner reading <code>case 2:</code> above sometimes expects
+      <code>break;</code> to jump out of the whole <code>for</code> loop, since a
+      <code>switch</code> sitting inside a loop can look, at a glance, like one bigger
+      block. It does not. <code>break</code> only ever knows about the one
+      <code>switch</code> or loop wrapped most tightly around it — here, that is the
+      <code>switch</code>, so the loop keeps going and prints day 3 right on schedule. If
+      you actually need to exit the outer loop from inside a nested <code>switch</code>,
+      C has no single keyword for it; the usual fix is a <code>bool</code> flag you check
+      in the loop's condition, or (rarely, for exactly this case) <code>goto</code>, which
+      cppreference's <a href="https://en.cppreference.com/w/c/language/switch">switch
+      reference</a> mentions as the one statement that can jump out of more than one
+      level at once. Neither is needed for anything in this chapter — remember the rule
+      itself: nearest enclosing loop or switch, never both.</p>
+    </div>
+
+    <p>The <code>bool</code>-flag fix mentioned above is worth seeing once, since it comes
+    up again anywhere a nested loop or switch needs to signal something to an outer loop
+    that <code>break</code> alone cannot reach:</p>
+
+    <div class="code" data-file="flag_to_escape.c">
+<pre><code>#include &lt;stdbool.h&gt;
+#include &lt;stdio.h&gt;
+
+int main(void) {
+    bool stop_everything = false;
+
+    for (int day = 1; day &lt;= 3 &amp;&amp; !stop_everything; day++) {
+        switch (day) {
+        case 2:
+            printf("Day 2 means stop the whole loop.\n");
+            stop_everything = true;
+            break;   /* still only exits the switch */
+        default:
+            printf("Handling day %d\n", day);
+            break;
+        }
+    }
+
+    return 0;
+}</code></pre>
+    </div>
+
+    <p>The <code>switch</code>'s <code>break</code> still only exits the
+    <code>switch</code>, exactly as before. What actually stops the <code>for</code> loop
+    early is the loop's own condition, <code>&amp;&amp; !stop_everything</code>, checked
+    at the top of the next pass — the two keywords are not fighting each other, they are
+    doing two separate, correctly scoped jobs.</p>
+
+    <h3 id="continue-skip-iteration"><code>continue</code>: skipping to the next iteration</h3>
+    <p><code>continue</code> is <code>break</code>'s quieter sibling. Instead of leaving a
+    loop entirely, it skips the rest of the current pass through the loop body and moves
+    straight on to the next one — the loop keeps running, it skips ahead past
+    whatever code was left in this particular pass.</p>
+
+    <div class="code" data-file="04_count_letters.c">
+<pre><code>int count_letters(const char *s) {
+    int count = 0;
+
+    for (int i = 0; s[i] != '\0'; i++) {
+        char c = s[i];
+
+        if (c == '#') {
+            break;
+        }
+        if (!((c &gt;= 'a' &amp;&amp; c &lt;= 'z') || (c &gt;= 'A' &amp;&amp; c &lt;= 'Z'))) {
+            continue;
+        }
+        count++;
+    }
+
+    return count;
+}</code></pre>
+    </div>
+
+    <p>Every character that is not a letter — a space, a digit, a comma — hits the
+    <code>continue</code> and skips straight past <code>count++</code> for that one pass,
+    without touching <code>count</code> at all. The loop does not stop; it moves on
+    to the next character. A <code>'#'</code>, by contrast, hits <code>break</code> and
+    ends the loop completely — nothing after it is looked at, not even to check whether it
+    is a letter. <code>count_letters("ab#cd")</code> stops the instant it sees
+    <code>'#'</code> and returns <code>2</code>; the <code>"cd"</code> that follows is
+    never examined. This chapter's fourth exercise asks you to write
+    <code>count_letters</code> yourself, using both keywords for the two different jobs
+    they do.</p>
+
+    <p>One detail is easy to miss if you only skim <code>continue</code>'s definition:
+    inside a <code>for</code> loop specifically, <code>continue</code> does not skip the
+    loop's own update step — the <code>i++</code> in <code>for (int i = 0; ...; i++)</code>
+    still runs every time, right after a <code>continue</code>, before the condition is
+    checked again. If it did not, a <code>continue</code> at the top of a
+    <code>for</code> loop's body would leave <code>i</code> frozen forever and the loop
+    would never end. cppreference's <a
+    href="https://en.cppreference.com/w/c/language/continue">continue reference</a> states
+    this precisely: in a <code>for</code> loop, <code>continue</code> jumps to the
+    increment expression, not past it. In a plain <code>while</code> loop, where there is
+    no separate update step built into the loop syntax at all, this same mistake is easier
+    to make for real: a <code>continue</code> placed before a manual counter increment
+    skips that increment on purpose or by accident, and an accidental skip is exactly how
+    a <code>while</code> loop turns into the infinite loop last chapter warned you
+    about.</p>
+
+    <div class="gotcha">
+      <p><code>continue</code> only makes sense inside a loop — it has no meaning inside a
+      bare <code>switch</code> that is not itself sitting inside a loop, and the compiler
+      rejects it there. Written inside a <code>switch</code> that <em>is</em> nested
+      inside a loop, <code>continue</code> ignores the <code>switch</code> completely and
+      talks straight to the enclosing loop — the opposite of how <code>break</code>
+      behaves in that same position, which stops at the nearest one. Worth remembering as
+      a pair: <code>break</code> stops at the nearest loop or switch; <code>continue</code>
+      always means the nearest loop, full stop.</p>
+    </div>
+  </section>
+
+  <!-- ===== 5. TRY IT ===== -->
+  <section class="try-it" id="try-it">
+    <p>You read how <code>switch</code> picks a path, how fall-through works whether you
+    meant it or not, and how <code>break</code> and <code>continue</code> each control how
+    far execution travels. Now write four small functions that put each idea to work:
+    <code>exercises/01_days_in_month.c</code>, <code>02_bonus_points.c</code>,
+    <code>03_sum_until_negative.c</code>, and <code>04_count_letters.c</code>.</p>
+    <p><a href="exercises/HOMEWORK.html">Open your homework →</a> for what each one asks,
+    why, and a hint if you get stuck.</p>
+    <p>Check your work with <code>make check-mine</code>. To check only this chapter, run
+    <code>make check-mine CHAPTER=2-module-control-flow/4-chapter-choosing-many-paths</code>.
+    Each exercise is a small function; the test file compiled alongside it calls that
+    function and checks its return value with <code>assert</code>.</p>
+  </section>
+
+  <!-- ===== 6. ZOOM OUT ===== -->
+  <section class="zoom-out" id="zoom-out">
+    <h2>Zooming out: from many paths to your own functions</h2>
+    <p>You can now use <code>switch</code> to pick one path out of several exact values,
+    explain why fall-through is C's default behavior rather than a bug, and use
+    <code>break</code> and <code>continue</code> on purpose — including in the one
+    surprising spot, a <code>switch</code> nested inside a loop, where they answer to two
+    different enclosing blocks instead of one. That completes Module 2: you now have both
+    of C's branching tools (<code>if</code>/<code>else</code> and <code>switch</code>),
+    both of its ways to repeat work (<code>while</code>/<code>do</code>/<code>while</code>
+    and <code>for</code>), and the two keywords that steer control inside either one.</p>
+    <p>Every function in this chapter's exercises was small and self-contained: given
+    some numbers or a string, it computed one answer and handed it back with
+    <code>return</code>. That was not an accident of these four exercises — it is a
+    preview of Module 3. You have written <code>main</code> since chapter 1.1, and you
+    have called functions the standard library already wrote for you, like
+    <code>printf</code> and <code>sizeof</code>. Next chapter, you start writing your own,
+    with your own parameters and your own return values — the exact shape every function
+    in this chapter's <code>tests/</code> already expected of your code, now explained
+    from the inside.</p>
+    <p>One idea from this chapter reaches directly into that one. Every function here took
+    its inputs — a month number, a membership level, an array of values, a string —
+    without ever being able to change the caller's original copy of an <code>int</code>
+    or a <code>char</code>. Only the array (<code>sum_until_negative</code>'s
+    <code>values</code>) and the string (<code>count_letters</code>'s <code>s</code>)
+    behaved differently, because both are handled through addresses rather than copies —
+    ground Module 5 covers in full. Next chapter's outcome names this directly: C passes
+    arguments <em>by value</em>, meaning a function normally receives a copy, not the
+    original. You already relied on that fact every time you wrote
+    <code>switch (choice)</code> in this chapter and trusted that nothing you did inside
+    the <code>switch</code> could reach back out and change some other part of the program
+    holding its own <code>choice</code>. Module 3 is where that quiet guarantee finally
+    gets a name and an explanation.</p>
+  </section>
+
+  <p>Go deeper: cppreference's <a href="https://en.cppreference.com/w/c/language/switch">
+  switch statement</a> reference is the precise, canonical description of every rule in
+  this chapter — including the C23 <code>[[fallthrough]]</code> attribute this course
+  cannot use yet. Its <a href="https://en.cppreference.com/w/c/language/break">break</a>
+  and <a href="https://en.cppreference.com/w/c/language/continue">continue</a> pages spell
+  out exactly which enclosing block each keyword answers to. Harvard's
+  <a href="https://cs50.harvard.edu/x/">CS50x, Week 1</a> covers switch-style branching on
+  video, free, alongside the conditionals and loops this module has already introduced.</p>
+
+  <nav class="chapter-nav">
+    <a href="../3-chapter-repeating-work/CONTENT.html">← Previous chapter</a>
+    <a href="QUIZ.html">Take the quiz →</a>
+  </nav>
+
+  <footer class="chapter-foot">
+    <a href="https://github.com/johnatorres226/foundations-of-programming-c/issues/new?template=chapter-feedback.yml&title=%5BM2C4%5D+">
+      Something wrong with this chapter?</a>
+  </footer>
+
+</article>
+</body>
+</html>
