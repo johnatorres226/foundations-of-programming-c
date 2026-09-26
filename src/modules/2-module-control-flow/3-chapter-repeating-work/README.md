@@ -1,6 +1,6 @@
 # 2.3 — Repeating Work
 
-**Status:** 🚧 Not yet written · **Module 2 — Control Flow** · **Exercises:** 5
+**Status:** ✅ Written · **Module 2 — Control Flow** · **Exercises:** 5
 
 ## Outcome
 
