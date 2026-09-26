@@ -68,9 +68,9 @@
     read a single line of the body. A <code>for</code> loop announces "this runs a known
     number of times." A <code>while</code> loop announces "this keeps going as long as
     something stays true, and might not run at all." A <code>do</code>/<code>while</code>
-    loop announces "this always runs at least once." Picking the wrong one does not just
-    look worse — it hides the real shape of what your program does from anyone reading it,
-    including future you.</p>
+    loop announces "this always runs at least once." Picking the wrong one is not only a
+    matter of looks — it hides the real shape of what your program does from anyone
+    reading it, including future you.</p>
     <p>The harder problem sits underneath all three: a loop that never stops is not a
     slower program, it is a broken one. Chapter 1.5 showed you a program can compile clean
     under <code>-Werror</code> and still be wrong at runtime. A loop is the clearest place
@@ -223,7 +223,7 @@ n is 0</pre>
     later chapter puts real input reading into that pattern; for now, notice the shape:
     <code>do { get an answer; } while (the answer was not good enough);</code>. Whenever
     you catch yourself writing a <code>while</code> loop and then also writing a copy of
-    its body just above it so the first check has something to look at, that duplication
+    its body directly above it so the first check has something to look at, that duplication
     is usually a sign the task actually wanted <code>do</code>/<code>while</code> all
     along.</p>
 
@@ -392,8 +392,8 @@ int main(void) {
 
     <h3 id="loop-termination">Loops that don't stop: reasoning about termination</h3>
     <p>An <span class="vocab">infinite loop</span> is a loop whose condition never becomes
-    false, so it never stops on its own. The program does not crash — it just keeps
-    running, forever, doing whatever the body does, until something outside the program
+    false, so it never stops on its own. The program does not crash — it keeps running,
+    forever, doing whatever the body does, until something outside the program
     (you, pressing Ctrl-C, or the operating system running out of patience) kills it. This
     is the failure mode Chapter 1.5 warned you about: a program that compiles clean and
     starts up fine, but is still wrong.</p>
@@ -422,7 +422,7 @@ while (n &gt; 0) {
     <code>0</code> eventually. In the times-table <code>for</code> loop, <code>i</code>
     strictly increases toward <code>5</code>. This chapter's fifth exercise asks you to
     reason about a loop the other direction — a value that doubles every iteration —
-    and to see why doubling toward a target is just as guaranteed to arrive as counting
+    and to see why doubling toward a target is equally guaranteed to arrive as counting
     down by ones, even though it gets there in fewer steps.</p>
 
     <div class="gotcha">
@@ -433,7 +433,7 @@ while (n &gt; 0) {
       and the loop subtracts one more, it wraps around to a huge positive number instead
       of becoming negative — the exact wraparound Chapter 1.3 covered — and
       <code>n >= 0</code> stays true forever. The quantity has to reach the condition's
-      actual stopping point, not just head in a promising direction.</p>
+      actual stopping point, not merely head in a promising direction.</p>
     </div>
 
     <p>A staircase makes the reasoning concrete without any code at all. Someone climbing
@@ -474,7 +474,7 @@ while (n &gt; 0) {
     <p>You can now choose the right loop for a task — <code>while</code> when zero
     iterations is a real possibility, <code>do</code>/<code>while</code> when the body
     must run at least once by definition, <code>for</code> when you already know roughly
-    how many iterations you need — and, just as importantly, you can look at a loop you
+    how many iterations you need — and, equally important, you can look at a loop you
     did not write and check whether it actually terminates: find the quantity that moves
     toward the stopping condition every iteration, and confirm it can really get there.</p>
     <p>Every loop in this chapter picked one specific job and repeated it, the same job,
@@ -494,7 +494,7 @@ while (n &gt; 0) {
     other two, and will it actually stop. Arrays and strings, starting in Module 4, are
     walked almost entirely with <code>for</code> loops — a loop over every element of a
     fixed-size list is the single most common loop shape in the rest of this course, and
-    it is built from exactly the three parts you just learned to read at a glance. Loops
+    it is built from exactly the three parts you learned above to read at a glance. Loops
     inside functions, Module 3's subject, work no differently than the loops in this
     chapter's <code>main</code> — a loop does not care whether it is sitting in
     <code>main</code> or in a function you wrote yourself, only that its body and
@@ -502,7 +502,7 @@ while (n &gt; 0) {
     <p>One shape you have not seen yet is a loop inside another loop — a
     <span class="vocab">nested loop</span>, where each single iteration of the outer loop
     runs the entire inner loop from start to finish. Printing a full multiplication table,
-    not just one row like this chapter's example, needs exactly that: an outer loop over
+    not only one row like this chapter's example, needs exactly that: an outer loop over
     each row, and an inner loop, a complete copy of this chapter's <code>for</code> loop,
     over each column within it. Nothing new to learn there either — it is the same three
     loop forms, the same termination reasoning, applied twice, once inside the other.</p>
