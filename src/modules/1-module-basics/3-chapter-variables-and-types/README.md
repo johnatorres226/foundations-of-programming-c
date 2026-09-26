@@ -1,6 +1,6 @@
 # 1.3 — Variables and Types
 
-**Status:** 🚧 Not yet written · **Module 1 — Basics** · **Exercises:** 4
+**Status:** ✅ Written · **Module 1 — Basics** · **Exercises:** 4
 
 ## Outcome
 

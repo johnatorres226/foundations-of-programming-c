@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M1.3 Quiz — Variables and Types · Foundations of Programming: C</title>
+<link rel="stylesheet" href="../../../../assets/style.css">
+</head>
+<body>
+<article class="chapter">
+  <header class="chapter-head">
+    <p class="crumb">Module 1 · Chapter 3 · Quiz</p>
+    <h1>Check your understanding</h1>
+  </header>
+
+  <p>Pick one answer for each question, then check. Every answer — right or wrong — comes
+  with an explanation. The wrong ones are where most of the learning is.</p>
+
+  <div id="quiz"></div>
+
+  <nav class="chapter-nav">
+    <a href="CONTENT.html">← Back to the chapter</a>
+    <a href="../4-chapter-input-and-output/CONTENT.html">Next chapter →</a>
+  </nav>
+
+  <footer class="chapter-foot">
+    <a href="https://github.com/johnatorres226/foundations-of-programming-c/issues/new?template=chapter-feedback.yml&title=%5BM1C3+Quiz%5D+">
+      Something wrong with this quiz?</a>
+  </footer>
+</article>
+
+<script type="application/json" id="quiz-data">
+{
+  "questions": [
+    {
+      "q": "What does `sizeof(char)` report on every C platform, by definition?",
+      "options": [
+        { "text": "It depends on the platform, the same as `sizeof(int)`",
+          "correct": false,
+          "why": "`int`'s size really does vary by platform — but `char` is different. The C standard defines a byte as the size of a `char`, so this one is fixed by definition, not by convention." },
+        { "text": "Always exactly 1",
+          "correct": true,
+          "why": "Right. `sizeof(char)` is always `1` because the standard defines a byte in terms of `char`'s size. Every other type's size is only guaranteed relative to this one." },
+        { "text": "Always exactly 8, since a byte is 8 bits",
+          "correct": false,
+          "why": "`sizeof` reports a count of bytes, not bits — `sizeof(char)` is `1` byte, whatever that byte's bit width happens to be (8 bits on every platform this course targets)." }
+      ]
+    },
+    {
+      "q": "What does `int result = 7 / 2;` store in `result`?",
+      "options": [
+        { "text": "3, because int division throws away the fraction",
+          "correct": true,
+          "why": "Right. Dividing two `int`s always truncates toward zero — the fractional part is discarded, not rounded. `7 / 2` is `3`, not `3.5` and not `4`." },
+        { "text": "3.5, since that is the mathematically correct answer",
+          "correct": false,
+          "why": "An `int` variable cannot hold a fraction at all — there is no `.5` for it to store. Getting `3.5` requires floating-point division, which needs at least one side to already be `float` or `double`." },
+        { "text": "4, because C rounds to the nearest whole number",
+          "correct": false,
+          "why": "C does not round `int` division. It truncates toward zero, which for a positive result means it always rounds down, never up." }
+      ]
+    },
+    {
+      "q": "Why does `digit - '0'` convert a digit character to the int it represents?",
+      "options": [
+        { "text": "`char` is really a small whole number, and ASCII assigns the digit characters consecutive numbers starting from `'0'`",
+          "correct": true,
+          "why": "Right. `'0'` through `'9'` have consecutive ASCII values, so the distance between any digit character and `'0'` equals the digit it represents." },
+        { "text": "`printf` performs the conversion automatically whenever it sees a minus sign",
+          "correct": false,
+          "why": "`printf` is not involved here at all — `digit - '0'` is ordinary integer subtraction that happens before anything is printed." },
+        { "text": "Subtracting a character from a character always produces zero",
+          "correct": false,
+          "why": "That would only be true if the two characters were identical. `'7' - '0'` is not `0` — it is `7`, because the two characters have different underlying ASCII numbers." }
+      ]
+    },
+    {
+      "q": "Why should you avoid comparing two `double` values with `==`?",
+      "options": [
+        { "text": "`==` does not work at all on floating-point types — the compiler rejects it",
+          "correct": false,
+          "why": "The compiler accepts `==` on `double`s without complaint. The danger is not a compile error — it is that the comparison can silently give a surprising answer at runtime." },
+        { "text": "Most decimal fractions cannot be represented exactly in binary, so two values that should be mathematically equal can differ by a tiny amount",
+          "correct": true,
+          "why": "Right. A floating-point value is the closest binary approximation to the number you wrote, not always the number itself. Two computations that should match can land a tiny amount apart." },
+        { "text": "`double` values are always rounded to the nearest whole number before comparison",
+          "correct": false,
+          "why": "Nothing rounds a `double` to a whole number automatically. It keeps its fractional part — that fractional part is exactly what makes exact comparison risky." }
+      ]
+    },
+    {
+      "q": "An `unsigned char` holding `255` has `1` added to it. A plain (signed) `int` holding its largest possible value also has `1` added to it. What is the difference?",
+      "options": [
+        { "text": "Both wrap around to their smallest value — there is no real difference",
+          "correct": false,
+          "why": "Only the unsigned case is guaranteed to wrap. The signed case is a different, riskier situation — see the correct answer." },
+        { "text": "The unsigned case wraps around to 0, a guarantee the C standard makes. The signed case is undefined behavior — the compiler is allowed to produce anything",
+          "correct": true,
+          "why": "Right. Unsigned overflow is defined as wraparound by the standard. Signed overflow is undefined behavior, which is a stricter and more dangerous kind of unpredictable." },
+        { "text": "Neither one changes — fixed-size types refuse to accept a value past their limit",
+          "correct": false,
+          "why": "C does not refuse an out-of-range assignment like this at runtime. Something happens in both cases; the question is only whether that something is guaranteed or not." }
+      ]
+    }
+  ]
+}
+</script>
+<script src="../../../../assets/quiz.js"></script>
+</body>
+</html>

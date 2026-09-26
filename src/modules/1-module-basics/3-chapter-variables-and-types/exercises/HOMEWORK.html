@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M1.3 Homework — Variables and Types · Foundations of Programming: C</title>
+<link rel="stylesheet" href="../../../../../assets/style.css">
+</head>
+<body>
+<article class="chapter">
+
+  <header class="chapter-head">
+    <p class="crumb">Module 1 · Chapter 3 · Homework</p>
+    <h1>Homework: Variables and Types</h1>
+  </header>
+
+  <section class="homework-intro">
+    <p>You've learned what <code>int</code>, <code>char</code>, <code>float</code>, and
+    <code>double</code> each hold, what <code>sizeof</code> can and cannot promise about
+    them, and what happens when a value outgrows its fixed size. Now put it into
+    practice: four small functions, written from scratch in <code>exercises/</code> and
+    checked with <code>make check-mine</code> — not by reading this page.</p>
+  </section>
+
+  <section>
+    <h2 id="digit-value"><code>exercises/01_digit_value.c</code></h2>
+    <p>Write a function <code>int digit_value(char c)</code> that takes a single digit
+    character — <code>'0'</code> through <code>'9'</code> — and returns the whole number
+    it represents. <code>digit_value('7')</code> should return the <code>int</code>
+    <code>7</code>, not the character <code>'7'</code>.</p>
+    <p>The chapter's <a href="../CONTENT.html#single-characters-char">"Single
+    characters: char"</a> section showed that a <code>char</code> is really a small
+    number underneath, and that ASCII assigns the ten digit characters consecutive
+    values. Work out what one line of arithmetic does with that fact.</p>
+
+    <div class="gotcha">
+      <p>The test calls <code>digit_value</code> with single characters like
+      <code>'0'</code> and <code>'9'</code>, not with the two-character text
+      <code>"0"</code>. Mixing up single quotes and double quotes here gives the compiler
+      a value of a completely different type.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2 id="average"><code>exercises/02_average.c</code></h2>
+    <p>Write a function <code>double average(int a, int b, int c)</code> that returns the
+    average of three whole numbers, fraction and all. <code>average(1, 2, 2)</code>
+    should return something very close to <code>1.6666...</code>, not <code>1</code> or
+    <code>2</code>.</p>
+    <p>The chapter's <a href="../CONTENT.html#fractional-numbers">"Fractional numbers:
+    float and double"</a> section showed that dividing two <code>int</code>s truncates,
+    even when the result lands in a <code>double</code> afterward. Prove to yourself
+    which part of your expression needs to already be floating-point before the division
+    happens.</p>
+
+    <div class="gotcha">
+      <p><code>(a + b + c) / 3</code> is <code>int</code> division — it truncates before
+      the result is ever stored in your <code>double</code>. The fix is not in where you
+      store the answer; it is in how you write the division itself.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2 id="sizeof-facts"><code>exercises/03_sizeof_facts.c</code></h2>
+    <p>Write three small functions that report three facts about <code>sizeof</code>:
+    <code>int size_of_char(void)</code> returns what <code>sizeof(char)</code> reports,
+    <code>int int_is_at_least_two_bytes(void)</code> returns whether <code>sizeof(int)</code>
+    is <code>2</code> or more, and <code>int double_is_at_least_as_wide_as_float(void)</code>
+    returns whether <code>double</code> is at least as wide as <code>float</code>.</p>
+    <p>The chapter's <a href="../CONTENT.html#asking-sizeof">"Asking sizeof"</a> section
+    drew a line between what the C standard actually guarantees about these types and
+    what today's hardware happens to give you. Write each function so it answers
+    honestly, using <code>sizeof</code> directly rather than a number you typed in by
+    hand.</p>
+
+    <div class="gotcha">
+      <p><code>sizeof</code> reports a <code>size_t</code>, an unsigned type — comparing
+      it with <code>&gt;=</code> against a plain number works fine here, but watch the
+      chapter's gotcha on comparing <code>size_t</code> to a <em>negative</em> number
+      later on. It is not a problem in this exercise, but it is worth recognizing the
+      shape of it now.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2 id="wrap-add"><code>exercises/04_wrap_add.c</code></h2>
+    <p>Write a function <code>unsigned char wrap_add(unsigned char a, unsigned char b)</code>
+    that adds two <code>unsigned char</code> values and lets the result wrap around when
+    it goes past what one byte can hold. <code>wrap_add(255, 1)</code> should return
+    <code>0</code>, not <code>256</code> — a single byte cannot hold <code>256</code> at
+    all.</p>
+    <p>The chapter's <a href="../CONTENT.html#why-fixed-sizes-matter">"Why fixed sizes
+    matter"</a> section showed this exact wraparound with the odometer analogy. Work out
+    the plain arithmetic and casting that reproduces it — no special wraparound function
+    exists in C, because the fixed-width types already behave this way on their own.</p>
+
+    <details class="solution">
+      <summary>Stuck? Show one approach</summary>
+      <div class="code" data-file="04_wrap_add.c">
+<pre><code>unsigned char wrap_add(unsigned char a, unsigned char b) {
+    return (unsigned char) (a + b);
+}</code></pre>
+      </div>
+      <p class="note">This is one approach, not the answer. <code>a + b</code> is
+      computed as an <code>int</code> first — C promotes small integer types before
+      arithmetic — so the explicit cast back to <code>unsigned char</code> is what
+      actually produces the wraparound; without it, the compiler warns that you are
+      narrowing an <code>int</code> back down.</p>
+    </details>
+  </section>
+
+  <section class="try-it">
+    <p>Check your work with <code>make check-mine</code>. To check only this chapter, run
+    <code>make check-mine CHAPTER=1-module-basics/3-chapter-variables-and-types</code>.</p>
+  </section>
+
+  <nav class="chapter-nav">
+    <a href="../CONTENT.html">← Back to the chapter</a>
+  </nav>
+
+  <footer class="chapter-foot">
+    <a href="https://github.com/johnatorres226/foundations-of-programming-c/issues/new?template=chapter-feedback.yml&title=%5BM1C3-HW%5D+">
+      Something wrong with this homework?</a>
+  </footer>
+
+</article>
+</body>
+</html>
