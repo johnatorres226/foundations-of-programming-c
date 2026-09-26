@@ -7,10 +7,10 @@
 int count_letters(const char *s);
 
 int main(void) {
-    assert(count_letters("abc 123") == 3);       /* digits and space skipped */
+    assert(count_letters("abc 123") == 3);        /* digits and space skipped */
     assert(count_letters("ab#cd") == 2);          /* stops at '#', "cd" unseen */
     assert(count_letters("Hello, World!") == 10); /* punctuation skipped */
     assert(count_letters("###") == 0);            /* stops before any letter */
-    assert(count_letters("") == 0);                /* empty string */
+    assert(count_letters("") == 0);               /* empty string */
     return 0;
 }
